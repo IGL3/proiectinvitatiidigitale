@@ -216,7 +216,7 @@ footer .names{font-size:50px}
     <svg class="flourish" viewBox="0 0 200 20" fill="none" stroke="currentColor" stroke-width="1"><path d="M0 10h70M130 10h70M70 10c10-10 20-10 30 0s20 10 30 0M100 10c-6-6-6-6 0 0"/><circle cx="100" cy="10" r="2.5" fill="currentColor"/></svg>
     <p class="caps">Cu bucurie în suflet vă invităm la nunta noastră</p>
     <p class="verse">„Dragostea îndelung rabdă, dragostea este binevoitoare.”<br><span class="muted">1 Corinteni 13:4</span></p>
-    <p>Vă așteptăm să ne fiți martori în prima zi a anului, la începutul drumului nostru împreună.</p>
+    <p>Vă așteptăm să ne fiți martori la începutul drumului nostru împreună.</p>
     <p class="caps" style="margin-top:10px">Alături de nașii noștri</p>
     <p class="godparents">Andrei &amp; Maria Petrescu</p>
   </section>
@@ -235,16 +235,16 @@ footer .names{font-size:50px}
     <p class="caps">Data</p>
     <h2>Ziua cea mare</h2>
     <div class="scratch" id="scratch">
-      <div class="date-under" aria-label="1 ianuarie 2001">
-        <div><b>01</b><span>Ziua</span></div>
-        <div><b>01</b><span>Luna</span></div>
-        <div><b>2001</b><span>Anul</span></div>
+      <div class="date-under" aria-label="10 iulie 2027">
+        <div><b>10</b><span>Ziua</span></div>
+        <div><b>07</b><span>Luna</span></div>
+        <div><b>2027</b><span>Anul</span></div>
       </div>
       <canvas id="foil" aria-hidden="true"></canvas>
     </div>
     <p class="muted" id="scratchHint">Răzuiți cu degetul ca să descoperiți data</p>
     <button class="link-btn" id="revealBtn" type="button">Arată data direct</button>
-    <p class="weekday">Luni · 1 ianuarie 2001</p>
+    <p class="weekday">Sâmbătă · 10 iulie 2027</p>
   </section>
 
   <section aria-label="Locații">
@@ -326,7 +326,7 @@ footer .names{font-size:50px}
   });
 
   /* Numărătoare */
-  const target=new Date('2001-01-01T11:00:00+02:00').getTime();
+  const target=new Date('2027-07-10T11:00:00+03:00').getTime();
   const pad=n=>String(n).padStart(2,'0');
   (function tick(){
     const s=Math.max(0,Math.floor((target-Date.now())/1000));
