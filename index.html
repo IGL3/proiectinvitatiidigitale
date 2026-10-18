@@ -7,7 +7,7 @@
 <meta name="description" content="Invitații online care se deschid ca un plic adevărat: numărătoare inversă, locații cu hartă și confirmare de participare. Pentru nunți, botezuri și aniversări.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Jost:wght@400;500&family=Marcellus&family=Pinyon+Script&display=swap&subset=latin-ext">
-<link rel="stylesheet" href="assets/site.css?v=202610181415">
+<link rel="stylesheet" href="assets/site.css?v=202610181418">
 <style>
 /* Hero: text în stânga, telefonul cu invitația rulând în dreapta, pe un fundal cu pete de culoare pudrată */
 .hero{position:relative;padding-block:56px 88px;overflow:hidden}
@@ -20,26 +20,26 @@
 .hero-note{font-size:14px;color:var(--mist);display:flex;gap:18px;flex-wrap:wrap}
 .hero-note span::before{content:"✦ ";color:var(--gold)}
 .hero-phone{display:flex;justify-content:center;position:relative}
-.hero-phone .phone{--pw:min(330px,78vw)}
+.hero-phone .phone{--pw:min(290px,68vw)}
 /* iPhone burgundy în perspectivă: ramă de aluminiu vișinie, bordură neagră subțire, Dynamic Island mică, butoane laterale */
-.device{position:relative;perspective:1700px;--pw:min(330px,74vw)}
-.device::after{content:"";position:absolute;left:12%;right:4%;bottom:-26px;height:40px;border-radius:50%;background:rgba(60,20,25,.35);filter:blur(22px);z-index:-1}
+.device{position:relative;perspective:1700px;--pw:min(290px,68vw)}
+.device::after{content:"";position:absolute;left:4%;right:12%;bottom:-26px;height:40px;border-radius:50%;background:rgba(60,20,25,.35);filter:blur(22px);z-index:-1}
 .iphone{--pw:inherit;--frame:calc(var(--pw)*.018);
   padding:var(--frame);border-radius:calc(var(--pw)*.17);
-  background:linear-gradient(115deg,#a8475a 0%,#7a2434 18%,#4f1220 46%,#6d1f2e 70%,#9c3e50 88%,#5a1724 100%);
+  background:linear-gradient(245deg,#a8475a 0%,#7a2434 18%,#4f1220 46%,#6d1f2e 70%,#9c3e50 88%,#5a1724 100%);
   box-shadow:
     inset 0 0 0 1px rgba(255,220,225,.28),
     inset 0 0 0 2px rgba(40,6,14,.5),
-    1px 1px 0 #5a1724,2px 2px 0 #521421,3px 3px 0 #4a111d,4px 4px 0 #430f1a,5px 5px 0 #3c0d17,6px 6px 0 #350b14,
-    18px 40px 60px -18px rgba(60,15,25,.55);
-  transform:rotateY(-20deg) rotateX(7deg) rotateZ(2.5deg);
+    -1px 1px 0 #5a1724,-2px 2px 0 #521421,-3px 3px 0 #4a111d,-4px 4px 0 #430f1a,-5px 5px 0 #3c0d17,-6px 6px 0 #350b14,
+    -18px 40px 60px -18px rgba(60,15,25,.55);
+  transform:rotateY(20deg) rotateX(7deg) rotateZ(-2.5deg);
   transform-style:preserve-3d;transition:transform 1s cubic-bezier(.2,.8,.2,1);
   animation:floaty 7s ease-in-out infinite}
-.device:hover .iphone{transform:rotateY(-9deg) rotateX(3deg) rotateZ(1deg);animation-play-state:paused}
+.device:hover .iphone{transform:rotateY(9deg) rotateX(3deg) rotateZ(-1deg);animation-play-state:paused}
 @keyframes floaty{50%{translate:0 -8px}}
 .iphone .screen{border:calc(var(--pw)*.022) solid #070506;border-radius:calc(var(--pw)*.15)}
 .iphone .screen::after{content:"";position:absolute;inset:0;pointer-events:none;z-index:3;
-  background:linear-gradient(118deg,rgba(255,255,255,.22) 0%,rgba(255,255,255,.06) 28%,transparent 42%)}
+  background:linear-gradient(242deg,rgba(255,255,255,.22) 0%,rgba(255,255,255,.06) 28%,transparent 42%)}
 .iphone::before{width:21%;height:calc(var(--pw)*.058);top:calc(var(--pw)*.058);background:#000;z-index:4}
 .key{position:absolute;width:calc(var(--pw)*.014);border-radius:3px;
   background:linear-gradient(90deg,#3e0d18,#8b3446 55%,#5c1825)}
@@ -48,7 +48,7 @@
 .k-vol2{left:calc(var(--pw)*-.011);top:36%;height:9%}
 .k-side{right:calc(var(--pw)*-.011);top:27%;height:13%}
 .k-cam{right:calc(var(--pw)*-.009);top:58%;height:8%;width:calc(var(--pw)*.01);background:linear-gradient(90deg,#2a0910,#6b2232)}
-@media (max-width:880px){.iphone{transform:rotateY(-12deg) rotateX(5deg) rotateZ(1.5deg)}}
+@media (max-width:880px){.iphone{transform:rotateY(12deg) rotateX(5deg) rotateZ(-1.5deg)}}
 @media (prefers-reduced-motion:reduce){.iphone{animation:none}}
 
 .hero-phone .tag{position:absolute;left:-6px;bottom:72px;background:var(--paper-hi);border:1px solid var(--line);border-radius:14px;padding:10px 14px;box-shadow:0 12px 30px -16px rgba(70,45,25,.5);font-size:14px;max-width:190px;line-height:1.35}
@@ -234,8 +234,8 @@
   </div>
 </footer>
 
-<script src="templates/modele.js?v=202610181415"></script>
-<script src="assets/site.js?v=202610181415"></script>
+<script src="templates/modele.js?v=202610181418"></script>
+<script src="assets/site.js?v=202610181418"></script>
 <script>
   fitPhones(document.querySelector('.hero'));
   renderModels(document.getElementById('modelList'),'templates/','#contact');
