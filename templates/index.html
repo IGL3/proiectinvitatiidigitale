@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="ro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Modele · Invitații Digitale</title>
+<meta name="description" content="Toate modelele de invitații online: nunți, botezuri, aniversări.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Jost:wght@400;500&family=Marcellus&family=Pinyon+Script&display=swap&subset=latin-ext">
+<link rel="stylesheet" href="../assets/site.css">
+<style>
+.page-head{padding-block:56px 40px;text-align:center;display:flex;flex-direction:column;gap:12px;align-items:center}
+.page-head .lead{text-align:center}
+.list{padding-bottom:88px}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="../"><span class="brand-seal">I</span><span class="brand-name">Invitații Digitale</span></a>
+    <nav class="nav">
+      <a href="../#cum-functioneaza">Cum funcționează</a>
+      <a class="btn small" href="../#contact">Cere o invitație</a>
+    </nav>
+  </div>
+</header>
+<main>
+  <div class="wrap page-head">
+    <p class="eyebrow">Modele</p>
+    <h1>Toate modelele</h1>
+    <p class="lead">Deschideți un model ca să-l vedeți exact cum îl vor primi invitații.</p>
+  </div>
+  <div class="wrap list"><div class="cards" id="modelList"></div></div>
+</main>
+<footer class="foot"><div class="wrap"><span>© Invitații Digitale</span><a href="../">Prima pagină</a></div></footer>
+<script src="modele.js"></script>
+<script src="../assets/site.js"></script>
+<script>renderModels(document.getElementById('modelList'),'');</script>
+</body>
+</html>

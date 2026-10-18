@@ -1,0 +1,80 @@
+/* Stil comun pentru site-ul de prezentare.
+   Paletă de papetărie pentru evenimente: hârtie crem, auriu, roz pudrat, salvie, vișiniu de sigiliu. */
+:root{
+  --paper:#f6efe3; --paper-hi:#fcf8f1; --line:#e3d4bb;
+  --ink:#3d2f24; --mist:#86725f; --gold:#a8843f; --gold-deep:#8a6a2b;
+  --blush:#efd8cf; --sage:#b9c6ad; --wax:#6e1f2a; --bezel:#2b221c;
+  --f-script:"Pinyon Script","Snell Roundhand",cursive;
+  --f-display:"Cormorant Garamond","Garamond",Georgia,serif;
+  --f-caps:"Marcellus","Trajan Pro",Georgia,serif;
+  --f-ui:"Jost","Avenir Next","Segoe UI",system-ui,sans-serif;
+  --grain:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .45 0 0 0 0 .36 0 0 0 0 .24 0 0 0 .07 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+html,body{overflow-x:clip}
+body{margin:0;background:var(--paper);background-image:var(--grain);color:var(--ink);font-family:var(--f-ui);font-size:17px;line-height:1.6;font-weight:400}
+img{max-width:100%}
+a{color:inherit}
+.wrap{max-width:1120px;margin:0 auto;padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px))}
+.eyebrow{font-family:var(--f-caps);text-transform:uppercase;letter-spacing:.24em;font-size:12px;color:var(--gold);margin:0}
+h1,h2,h3{font-family:var(--f-display);font-weight:500;line-height:1.08;margin:0;text-wrap:balance;color:var(--ink)}
+h1{font-size:clamp(42px,6.4vw,74px);letter-spacing:-.01em}
+h2{font-size:clamp(34px,4.4vw,50px)}
+h3{font-size:24px}
+.script{font-family:var(--f-script);font-weight:400;color:var(--gold-deep);font-size:1.18em;line-height:.9}
+p{margin:0}
+.lead{font-size:19px;color:var(--mist);max-width:46ch}
+
+/* Antet */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:rgba(246,239,227,.86);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid transparent;transition:border-color .3s}
+.top.scrolled{border-bottom-color:var(--line)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:21;background:var(--paper)}
+.top .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-block:14px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none}
+.brand-seal{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle at 35% 30%,#94404b,var(--wax) 60%,#4d121b);color:#f3dfc4;font-family:var(--f-script);font-size:20px;box-shadow:inset 0 0 0 3px rgba(0,0,0,.12)}
+.brand-name{font-family:var(--f-display);font-size:22px;font-weight:600;letter-spacing:.01em}
+.nav{display:flex;gap:26px;align-items:center}
+.nav a{text-decoration:none;font-size:15px;color:var(--mist)}
+.nav a:hover{color:var(--ink)}
+@media (max-width:720px){.nav a:not(.btn){display:none}}
+
+/* Butoane */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-family:var(--f-ui);font-size:15px;font-weight:500;letter-spacing:.02em;text-decoration:none;
+  color:var(--paper-hi);background:var(--wax);border:1px solid var(--wax);border-radius:999px;padding:12px 24px;cursor:pointer;transition:background .2s,transform .2s}
+.btn:hover{background:#5a1822;transform:translateY(-1px)}
+.btn.ghost{background:transparent;color:var(--ink);border-color:var(--line)}
+.btn.ghost:hover{background:var(--paper-hi)}
+.btn.small{padding:9px 18px;font-size:14px}
+.btn:focus-visible,.nav a:focus-visible,.card a:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+
+/* Telefon */
+.phone{position:relative;width:var(--pw,300px);aspect-ratio:390/844;border-radius:calc(var(--pw,300px)*.15);background:var(--bezel);padding:calc(var(--pw,300px)*.035);
+  box-shadow:0 40px 80px -30px rgba(70,45,25,.55),0 0 0 1px rgba(255,255,255,.06) inset;max-width:100%}
+.phone::before{content:"";position:absolute;top:calc(var(--pw,300px)*.055);left:50%;transform:translateX(-50%);width:28%;height:calc(var(--pw,300px)*.07);border-radius:999px;background:#0e0b09;z-index:2}
+.screen{position:relative;width:100%;height:100%;border-radius:calc(var(--pw,300px)*.12);overflow:hidden;background:var(--paper)}
+.screen iframe{position:absolute;top:0;left:0;width:390px;height:844px;border:0;transform-origin:top left;transform:scale(var(--s,.7))}
+
+/* Subsol */
+.foot{border-top:1px solid var(--line);padding-block:28px;color:var(--mist);font-size:14px}
+.foot .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}html{scroll-behavior:auto}}
+
+/* Carduri de modele */
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,460px),1fr));gap:24px;justify-content:center}
+.cards:has(> .card:only-child){grid-template-columns:minmax(0,760px)}
+.card{display:grid;grid-template-columns:auto 1fr;gap:28px;align-items:center;padding:28px;border:1px solid var(--line);border-radius:22px;background:var(--paper);background-image:var(--grain);min-width:0}
+.card-phone .phone{--pw:200px}
+.card-body{display:flex;flex-direction:column;gap:12px;min-width:0}
+.card-desc{color:var(--mist);font-size:16px}
+.swatches{display:flex;gap:8px}
+.swatches span{width:22px;height:22px;border-radius:50%;border:1px solid rgba(61,47,36,.15)}
+.card-actions{margin-top:6px}
+@media (max-width:560px){
+  .card{grid-template-columns:1fr;justify-items:center;text-align:center;padding:24px 18px}
+  .card-body{align-items:center}
+}
+.btn{white-space:nowrap}
+@media (max-width:480px){.brand-name{font-size:19px}.brand-seal{width:30px;height:30px;font-size:18px}.top .wrap{padding-block:10px}}

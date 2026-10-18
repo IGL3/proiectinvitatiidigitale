@@ -2,22 +2,210 @@
 <html lang="ro">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Invitații digitale</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Invitații Digitale · Invitații online pentru nunți și evenimente</title>
+<meta name="description" content="Invitații online care se deschid ca un plic adevărat: numărătoare inversă, locații cu hartă și confirmare de participare. Pentru nunți, botezuri și aniversări.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Jost:wght@400;500&family=Marcellus&family=Pinyon+Script&display=swap&subset=latin-ext">
+<link rel="stylesheet" href="assets/site.css">
 <style>
-body{margin:0;min-height:100vh;display:grid;place-items:center;background:#f2e8d6;color:#4a3a2b;font-family:Georgia,serif;padding:24px 16px;box-sizing:border-box}
-main{text-align:center}
-h1{font-weight:400;color:#8a6a2b}
-a{color:#8a6a2b}
-ul{list-style:none;padding:0}
+/* Hero: text în stânga, telefonul cu invitația rulând în dreapta, pe un fundal cu pete de culoare pudrată */
+.hero{position:relative;padding-block:56px 88px;overflow:hidden}
+.hero::before,.hero::after{content:"";position:absolute;border-radius:50%;filter:blur(60px);z-index:-1;opacity:.7}
+.hero::before{width:520px;height:520px;right:-120px;top:-60px;background:var(--blush)}
+.hero::after{width:380px;height:380px;right:260px;bottom:-140px;background:var(--sage);opacity:.45}
+.hero .wrap{display:grid;grid-template-columns:1.1fr .9fr;gap:48px;align-items:center}
+.hero-text{display:flex;flex-direction:column;gap:22px;min-width:0}
+.hero-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:6px}
+.hero-note{font-size:14px;color:var(--mist);display:flex;gap:18px;flex-wrap:wrap}
+.hero-note span::before{content:"✦ ";color:var(--gold)}
+.hero-phone{display:flex;justify-content:center;position:relative}
+.hero-phone .phone{--pw:min(330px,78vw)}
+.hero-phone .tag{position:absolute;left:-6px;bottom:72px;background:var(--paper-hi);border:1px solid var(--line);border-radius:14px;padding:10px 14px;box-shadow:0 12px 30px -16px rgba(70,45,25,.5);font-size:14px;max-width:190px;line-height:1.35}
+.hero-phone .tag b{display:block;font-family:var(--f-display);font-size:19px;font-weight:600}
+.sprig{position:absolute;width:90px;height:170px;right:4px;top:-10px;transform:scaleX(-1);opacity:.9;pointer-events:none}
+@media (max-width:880px){
+  .hero{padding-block:32px 64px}
+  .hero .wrap{grid-template-columns:1fr;text-align:center}
+  .hero-text{align-items:center}
+  .lead{margin-inline:auto}
+  .hero-actions,.hero-note{justify-content:center}
+  .hero-phone .tag{left:4px;bottom:40px}
+}
+@media (max-width:480px){.hero-phone .tag{display:none}}
+
+/* Secțiuni */
+.section{padding-block:88px}
+.section-head{display:flex;flex-direction:column;gap:12px;align-items:center;text-align:center;margin-bottom:48px}
+.section-head .lead{text-align:center}
+.paper{background:var(--paper-hi);background-image:var(--grain);border-block:1px solid var(--line)}
+
+/* Pași: ordinea chiar contează, de aceea sunt numerotați */
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:28px;list-style:none;margin:0;padding:0;counter-reset:pas}
+.steps li{position:relative;display:flex;flex-direction:column;gap:10px;padding-top:56px;min-width:0}
+.steps li::before{counter-increment:pas;content:counter(pas);position:absolute;top:0;left:0;font-family:var(--f-script);font-size:54px;line-height:1;color:var(--gold)}
+.steps p{color:var(--mist)}
+@media (max-width:760px){.steps{grid-template-columns:1fr;gap:20px}}
+
+/* Funcții */
+.features{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:18px;overflow:hidden}
+.feature{background:var(--paper);background-image:var(--grain);padding:28px 26px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.feature svg{width:30px;height:30px;color:var(--gold-deep)}
+.feature p{color:var(--mist);font-size:16px}
+@media (max-width:900px){.features{grid-template-columns:1fr 1fr}}
+@media (max-width:560px){.features{grid-template-columns:1fr}}
+
+/* Evenimente */
+.events{display:flex;flex-wrap:wrap;gap:12px;justify-content:center}
+.events span{font-family:var(--f-display);font-size:22px;padding:10px 22px;border:1px solid var(--line);border-radius:999px;background:var(--paper-hi)}
+
+/* Modele */
+.models-foot{display:flex;justify-content:center;margin-top:36px}
+
+/* Contact */
+.cta{text-align:center;display:flex;flex-direction:column;align-items:center;gap:18px;padding:56px 24px;border-radius:24px;
+  background:radial-gradient(ellipse at 50% 0%,rgba(239,216,207,.9),transparent 70%),var(--paper-hi);border:1px solid var(--line)}
+.contact-lines{display:flex;gap:28px;flex-wrap:wrap;justify-content:center;font-size:17px}
+.contact-lines span{color:var(--mist)}
+.contact-lines b{color:var(--ink);font-weight:500;user-select:all}
 </style>
 </head>
 <body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="./"><span class="brand-seal">I</span><span class="brand-name">Invitații Digitale</span></a>
+    <nav class="nav">
+      <a href="#cum-functioneaza">Cum funcționează</a>
+      <a href="#modele">Modele</a>
+      <a class="btn small" href="#contact">Cere o invitație</a>
+    </nav>
+  </div>
+</header>
+
 <main>
-<h1>Invitații digitale</h1>
-<ul>
-<li><a href="ioana-ion/">Nunta Ioanei și a lui Ion Popescu</a></li>
-</ul>
+  <section class="hero">
+    <div class="wrap">
+      <div class="hero-text">
+        <p class="eyebrow">Invitații online pentru evenimente</p>
+        <h1>Invitația voastră, deschisă <span class="script">ca un plic adevărat</span></h1>
+        <p class="lead">Invitații de nuntă, botez sau aniversare trimise printr-un simplu link. Invitații deschid plicul pe telefon, văd locațiile cu hartă și vă confirmă prezența.</p>
+        <div class="hero-actions">
+          <a class="btn" href="#modele">Vezi modelele</a>
+          <a class="btn ghost" href="#contact">Cere o invitație</a>
+        </div>
+        <p class="hero-note"><span>Merge pe orice telefon</span><span>Fără aplicații</span><span>Se trimite pe WhatsApp</span></p>
+      </div>
+      <div class="hero-phone">
+        <svg class="sprig" viewBox="0 0 64 120" aria-hidden="true">
+          <path d="M8 0 C14 18 6 34 16 52 C24 66 18 84 28 100 C32 108 30 114 34 120" fill="none" stroke="#7d9270" stroke-width="1.4" stroke-linecap="round"/>
+          <g fill="#8fa482"><ellipse cx="17" cy="10" rx="7" ry="3" transform="rotate(28 17 10)"/><ellipse cx="4" cy="20" rx="6" ry="2.8" transform="rotate(-35 4 20)"/><ellipse cx="7" cy="40" rx="7" ry="3" transform="rotate(-25 7 40)"/><ellipse cx="22" cy="50" rx="7" ry="3" transform="rotate(30 22 50)"/><ellipse cx="12" cy="66" rx="6" ry="2.8" transform="rotate(-30 12 66)"/><ellipse cx="29" cy="78" rx="7" ry="3" transform="rotate(25 29 78)"/><ellipse cx="18" cy="92" rx="6" ry="2.6" transform="rotate(-20 18 92)"/></g>
+          <circle cx="38" cy="36" r="4.5" fill="#e2b3a8"/><circle cx="30" cy="99" r="3.6" fill="#ecc8bf"/>
+        </svg>
+        <div class="phone">
+          <div class="screen">
+            <iframe id="heroDemo" title="Invitația Arcada Aurie rulând pe un telefon" src="templates/arcada-aurie/?demo=1"></iframe>
+          </div>
+        </div>
+        <div class="tag"><b>Arcada Aurie</b>Atingeți ecranul ca să răsfoiți singuri</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section paper" id="cum-functioneaza">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="eyebrow">Cum funcționează</p>
+        <h2>Gata în trei pași</h2>
+      </div>
+      <ol class="steps">
+        <li><h3>Alegeți modelul</h3><p>Răsfoiți modelele și alegeți stilul care vi se potrivește. Culorile și textele se adaptează evenimentului vostru.</p></li>
+        <li><h3>Ne trimiteți detaliile</h3><p>Numele, data, orele, locațiile și câteva poze. Pregătim invitația și v-o arătăm înainte s-o trimiteți.</p></li>
+        <li><h3>Trimiteți linkul</h3><p>Primiți un link pe care îl trimiteți pe WhatsApp, Messenger sau email. Dacă se schimbă ceva, actualizăm invitația, iar linkul rămâne același.</p></li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="eyebrow">Ce primesc invitații</p>
+        <h2>Tot ce trebuie să știe, <span class="script">într-un singur link</span></h2>
+      </div>
+      <div class="features">
+        <div class="feature">
+          <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="3" y="8" width="26" height="18" rx="2"/><path d="M3 9l13 10 13-10"/><circle cx="16" cy="19" r="3" fill="currentColor" stroke="none"/></svg>
+          <h3>Plic care se deschide</h3><p>Invitația începe cu un plic sigilat. La atingere se deschide și dezvăluie invitația.</p>
+        </div>
+        <div class="feature">
+          <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="16" cy="17" r="11"/><path d="M16 10v7l5 3M12 3h8"/></svg>
+          <h3>Numărătoare inversă</h3><p>Zile, ore, minute și secunde până la marea zi, actualizate în timp real.</p>
+        </div>
+        <div class="feature">
+          <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M16 29s9-8.5 9-15a9 9 0 10-18 0c0 6.5 9 15 9 15z"/><circle cx="16" cy="14" r="3.2"/></svg>
+          <h3>Locații cu poze și hartă</h3><p>Fiecare locație are poză, oră și un buton care deschide direct traseul în Google Maps.</p>
+        </div>
+        <div class="feature">
+          <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="6" y="4" width="20" height="24" rx="2"/><path d="M11 16l3.5 3.5L21 13"/></svg>
+          <h3>Confirmare de participare</h3><p>Invitații confirmă dacă vin și cu câte persoane, direct din invitație.</p>
+        </div>
+        <div class="feature">
+          <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M8 6c4 0 4 6 8 6s4-6 8-6M8 26c4 0 4-6 8-6s4 6 8 6"/><path d="M16 12v8"/></svg>
+          <h3>Dată răzuibilă</h3><p>Data evenimentului stă sub un strat auriu pe care invitații îl răzuie cu degetul.</p>
+        </div>
+        <div class="feature">
+          <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="9" y="3" width="14" height="26" rx="3"/><path d="M14 25h4"/></svg>
+          <h3>Gândită pentru telefon</h3><p>Se deschide în orice browser, fără aplicații și fără conturi. Arată la fel de bine și pe calculator.</p>
+        </div>
+      </div>
+      <div class="section-head" style="margin:56px 0 0">
+        <p class="eyebrow">Pentru orice ocazie</p>
+        <div class="events"><span>Nuntă</span><span>Cununie civilă</span><span>Botez</span><span>Aniversare</span><span>Logodnă</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section paper" id="modele">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="eyebrow">Modele</p>
+        <h2>Alegeți-vă invitația</h2>
+        <p class="lead">Fiecare model se deschide exact cum îl vor vedea invitații voștri.</p>
+      </div>
+      <div class="cards" id="modelList"></div>
+      <div class="models-foot"><a class="btn ghost" href="templates/">Toate modelele</a></div>
+    </div>
+  </section>
+
+  <section class="section" id="contact">
+    <div class="wrap">
+      <div class="cta">
+        <p class="eyebrow">Contact</p>
+        <h2>Vă pregătim invitația?</h2>
+        <p class="lead">Spuneți-ne ce eveniment aveți și ce model v-a plăcut. Vă răspundem cu o ofertă și cu o primă variantă a invitației.</p>
+        <!-- TODO: înlocuiește cu datele reale de contact -->
+        <div class="contact-lines">
+          <span>Telefon / WhatsApp: <b>07xx xxx xxx</b></span>
+          <span>Email: <b>contact@exemplu.ro</b></span>
+        </div>
+      </div>
+    </div>
+  </section>
 </main>
+
+<footer class="foot">
+  <div class="wrap">
+    <span>© <span id="year">2026</span> Invitații Digitale</span>
+    <a href="templates/">Modele</a>
+  </div>
+</footer>
+
+<script src="templates/modele.js"></script>
+<script src="assets/site.js"></script>
+<script>
+  fitPhones(document.querySelector('.hero'));
+  renderModels(document.getElementById('modelList'),'templates/');
+  document.getElementById('year').textContent=new Date().getFullYear();
+</script>
 </body>
 </html>
