@@ -21,32 +21,16 @@
 .hero-note span::before{content:"✦ ";color:var(--gold)}
 .hero-phone{display:flex;justify-content:center;position:relative}
 .hero-phone .phone{--pw:min(290px,68vw)}
-/* iPhone burgundy, drept: ramă de aluminiu vișinie, bordură neagră subțire, Dynamic Island mică, butoane laterale */
-.device{position:relative;perspective:1700px;--pw:min(290px,68vw)}
-.device::after{content:"";position:absolute;left:10%;right:10%;bottom:-26px;height:40px;border-radius:50%;background:rgba(60,20,25,.35);filter:blur(22px);z-index:-1}
-.iphone{--pw:inherit;--frame:calc(var(--pw)*.018);
-  padding:var(--frame);border-radius:calc(var(--pw)*.17);
-  background:linear-gradient(90deg,#a8475a 0%,#7a2434 18%,#4f1220 46%,#6d1f2e 70%,#9c3e50 88%,#5a1724 100%);
-  box-shadow:
-    inset 0 0 0 1px rgba(255,220,225,.28),
-    inset 0 0 0 2px rgba(40,6,14,.5),
-    0 40px 70px -24px rgba(60,15,25,.55);
-  transform:none;
-  transform-style:preserve-3d;transition:transform 1s cubic-bezier(.2,.8,.2,1);
-  animation:floaty 7s ease-in-out infinite}
-
+/* Telefon fără ramă: doar ecranul cu bordura neagră subțire și Dynamic Island */
+.device{position:relative;--pw:min(290px,68vw)}
+.device::after{content:"";position:absolute;left:10%;right:10%;bottom:-26px;height:40px;border-radius:50%;background:rgba(60,20,25,.3);filter:blur(22px);z-index:-1}
+.iphone{--pw:inherit;padding:0;background:none;border-radius:calc(var(--pw)*.15);
+  box-shadow:0 40px 70px -24px rgba(60,15,25,.5);animation:floaty 7s ease-in-out infinite}
 @keyframes floaty{50%{translate:0 -8px}}
 .iphone .screen{border:calc(var(--pw)*.022) solid #070506;border-radius:calc(var(--pw)*.15)}
 .iphone .screen::after{content:"";position:absolute;inset:0;pointer-events:none;z-index:3;
   background:linear-gradient(135deg,rgba(255,255,255,.18) 0%,rgba(255,255,255,.05) 26%,transparent 40%)}
-.iphone::before{width:21%;height:calc(var(--pw)*.058);top:calc(var(--pw)*.058);background:#000;z-index:4}
-.key{position:absolute;width:calc(var(--pw)*.014);border-radius:3px;
-  background:linear-gradient(90deg,#3e0d18,#8b3446 55%,#5c1825)}
-.k-action{left:calc(var(--pw)*-.011);top:17%;height:5.5%}
-.k-vol1{left:calc(var(--pw)*-.011);top:25%;height:9%}
-.k-vol2{left:calc(var(--pw)*-.011);top:36%;height:9%}
-.k-side{right:calc(var(--pw)*-.011);top:27%;height:13%}
-.k-cam{right:calc(var(--pw)*-.009);top:58%;height:8%;width:calc(var(--pw)*.01);background:linear-gradient(90deg,#2a0910,#6b2232)}
+.iphone::before{width:21%;height:calc(var(--pw)*.058);top:calc(var(--pw)*.04);background:#000;z-index:4}
 
 @media (prefers-reduced-motion:reduce){.iphone{animation:none}}
 
@@ -133,8 +117,6 @@
         </svg>
         <div class="device">
         <div class="phone iphone">
-          <span class="key k-action"></span><span class="key k-vol1"></span><span class="key k-vol2"></span>
-          <span class="key k-side"></span><span class="key k-cam"></span>
           <div class="screen">
             <iframe id="heroDemo" title="Invitația Arcada Aurie rulând pe un telefon" src="templates/arcada-aurie/?demo=1&amp;v=202610181705"></iframe>
           </div>
