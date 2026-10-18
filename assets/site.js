@@ -20,7 +20,6 @@ function renderModels(container, base, contactHref){
         '<iframe loading="lazy" tabindex="-1" aria-hidden="true"></iframe></div></div></div>'+
       '<div class="card-body">'+
         '<p class="eyebrow"></p><h3></h3><p class="card-desc"></p>'+
-        '<div class="swatches"></div>'+
         '<div class="card-actions"><button type="button" class="btn small">Vezi demo pe telefon</button></div>'+
       '</div>';
     card.querySelector('iframe').src=url+'?demo=1';
@@ -28,8 +27,6 @@ function renderModels(container, base, contactHref){
     card.querySelector('.eyebrow').textContent=m.eveniment;
     card.querySelector('h3').textContent=m.nume;
     card.querySelector('.card-desc').textContent=m.descriere;
-    var sw=card.querySelector('.swatches');
-    (m.culori||[]).forEach(function(c){ var s=document.createElement('span'); s.style.background=c; sw.appendChild(s); });
     card.querySelector('.card-actions button').addEventListener('click',function(){ openDemo(m, url, contactHref||'#contact'); });
     container.appendChild(card);
   });
