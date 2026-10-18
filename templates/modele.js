@@ -26,5 +26,13 @@ window.MODELE = [
     eveniment: "Nuntă",
     descriere: "Copertă cu universul, nebuloase, planete și stele care sclipesc; la atingerea stelei din mijloc, lumina ei deschide invitația. Paletă perlă, albastru-ceață și bleumarin, program cu hartă, numărătoare, ținută, confirmare și salvare în calendar.",
     culori: ["#f5f3ef", "#c9d6e3", "#8fa5bc", "#1c2943"]
+  },
+  {
+    slug: "micul-astronaut",
+    v: "202610181917",
+    nume: "Micul Astronaut",
+    eveniment: "Botez",
+    descriere: "Plic tip poartă cu imprimeu de cosmos și sigiliu auriu: sigiliul se rupe, aripile se deschid și o rachetă decolează. Invitația e o misiune spațială cu astronaut, echipaj, plan de zbor cu hartă, numărătoare până la lansare și confirmare.",
+    culori: ["#0f1838", "#e0b24f", "#f08a6c", "#fbf6ea"]
   }
 ];
