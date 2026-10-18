@@ -22,7 +22,7 @@ function renderModels(container, base, contactHref){
         '<p class="eyebrow"></p><h3></h3><p class="card-desc"></p>'+
         '<div class="card-actions"><button type="button" class="btn small">Vezi demo pe telefon</button></div>'+
       '</div>';
-    card.querySelector('iframe').src=url+'?demo=1';
+    card.querySelector('iframe').src=url+'?demo=1&v='+(m.v||'1');
     card.querySelector('iframe').title='Previzualizare '+m.nume;
     card.querySelector('.eyebrow').textContent=m.eveniment;
     card.querySelector('h3').textContent=m.nume;
@@ -60,7 +60,7 @@ function openDemo(m, url, contactHref){
   demoBox.querySelector('h2').textContent=m.nume;
   demoBox.querySelector('.demo-desc').textContent=m.descriere;
   demoBox.querySelector('.demo-actions a').href=contactHref;
-  var f=demoBox.querySelector('iframe'); f.title='Demo '+m.nume; f.src=url+'?demo=1';
+  var f=demoBox.querySelector('iframe'); f.title='Demo '+m.nume; f.src=url+'?demo=1&v='+(m.v||'1');
   demoBox.hidden=false; document.documentElement.classList.add('modal-open');
   fitPhones(demoBox);
   demoBox.querySelector('.demo-close').focus();

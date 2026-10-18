@@ -1,8 +1,10 @@
 /* Lista modelelor de invitații.
-   Pentru un model nou: creezi folderul templates/<slug>/index.html și adaugi aici o intrare. */
+   Pentru un model nou: creezi folderul templates/<slug>/index.html și adaugi aici o intrare.
+   v = versiunea; se schimbă la fiecare modificare a modelului, ca telefoanele să nu arate varianta veche din cache. */
 window.MODELE = [
   {
     slug: "arcada-aurie",
+    v: "202610181456",
     nume: "Arcada Aurie",
     eveniment: "Nuntă",
     descriere: "Plic cu sigiliu de ceară care se deschide la atingere, arcadă aurie cu vrejuri, dată răzuibilă, locații cu poze, numărătoare inversă și confirmare de participare.",
@@ -10,6 +12,7 @@ window.MODELE = [
   },
   {
     slug: "apus-toscan",
+    v: "202610181456",
     nume: "Apus Toscan",
     eveniment: "Nuntă",
     descriere: "Plic verde-măslin cu banderolă aurie care se deschide ca o poartă, un peisaj toscan la apus, apoi o invitație pe hârtie fildeș cu ramuri de măslin: programul zilei, numărătoare inversă, locații, ținută și confirmare.",
