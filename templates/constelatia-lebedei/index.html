@@ -238,6 +238,7 @@ footer .tag{font-style:italic;color:var(--mist)}
     <h2>Ne veți fi alături?</h2>
     <p class="muted">Vă rugăm să ne răspundeți până la 12 august 2027.</p>
     <form id="rsvp" novalidate>
+      <input type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0">
       <div><label for="fName">Numele dumneavoastră</label><input type="text" id="fName" autocomplete="name" placeholder="ex. Familia Popescu"></div>
       <div><span class="lbl">Participați?</span>
         <div class="choice">
@@ -333,8 +334,12 @@ footer .tag{font-style:italic;color:var(--mist)}
     'DTSTART:20270912T130000Z','DTEND:20270913T010000Z','SUMMARY:'+title,'LOCATION:'+place,'END:VEVENT','END:VCALENDAR'].join('\r\n');
   document.getElementById('ical').href='data:text/calendar;charset=utf-8,'+encodeURIComponent(ics);
 
-  /* Confirmare (în model doar afișează mesajul; la o invitație reală se leagă de email sau tabel) */
+  /* Confirmare: răspunsurile ajung în Google Sheets (fila cu numele invitației).
+     Pentru o invitație reală completezi RSVP_URL cu adresa scriptului Google și INVITATIE cu numele filei. */
+  var RSVP_URL='';            /* ex. https://script.google.com/macros/s/XXXX/exec */
+  var INVITATIE='constelatia-lebedei';
   var form=document.getElementById('rsvp'), msg=document.getElementById('formMsg'), countRow=document.getElementById('countRow');
+  var sendBtn=form.querySelector('button[type=submit]');
   form.addEventListener('change',function(e){ if(e.target.name==='att') countRow.hidden=e.target.value==='nu'; });
   form.addEventListener('submit',function(e){
     e.preventDefault();
@@ -342,8 +347,20 @@ footer .tag{font-style:italic;color:var(--mist)}
     var att=(form.querySelector('input[name=att]:checked')||{}).value;
     if(!name){ msg.className='form-msg err'; msg.textContent='Vă rugăm să scrieți numele.'; return; }
     if(!att){ msg.className='form-msg err'; msg.textContent='Vă rugăm să alegeți dacă participați.'; return; }
-    msg.className='form-msg ok';
-    msg.textContent=att==='da'?'Mulțumim! Abia așteptăm să vă vedem.':'Mulțumim că ne-ați anunțat. Ne veți lipsi!';
+    var thanks=att==='da'?'Mulțumim! Abia așteptăm să vă vedem.':'Mulțumim că ne-ați anunțat. Ne veți lipsi!';
+    var demo=new URLSearchParams(location.search).has('demo');
+    if(!RSVP_URL||demo){ msg.className='form-msg ok'; msg.textContent=thanks; return; }
+    var data=new URLSearchParams({
+      invitatie:INVITATIE, nume:name, participa:att==='da'?'Da':'Nu',
+      persoane:att==='da'?document.getElementById('fCount').value:'0',
+      mesaj:document.getElementById('fMsg').value.trim(),
+      website:(form.querySelector('[name=website]')||{}).value||''
+    });
+    sendBtn.disabled=true; msg.className='form-msg'; msg.textContent='Se trimite…';
+    fetch(RSVP_URL,{method:'POST',mode:'no-cors',body:data})
+      .then(function(){ msg.className='form-msg ok'; msg.textContent=thanks; form.reset(); countRow.hidden=false; })
+      .catch(function(){ msg.className='form-msg err'; msg.textContent='Confirmarea nu s-a trimis. Verificați conexiunea la internet și încercați din nou.'; })
+      .then(function(){ sendBtn.disabled=false; });
   });
 
   /* Mod demonstrativ: rulează singur în telefonul de pe site */

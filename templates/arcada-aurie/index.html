@@ -291,6 +291,7 @@ html.demo{scrollbar-width:none}html.demo::-webkit-scrollbar{display:none}
     <h2>Ne veți fi alături?</h2>
     <p>Vă rugăm să ne anunțați dacă veți participa, ca să pregătim totul pentru fiecare invitat.</p>
     <form id="rsvp" novalidate>
+      <input type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0">
       <div>
         <label for="fName">Numele dumneavoastră</label>
         <input type="text" id="fName" autocomplete="name" placeholder="ex. Familia Popescu">
@@ -380,55 +381,35 @@ html.demo{scrollbar-width:none}html.demo::-webkit-scrollbar{display:none}
   document.getElementById('revealBtn').addEventListener('click',reveal);
   paint(); window.addEventListener('resize',()=>{if(!done)paint()});
 
-  /* RSVP */
-  const form=document.getElementById('rsvp'), msg=document.getElementById('formMsg'), sendBtn=document.getElementById('sendBtn');
-  const countRow=document.getElementById('countRow');
-  form.addEventListener('change',e=>{ if(e.target.name==='att') countRow.hidden=e.target.value==='nu'; });
-  let db=null, myId=null;
-  const ready=(async()=>{
-    if(!window.claude||!window.claude.use) return;
-    try{
-      db=await window.claude.use('db');
-      const user=await window.claude.use('user');
-      if(user){ try{ myId=await user.id(); }catch(e){} }
-      if(db&&myId){
-        try{
-          const mine=await db.doc('rsvp/'+myId).get();
-          const v=mine&&(mine.data?mine.data():mine);
-          if(v&&v.name){
-            document.getElementById('fName').value=v.name;
-            const r=document.getElementById(v.attending==='nu'?'attNo':'attYes'); if(r) r.checked=true;
-            countRow.hidden=v.attending==='nu';
-            if(v.count) document.getElementById('fCount').value=String(v.count);
-            if(v.message) document.getElementById('fMsg').value=v.message;
-            msg.className='form-msg ok'; msg.textContent='Confirmarea dumneavoastră este salvată. O puteți modifica oricând.';
-          }
-        }catch(e){}
-      }
-    }catch(e){ db=null; }
-  })();
-
-  form.addEventListener('submit',async e=>{
+  /* Confirmare: răspunsurile ajung în Google Sheets (fila cu numele invitației).
+     Pentru o invitație reală completezi RSVP_URL cu adresa scriptului Google și INVITATIE cu numele filei. */
+  var RSVP_URL='';            /* ex. https://script.google.com/macros/s/XXXX/exec */
+  var INVITATIE='arcada-aurie';
+  var form=document.getElementById('rsvp'), msg=document.getElementById('formMsg'), countRow=document.getElementById('countRow');
+  var sendBtn=form.querySelector('button[type=submit]');
+  form.addEventListener('change',function(e){ if(e.target.name==='att') countRow.hidden=e.target.value==='nu'; });
+  form.addEventListener('submit',function(e){
     e.preventDefault();
-    const name=document.getElementById('fName').value.trim();
-    const att=(form.querySelector('input[name=att]:checked')||{}).value;
+    var name=document.getElementById('fName').value.trim();
+    var att=(form.querySelector('input[name=att]:checked')||{}).value;
     if(!name){ msg.className='form-msg err'; msg.textContent='Vă rugăm să scrieți numele.'; return; }
     if(!att){ msg.className='form-msg err'; msg.textContent='Vă rugăm să alegeți dacă participați.'; return; }
+    var thanks=att==='da'?'Mulțumim! Abia așteptăm să vă vedem.':'Mulțumim că ne-ați anunțat. Ne veți lipsi!';
+    var demo=new URLSearchParams(location.search).has('demo');
+    if(!RSVP_URL||demo){ msg.className='form-msg ok'; msg.textContent=thanks; return; }
+    var data=new URLSearchParams({
+      invitatie:INVITATIE, nume:name, participa:att==='da'?'Da':'Nu',
+      persoane:att==='da'?document.getElementById('fCount').value:'0',
+      mesaj:document.getElementById('fMsg').value.trim(),
+      website:(form.querySelector('[name=website]')||{}).value||''
+    });
     sendBtn.disabled=true; msg.className='form-msg'; msg.textContent='Se trimite…';
-    await ready;
-    if(!db||!myId){
-      sendBtn.disabled=false; msg.className='form-msg err';
-      msg.textContent='Confirmarea nu se poate salva de aici. Vă rugăm să le transmiteți mirilor răspunsul telefonic.';
-      return;
-    }
-    try{
-      await db.doc('rsvp/'+myId).set({name,attending:att,count:att==='da'?Number(document.getElementById('fCount').value):0,message:document.getElementById('fMsg').value.trim(),at:Date.now()});
-      msg.className='form-msg ok';
-      msg.textContent=att==='da'?'Mulțumim! Abia așteptăm să vă vedem.':'Mulțumim că ne-ați anunțat. Ne veți lipsi!';
-    }catch(err){
-      msg.className='form-msg err'; msg.textContent='Confirmarea nu s-a salvat. Încercați din nou peste câteva momente.';
-    }finally{ sendBtn.disabled=false; }
+    fetch(RSVP_URL,{method:'POST',mode:'no-cors',body:data})
+      .then(function(){ msg.className='form-msg ok'; msg.textContent=thanks; form.reset(); countRow.hidden=false; })
+      .catch(function(){ msg.className='form-msg err'; msg.textContent='Confirmarea nu s-a trimis. Verificați conexiunea la internet și încercați din nou.'; })
+      .then(function(){ sendBtn.disabled=false; });
   });
+
   /* Mod demonstrativ: rulează singur în telefonul de pe prima pagină */
   if(new URLSearchParams(location.search).has('demo')){
     document.documentElement.classList.add('demo');
