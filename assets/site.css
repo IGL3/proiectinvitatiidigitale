@@ -33,12 +33,17 @@ p{margin:0}
 .top.scrolled{border-bottom-color:var(--line)}
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:21;background:var(--paper)}
 .top .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-block:14px}
-.brand{display:flex;align-items:center;gap:10px;text-decoration:none}
-.brand-seal{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle at 35% 30%,#94404b,var(--wax) 60%,#4d121b);color:#f3dfc4;font-family:var(--f-script);font-size:20px;box-shadow:inset 0 0 0 3px rgba(0,0,0,.12)}
-.brand-name{font-family:var(--f-display);font-size:22px;font-weight:600;letter-spacing:.01em}
+.brand{display:flex;align-items:center;gap:12px;text-decoration:none}
+.brand-seal-wrap{display:block;flex:none;transition:transform .5s cubic-bezier(.2,.8,.2,1)}
+.brand:hover .brand-seal-wrap{transform:rotate(-12deg) scale(1.05)}
+.brand-seal{display:block;width:46px;height:46px;filter:drop-shadow(0 3px 4px rgba(70,20,25,.35))}
+.brand-text{display:flex;flex-direction:column;line-height:1}
+.brand-name{font-family:var(--f-script);font-size:31px;font-weight:400;color:var(--wax);line-height:.9;white-space:nowrap}
+.brand-sub{font-family:var(--f-caps);font-size:11px;letter-spacing:.55em;text-transform:uppercase;color:var(--gold-deep);margin-top:4px;padding-left:3px}
 .nav{display:flex;gap:26px;align-items:center}
 .nav a{text-decoration:none;font-size:15px;color:var(--mist)}
 .nav a:hover{color:var(--ink)}
+.nav a.btn,.nav a.btn:hover{color:var(--paper-hi)}
 @media (max-width:720px){.nav a:not(.btn){display:none}}
 
 /* Butoane */
@@ -78,7 +83,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
   .card-body{align-items:center}
 }
 .btn{white-space:nowrap}
-@media (max-width:480px){.brand-name{font-size:19px}.brand-seal{width:30px;height:30px;font-size:18px}.top .wrap{padding-block:10px}}
+@media (max-width:480px){.brand-name{font-size:25px}.brand-sub{font-size:9.5px;letter-spacing:.5em}.brand-seal{width:38px;height:38px}.brand{gap:9px}.top .wrap{padding-block:10px}}
 
 /* Demo pe telefon, deasupra paginii */
 html.modal-open{overflow:hidden}
@@ -102,3 +107,5 @@ html.modal-open{overflow:hidden}
   .demo-desc{display:none}
   .demo-actions{justify-content:center}
 }
+.l-short{display:none}
+@media (max-width:420px){.l-long{display:none}.l-short{display:inline}}
