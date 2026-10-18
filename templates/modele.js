@@ -12,7 +12,7 @@ window.MODELE = [
     slug: "apus-toscan",
     nume: "Apus Toscan",
     eveniment: "Nuntă",
-    descriere: "Copertă animată cu un peisaj la ora de aur și particule de lumină, apoi o invitație pe hârtie fildeș cu ramuri de măslin: programul zilei, numărătoare inversă, locații, ținută și confirmare.",
+    descriere: "Plic verde-măslin cu banderolă aurie care se deschide ca o poartă, un peisaj toscan la apus, apoi o invitație pe hârtie fildeș cu ramuri de măslin: programul zilei, numărătoare inversă, locații, ținută și confirmare.",
     culori: ["#f7f0e4", "#c48f45", "#b5653f", "#55603a"]
   }
 ];
