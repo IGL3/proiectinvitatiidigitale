@@ -13,7 +13,7 @@ window.MODELE = [
   },
   {
     slug: "apus-toscan",
-    v: "202610181705",
+    v: "202610182013",
     nume: "Apus Toscan",
     eveniment: "Nuntă",
     descriere: "Plic verde-măslin cu banderolă aurie care se deschide ca o poartă, un peisaj toscan la apus, apoi o invitație pe hârtie fildeș cu ramuri de măslin: programul zilei, numărătoare inversă, locații, ținută și confirmare.",
@@ -21,7 +21,7 @@ window.MODELE = [
   },
   {
     slug: "constelatia-lebedei",
-    v: "202610181705",
+    v: "202610182013",
     nume: "Constelația Lebedei",
     eveniment: "Nuntă",
     descriere: "Copertă cu universul, nebuloase, planete și stele care sclipesc; la atingerea stelei din mijloc, lumina ei deschide invitația. Paletă perlă, albastru-ceață și bleumarin, program cu hartă, numărătoare, ținută, confirmare și salvare în calendar.",
@@ -29,7 +29,7 @@ window.MODELE = [
   },
   {
     slug: "micul-astronaut",
-    v: "202610181917",
+    v: "202610182013",
     nume: "Micul Astronaut",
     eveniment: "Botez",
     descriere: "Plic tip poartă cu imprimeu de cosmos și sigiliu auriu: sigiliul se rupe, aripile se deschid și o rachetă decolează. Invitația e o misiune spațială cu astronaut, echipaj, plan de zbor cu hartă, numărătoare până la lansare și confirmare.",

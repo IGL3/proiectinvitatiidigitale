@@ -146,6 +146,22 @@ footer .names{font-size:44px}
 footer .tag{font-style:italic;color:var(--mist)}
 
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* Data răzuibilă */
+.scratch-wrap{display:flex;flex-direction:column;align-items:center;gap:8px;width:100%}
+.scratch{position:relative;width:min(100%,300px);height:108px;border-radius:var(--sc-radius,10px);border:1px solid var(--sc-line);background:var(--sc-bg);overflow:hidden;box-shadow:0 10px 26px -18px rgba(0,0,0,.45)}
+.date-under{position:absolute;inset:0;display:grid;grid-template-columns:1fr 1fr 1.35fr;align-items:center;text-align:center}
+.date-under div{display:flex;flex-direction:column;gap:4px}
+.date-under div+div{border-left:1px solid var(--sc-line)}
+.date-under b{font-family:var(--sc-font);font-weight:var(--sc-weight,400);font-size:40px;line-height:1;color:var(--sc-num);font-variant-numeric:tabular-nums}
+.date-under span{font-family:var(--sc-lfont);font-size:11px;letter-spacing:.2em;padding-left:.2em;text-transform:uppercase;color:var(--sc-lbl)}
+.scratch canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none;cursor:grab;transition:opacity .7s}
+.scratch.done canvas{opacity:0;pointer-events:none}
+.scratch-hint{margin:0;font-size:15px;color:var(--sc-hint);text-align:center}
+.scratch-skip{background:none;border:0;padding:2px 6px;color:var(--sc-hint);font:inherit;font-size:14px;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.scratch-skip:focus-visible{outline:2px solid var(--sc-num);outline-offset:2px;border-radius:4px}
+.scratch{--sc-bg:#fff;--sc-line:var(--line);--sc-radius:4px;--sc-font:var(--f-display);--sc-weight:300;--sc-lfont:var(--f-label);--sc-num:var(--navy);--sc-lbl:var(--mist);--sc-hint:var(--mist)}
+.scratch-wrap{--sc-bg:#fff;--sc-line:var(--line);--sc-radius:4px;--sc-font:var(--f-display);--sc-weight:300;--sc-lfont:var(--f-label);--sc-num:var(--navy);--sc-lbl:var(--mist);--sc-hint:var(--mist)}
 </style>
 </head>
 <body class="locked">
@@ -193,7 +209,18 @@ footer .tag{font-style:italic;color:var(--mist)}
     <svg class="swan reveal" aria-hidden="true"><use href="#swan"/></svg>
     <p class="label reveal">Împreună cu familiile noastre</p>
     <h1 class="names reveal">Irina<span class="amp">și</span>Andrei</h1>
-    <p class="date reveal">12 · 09 · 2027</p>
+    <div class="scratch-wrap reveal">
+      <div class="scratch" id="scratch">
+        <div class="date-under" aria-label="12 septembrie 2027">
+          <div><b>12</b><span>Ziua</span></div>
+          <div><b>09</b><span>Luna</span></div>
+          <div><b>2027</b><span>Anul</span></div>
+        </div>
+        <canvas id="foil" aria-hidden="true"></canvas>
+      </div>
+      <p class="scratch-hint" id="scratchHint">Răzuiți cu degetul ca să descoperiți data</p>
+      <button class="scratch-skip" id="revealBtn" type="button">Arată data direct</button>
+    </div>
     <p class="muted reveal">Vă invităm să fiți alături de noi în ziua în care ne unim destinele și începem drumul nostru împreună.</p>
   </section>
 
@@ -363,12 +390,62 @@ footer .tag{font-style:italic;color:var(--mist)}
       .then(function(){ sendBtn.disabled=false; });
   });
 
+  /* Data răzuibilă: folia se răzuiește cu degetul; la ~45% răzuit se descoperă toată data */
+  var scBox=document.getElementById('scratch'), foil=document.getElementById('foil'), fx=foil.getContext('2d');
+  var scDraw=false, scDone=false, scTouched=false, scChecks=0;
+  function scPaint(){
+    var r=scBox.getBoundingClientRect(), dpr=window.devicePixelRatio||1;
+    if(!r.width) return;
+    foil.width=r.width*dpr; foil.height=r.height*dpr; fx.setTransform(dpr,0,0,dpr,0,0);
+    var g=fx.createLinearGradient(0,0,r.width,r.height);
+    ['#8fa5bc','#e8edf3','#b3c2d3','#f5f3ef','#8fa5bc'].forEach(function(s,i,a){ g.addColorStop(i/(a.length-1),s); });
+    fx.globalCompositeOperation='source-over'; fx.fillStyle=g; fx.fillRect(0,0,r.width,r.height);
+    var seed=7; function rnd(){ seed=(seed*9301+49297)%233280; return seed/233280; }
+    fx.fillStyle='#ffffff';
+    for(var i=0;i<46;i++){ fx.globalAlpha=.25+rnd()*.6; fx.beginPath(); fx.arc(rnd()*r.width,rnd()*r.height,.6+rnd()*1.3,0,Math.PI*2); fx.fill(); }
+    fx.globalAlpha=1; fx.fillStyle='rgba(28,41,67,.8)'; fx.font='14px "Tenor Sans", "Gill Sans", sans-serif'; fx.textAlign='center'; fx.textBaseline='middle';
+    fx.fillText('✦  RĂZUIȚI AICI  ✦',r.width/2,r.height/2);
+  }
+  function scReveal(){
+    if(scDone) return; scDone=true; scBox.classList.add('done');
+    document.getElementById('scratchHint').textContent='Duminică, 12 septembrie 2027 — vă așteptăm!';
+    document.getElementById('revealBtn').hidden=true;
+  }
+  function scDot(x,y){
+    scTouched=true; fx.globalCompositeOperation='destination-out';
+    fx.beginPath(); fx.arc(x,y,22,0,Math.PI*2); fx.fill();
+    if(++scChecks%8===0){
+      var d=fx.getImageData(0,0,foil.width,foil.height).data, clear=0;
+      for(var i=3;i<d.length;i+=64) if(d[i]===0) clear++;
+      if(clear/(d.length/64)>0.45) scReveal();
+    }
+  }
+  function scAt(e){ var r=foil.getBoundingClientRect(); scDot(e.clientX-r.left,e.clientY-r.top); }
+  foil.addEventListener('pointerdown',function(e){ scDraw=true; foil.setPointerCapture(e.pointerId); scAt(e); });
+  foil.addEventListener('pointermove',function(e){ if(scDraw) scAt(e); });
+  ['pointerup','pointercancel'].forEach(function(t){ foil.addEventListener(t,function(){ scDraw=false; }); });
+  document.getElementById('revealBtn').addEventListener('click',scReveal);
+  scPaint();
+  if(window.ResizeObserver) new ResizeObserver(function(){ if(!scTouched&&!scDone) scPaint(); }).observe(scBox);
+  /* În modul demonstrativ, un „deget” invizibil răzuiește singur în zigzag */
+  function autoScratch(){
+    var r=scBox.getBoundingClientRect(), t=0, n=70;
+    (function step(){
+      if(scDone) return;
+      var p=t/n, x=r.width*(.08+.84*((p*5)%1)), y=r.height*(.15+.7*p);
+      if(Math.floor(p*5)%2) x=r.width-x;
+      scDot(x,y); t++;
+      if(t<=n) setTimeout(step,22); else scReveal();
+    })();
+  }
+
   /* Mod demonstrativ: rulează singur în telefonul de pe site */
   if(new URLSearchParams(location.search).has('demo')){
     document.documentElement.classList.add('demo');
     var stop=false;
     ['wheel','touchstart','keydown','mousedown'].forEach(function(t){ addEventListener(t,function(){ stop=true; },{passive:true}); });
     setTimeout(function(){ if(!stop) start(); },1800);
+    setTimeout(function(){ if(!stop) autoScratch(); },4300);
     setTimeout(function(){
       if(stop) return;
       var y=window.scrollY;
