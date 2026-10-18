@@ -17,5 +17,13 @@ window.MODELE = [
     eveniment: "Nuntă",
     descriere: "Plic verde-măslin cu banderolă aurie care se deschide ca o poartă, un peisaj toscan la apus, apoi o invitație pe hârtie fildeș cu ramuri de măslin: programul zilei, numărătoare inversă, locații, ținută și confirmare.",
     culori: ["#f7f0e4", "#c48f45", "#b5653f", "#55603a"]
+  },
+  {
+    slug: "pana-de-lebada",
+    v: "202610181550",
+    nume: "Pană de Lebădă",
+    eveniment: "Nuntă",
+    descriere: "Copertă cu un lac în noapte și o pană albă: la atingere pana își ia zborul, iar undele de pe apă deschid invitația. Paletă perlă, albastru-ceață și bleumarin, program cu hartă, numărătoare, ținută, confirmare și salvare în calendar.",
+    culori: ["#f5f3ef", "#c9d6e3", "#8fa5bc", "#1c2943"]
   }
 ];
