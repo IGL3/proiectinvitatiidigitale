@@ -78,3 +78,26 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 }
 .btn{white-space:nowrap}
 @media (max-width:480px){.brand-name{font-size:19px}.brand-seal{width:30px;height:30px;font-size:18px}.top .wrap{padding-block:10px}}
+
+/* Demo pe telefon, deasupra paginii */
+html.modal-open{overflow:hidden}
+.demo-modal{position:fixed;inset:0;z-index:100;background:rgba(43,34,28,.55);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+  display:flex;align-items:center;justify-content:center;overflow-y:auto;
+  padding:max(20px,env(safe-area-inset-top,0px)) max(20px,env(safe-area-inset-right,0px)) max(20px,env(safe-area-inset-bottom,0px)) max(20px,env(safe-area-inset-left,0px));
+  animation:fadeIn .3s ease}
+.demo-inner{display:flex;align-items:center;gap:40px;background:var(--paper);background-image:var(--grain);border-radius:28px;padding:32px;max-width:860px;box-shadow:0 30px 80px -20px rgba(0,0,0,.45);animation:rise .4s cubic-bezier(.2,.8,.2,1)}
+.demo-phone{--pw:min(340px,78vw,calc((100vh - 120px) * 390 / 844));flex:none}
+.demo-side{display:flex;flex-direction:column;gap:14px;min-width:0;max-width:360px}
+.demo-desc,.demo-hint{color:var(--mist)}
+.demo-hint{font-size:15px}
+.demo-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px}
+@keyframes fadeIn{from{opacity:0}}
+@keyframes rise{from{opacity:0;transform:translateY(24px)}}
+@media (max-width:760px){
+  .demo-modal{align-items:flex-start}
+  .demo-inner{flex-direction:column;gap:20px;padding:20px 16px;text-align:center;border-radius:22px}
+  .demo-phone{--pw:min(300px,74vw,calc((100vh - 260px) * 390 / 844))}
+  .demo-side{align-items:center}
+  .demo-desc{display:none}
+  .demo-actions{justify-content:center}
+}
