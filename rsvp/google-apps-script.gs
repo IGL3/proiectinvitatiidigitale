@@ -71,7 +71,7 @@ function tabelClient_(c, rowIndex, r) {
   const sh = ss.getSheets()[0];
   sh.setName('Confirmări'); sh.appendRow(ANTET); sh.setFrozenRows(1); sh.getRange('A1:E1').setFontWeight('bold');
   sh.getRange('G1').setValue('Total persoane care vin:').setFontWeight('bold');
-  sh.getRange('H1').setFormula('=SUMIF(C:C,"Da",D:D)');
+  sh.getRange('H1').setValue(0).setFontWeight('bold'); // totalul se actualizează din script la fiecare confirmare
   ss.addViewer(email); // Google îi trimite clientului un email cu acces la tabel
   c.getRange(rowIndex, COL.link).setValue(ss.getUrl());
   if (!c.getRange(rowIndex, COL.activ).getValue()) c.getRange(rowIndex, COL.activ).setValue('DA');
@@ -112,6 +112,7 @@ function doPost(e) {
       const sh = client.getSheets()[0];
       const vals = sh.getLastRow() > 1 ? sh.getRange(2, 3, sh.getLastRow() - 1, 2).getValues() : [];
       const vin = vals.reduce((s, v) => s + (v[0] === 'Da' ? Number(v[1]) || 0 : 0), 0);
+      sh.getRange('H1').setValue(vin);
       MailApp.sendEmail({
         to: email,
         name: 'Invitații Magice Digitale',
