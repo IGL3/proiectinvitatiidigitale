@@ -4,7 +4,7 @@
 window.MODELE = [
   {
     slug: "arcada-aurie",
-    v: "202610181456",
+    v: "202610181612",
     nume: "Arcada Aurie",
     eveniment: "Nuntă",
     descriere: "Plic cu sigiliu de ceară care se deschide la atingere, arcadă aurie cu vrejuri, dată răzuibilă, locații cu poze, numărătoare inversă și confirmare de participare.",
@@ -12,7 +12,7 @@ window.MODELE = [
   },
   {
     slug: "apus-toscan",
-    v: "202610181456",
+    v: "202610181612",
     nume: "Apus Toscan",
     eveniment: "Nuntă",
     descriere: "Plic verde-măslin cu banderolă aurie care se deschide ca o poartă, un peisaj toscan la apus, apoi o invitație pe hârtie fildeș cu ramuri de măslin: programul zilei, numărătoare inversă, locații, ținută și confirmare.",
@@ -20,7 +20,7 @@ window.MODELE = [
   },
   {
     slug: "constelatia-lebedei",
-    v: "202610181608",
+    v: "202610181612",
     nume: "Constelația Lebedei",
     eveniment: "Nuntă",
     descriere: "Copertă cu universul, nebuloase, planete și stele care sclipesc; la atingerea stelei din mijloc, lumina ei deschide invitația. Paletă perlă, albastru-ceață și bleumarin, program cu hartă, numărătoare, ținută, confirmare și salvare în calendar.",
