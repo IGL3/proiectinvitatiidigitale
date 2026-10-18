@@ -19,11 +19,11 @@ window.MODELE = [
     culori: ["#f7f0e4", "#c48f45", "#b5653f", "#55603a"]
   },
   {
-    slug: "pana-de-lebada",
-    v: "202610181550",
-    nume: "Pană de Lebădă",
+    slug: "constelatia-lebedei",
+    v: "202610181608",
+    nume: "Constelația Lebedei",
     eveniment: "Nuntă",
-    descriere: "Copertă cu un lac în noapte și o pană albă: la atingere pana își ia zborul, iar undele de pe apă deschid invitația. Paletă perlă, albastru-ceață și bleumarin, program cu hartă, numărătoare, ținută, confirmare și salvare în calendar.",
+    descriere: "Copertă cu universul, nebuloase, planete și stele care sclipesc; la atingerea stelei din mijloc, lumina ei deschide invitația. Paletă perlă, albastru-ceață și bleumarin, program cu hartă, numărătoare, ținută, confirmare și salvare în calendar.",
     culori: ["#f5f3ef", "#c9d6e3", "#8fa5bc", "#1c2943"]
   }
 ];
