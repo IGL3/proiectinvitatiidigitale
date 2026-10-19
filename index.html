@@ -58,6 +58,17 @@
 .steps li{position:relative;display:flex;flex-direction:column;gap:10px;padding-top:56px;min-width:0}
 .steps li::before{counter-increment:pas;content:counter(pas);position:absolute;top:0;left:0;font-family:var(--f-script);font-size:54px;line-height:1;color:var(--gold)}
 .steps p{color:var(--mist)}
+.steps-custom{margin-top:44px;display:flex;align-items:center;gap:20px;padding:20px 26px;border-radius:18px;border:1.5px dashed #cdb894;background:var(--paper);background-image:var(--grain);text-decoration:none;color:inherit;transition:border-color .2s,transform .2s,box-shadow .2s}
+.steps-custom:hover{border-color:var(--gold);transform:translateY(-2px);box-shadow:0 14px 30px -20px rgba(70,45,25,.5)}
+.steps-custom:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+.steps-custom .sc-ico{width:54px;height:54px;flex:none;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle at 35% 30%,#a3485a,var(--wax) 60%,#3f0d16);color:#f3dfc4;font-size:22px;box-shadow:0 6px 14px -8px rgba(70,20,25,.6)}
+.steps-custom .sc-txt{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.steps-custom b{font-family:var(--f-display);font-size:24px;font-weight:600;line-height:1.2}
+.steps-custom b em{font-family:var(--f-script);font-style:normal;font-weight:400;color:var(--gold-deep);font-size:1.2em}
+.steps-custom .sc-txt>span{color:var(--mist);font-size:16px}
+.steps-custom b{color:var(--ink)}
+.steps-custom .sc-go{flex:none;font-family:var(--f-ui);font-weight:500;font-size:15px;color:var(--wax);white-space:nowrap}
+@media (max-width:760px){.steps-custom{flex-direction:column;text-align:center;padding:22px 18px;gap:12px}}
 @media (max-width:760px){.steps{grid-template-columns:1fr;gap:20px}}
 
 /* Funcții */
@@ -182,6 +193,14 @@
         <li><h3>Ne trimiteți detaliile</h3><p>Numele, data, orele, locațiile și câteva poze. Pregătim invitația și v-o arătăm înainte s-o trimiteți.</p></li>
         <li><h3>Trimiteți linkul</h3><p>Primiți un link pe care îl trimiteți pe WhatsApp, Messenger sau email. Dacă se schimbă ceva, actualizăm invitația, iar linkul rămâne același.</p></li>
       </ol>
+      <a class="steps-custom" href="#personalizate">
+        <span class="sc-ico" aria-hidden="true">✦</span>
+        <span class="sc-txt">
+          <b>Facem și <em>invitații personalizate</em></b>
+          <span>Nu găsiți modelul potrivit? Creăm invitația de la zero, după ideile, culorile și povestea voastră. Prețuri începând de la 150 lei.</span>
+        </span>
+        <span class="sc-go">Aflați mai multe →</span>
+      </a>
     </div>
   </section>
 
