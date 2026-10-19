@@ -60,7 +60,7 @@ function openDemo(m, url, contactHref){
   demoBox.querySelector('h2').textContent=m.nume;
   demoBox.querySelector('.demo-desc').textContent=m.descriere;
   demoBox.querySelector('.demo-actions a').href=contactHref;
-  var f=demoBox.querySelector('iframe'); f.title='Demo '+m.nume; f.src=url+'?demo=1&v='+(m.v||'1');
+  var f=demoBox.querySelector('iframe'); f.title='Demo '+m.nume; f.src=url+'?demo=1&sunet=1&v='+(m.v||'1');
   demoBox.hidden=false; document.documentElement.classList.add('modal-open');
   fitPhones(demoBox);
   demoBox.querySelector('.demo-close').focus();
