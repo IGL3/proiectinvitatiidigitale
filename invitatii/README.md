@@ -6,3 +6,4 @@ Fiecare client are un folder aici: `invitatii/<id>/index.html`.
 - Pagina e o copie a modelului ales, cu datele clientului și `INVITATIE='<id>'`.
 - Paginile clienților au `noindex`, ca să nu apară în Google, și nu sunt listate nicăieri pe site.
 - Linkul trimis clientului: `https://invitatiimagiceonline.ro/invitatii/<id>/`.
+- Copiază și `muzica.mp3` din modelul ales (muzica pornește la deschiderea plicului).
