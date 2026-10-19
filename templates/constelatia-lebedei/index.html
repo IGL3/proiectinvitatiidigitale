@@ -476,8 +476,8 @@ footer .tag{font-style:italic;color:var(--mist)}
     var p=a.play(); if(p&&p.catch) p.catch(function(){ on=false; });
     var v=0, t=setInterval(function(){ v=Math.min(.7,v+.05); try{ a.volume=v; }catch(e){} if(v>=.7) clearInterval(t); },80);
   }
-  if(demo){ ['click','touchend','keydown'].forEach(function(t){ addEventListener(t,play,{passive:true}); }); }
-  else if(cover){ cover.addEventListener('click',play); cover.addEventListener('touchend',play,{passive:true}); cover.addEventListener('keydown',function(e){ if(e.key==='Enter'||e.key===' ') play(); }); }
+  if(demo){ ['click','touchend','keydown'].forEach(function(t){ addEventListener(t,function(e){ if(e.isTrusted) play(); },{passive:true}); }); }
+  else if(cover){ cover.addEventListener('click',function(e){ if(e.isTrusted) play(); }); cover.addEventListener('touchend',play,{passive:true}); cover.addEventListener('keydown',function(e){ if(e.key==='Enter'||e.key===' ') play(); }); }
   document.addEventListener('visibilitychange',function(){ if(!on) return; if(document.hidden) a.pause(); else a.play().catch(function(){}); });
 })();
 </script>
