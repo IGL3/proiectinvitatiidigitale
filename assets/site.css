@@ -109,3 +109,10 @@ html.modal-open{overflow:hidden}
 }
 .l-short{display:none}
 @media (max-width:420px){.l-long{display:none}.l-short{display:inline}}
+
+/* Card pentru invitații personalizate, la finalul galeriei */
+.card-custom{text-decoration:none;color:inherit;border:1.5px dashed #cdb894;background:var(--paper-hi);transition:border-color .2s,transform .2s}
+.card-custom:hover{border-color:var(--gold);transform:translateY(-2px)}
+.card-custom:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+.cc-plus{width:120px;height:120px;border-radius:50%;display:grid;place-items:center;font-family:var(--f-display);font-size:64px;line-height:1;color:var(--wax);background:radial-gradient(circle at 35% 30%,#fff7ea,#f0dfc0);border:1px solid var(--line);margin-inline:40px}
+@media (max-width:760px){.cc-plus{width:84px;height:84px;font-size:46px;margin:0}}

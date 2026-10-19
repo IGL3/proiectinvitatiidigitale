@@ -30,6 +30,13 @@ function renderModels(container, base, contactHref){
     card.querySelector('.card-actions button').addEventListener('click',function(){ openDemo(m, url, contactHref||'#contact'); });
     container.appendChild(card);
   });
+  /* La final: cardul pentru invitații personalizate */
+  var c=document.createElement('a'); c.className='card card-custom';
+  c.href=(contactHref||'#contact').replace('#contact','#personalizate');
+  c.innerHTML='<span class="cc-plus" aria-hidden="true">+</span><div class="card-body"><p class="eyebrow">La comandă</p><h3>Invitație personalizată</h3>'+
+    '<p class="card-desc">Nu găsiți modelul potrivit? O creăm de la zero după ideile, culorile și povestea voastră.</p>'+
+    '<span class="btn small ghost">Află mai multe</span></div>';
+  container.appendChild(c);
   fitPhones(container);
 }
 

@@ -505,13 +505,14 @@ footer .names{font-size:46px}
   }
 })();
 </script>
-<audio id="bgm" src="muzica.mp3" loop preload="auto"></audio>
+<audio id="bgm" src="muzica.mp3" loop preload="none"></audio>
 <script>
 /* Muzica de fundal: compoziție originală, pornește automat când invitatul atinge plicul.
    În demo-ul de pe site pornește la prima atingere a vizitatorului (doar în telefonul mare / fereastra demo). */
 (function(){
   var a=document.getElementById('bgm'), cover=document.getElementById('cover');
   var q=new URLSearchParams(location.search), demo=q.has('demo'), sound=!demo||q.has('sunet'), on=false;
+  if(!demo){ a.preload='auto'; }
   function play(){
     if(on||!sound) return; on=true;
     try{ a.volume=0; }catch(e){}

@@ -7,7 +7,7 @@
 <meta name="description" content="Invitații online care se deschid ca un plic adevărat: numărătoare inversă, locații cu hartă și confirmare de participare. Pentru nunți, botezuri și aniversări.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Jost:wght@400;500&family=Marcellus&family=Pinyon+Script&display=swap&subset=latin-ext">
-<link rel="stylesheet" href="assets/site.css?v=202610190923">
+<link rel="stylesheet" href="assets/site.css?v=202610190928">
 <style>
 /* Hero: text în stânga, telefonul cu invitația rulând în dreapta, pe un fundal cu pete de culoare pudrată */
 .hero{position:relative;padding-block:56px 88px;overflow:hidden}
@@ -75,6 +75,40 @@
 /* Modele */
 .models-foot{display:flex;justify-content:center;margin-top:36px}
 
+/* Invitații personalizate */
+.custom{display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center}
+.custom-text{display:flex;flex-direction:column;gap:20px;min-width:0}
+.custom-list{list-style:none;margin:4px 0 0;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:18px 26px}
+.custom-list li{display:grid;grid-template-columns:40px 1fr;gap:12px;align-items:start}
+.custom-list .ci{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:var(--paper-hi);border:1px solid var(--line);color:var(--gold-deep)}
+.custom-list .ci svg{width:20px;height:20px}
+.custom-list b{display:block;font-family:var(--f-display);font-size:21px;font-weight:600;line-height:1.15;margin-bottom:2px}
+.custom-list span{font-size:15px;color:var(--mist);line-height:1.45}
+.custom-flow{display:flex;gap:10px;flex-wrap:wrap;margin:0;padding:0;list-style:none;counter-reset:cf}
+.custom-flow li{counter-increment:cf;font-size:15px;color:var(--ink);background:var(--paper-hi);border:1px solid var(--line);border-radius:999px;padding:8px 16px 8px 8px;display:flex;align-items:center;gap:8px}
+.custom-flow li::before{content:counter(cf);width:24px;height:24px;border-radius:50%;background:var(--wax);color:var(--paper-hi);display:grid;place-items:center;font-size:13px;font-family:var(--f-ui)}
+.price-pill{align-self:flex-start;display:inline-flex;align-items:baseline;gap:8px;padding:10px 20px;border-radius:999px;background:linear-gradient(135deg,#f6e7c8,#e9d3a4);border:1px solid #d8bd85;color:var(--ink);font-size:15px;box-shadow:0 10px 24px -16px rgba(120,90,30,.6)}
+.price-pill b{font-family:var(--f-display);font-size:26px;font-weight:600;color:var(--wax);line-height:1}
+.custom-actions{display:flex;gap:12px;flex-wrap:wrap}
+/* Planșa de inspirație din dreapta */
+.board{position:relative;aspect-ratio:1/1.05;max-width:440px;width:100%;justify-self:center}
+.board .sheet{position:absolute;border-radius:18px;background:var(--paper-hi);border:1px solid var(--line);box-shadow:0 24px 50px -28px rgba(70,45,25,.55)}
+.board .s1{inset:4% 14% 22% 0;transform:rotate(-4deg);background-image:var(--grain);padding:26px;display:flex;flex-direction:column;gap:14px}
+.board .s2{right:0;bottom:0;width:58%;height:46%;transform:rotate(3deg);padding:20px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:8px;text-align:center}
+.board .lbl{font-family:var(--f-caps);font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold)}
+.board .sw{display:flex;gap:10px}
+.board .sw i{width:38px;height:38px;border-radius:50%;box-shadow:inset 0 0 0 3px rgba(255,255,255,.5)}
+.board .sketch{flex:1;border:1.5px dashed #cdb894;border-radius:12px;display:grid;place-items:center;position:relative;overflow:hidden}
+.board .sketch svg{width:72%;height:auto}
+.board .s2 svg{width:84px;height:84px;filter:drop-shadow(0 4px 6px rgba(70,20,25,.35))}
+.board .s2 em{font-family:var(--f-script);font-style:normal;font-size:30px;color:var(--wax);line-height:1}
+.board .s2 span{font-size:13px;color:var(--mist)}
+.board .star{position:absolute;color:var(--gold);font-size:22px}
+@media (max-width:900px){.custom{grid-template-columns:1fr;gap:40px}.board{max-width:360px}}
+@media (max-width:560px){.custom-list{grid-template-columns:1fr}.price-pill{align-self:stretch;justify-content:center}}
+.models-price{display:inline-flex;gap:6px;align-items:baseline;font-size:15px;color:var(--mist)}
+.models-price b{font-family:var(--f-display);font-size:22px;color:var(--wax)}
+
 /* Contact */
 .cta{text-align:center;display:flex;flex-direction:column;align-items:center;gap:18px;padding:56px 24px;border-radius:24px;
   background:radial-gradient(ellipse at 50% 0%,rgba(239,216,207,.9),transparent 70%),var(--paper-hi);border:1px solid var(--line)}
@@ -100,6 +134,7 @@
     <nav class="nav">
       <a href="#cum-functioneaza">Cum funcționează</a>
       <a href="#modele">Modele</a>
+      <a href="#personalizate">Personalizate</a>
       <a class="btn small" href="#contact"><span class="l-long">Cere o invitație</span><span class="l-short">Comandă</span></a>
     </nav>
   </div>
@@ -143,7 +178,7 @@
         <h2>Gata în trei pași</h2>
       </div>
       <ol class="steps">
-        <li><h3>Alegeți modelul</h3><p>Răsfoiți modelele și alegeți stilul care vi se potrivește. Culorile și textele se adaptează evenimentului vostru.</p></li>
+        <li><h3>Alegeți modelul</h3><p>Răsfoiți modelele și alegeți stilul care vi se potrivește sau cereți o <a href="#personalizate">invitație personalizată</a>, creată de la zero. Culorile și textele se adaptează evenimentului vostru.</p></li>
         <li><h3>Ne trimiteți detaliile</h3><p>Numele, data, orele, locațiile și câteva poze. Pregătim invitația și v-o arătăm înainte s-o trimiteți.</p></li>
         <li><h3>Trimiteți linkul</h3><p>Primiți un link pe care îl trimiteți pe WhatsApp, Messenger sau email. Dacă se schimbă ceva, actualizăm invitația, iar linkul rămâne același.</p></li>
       </ol>
@@ -195,9 +230,52 @@
         <p class="eyebrow">Modele</p>
         <h2>Alegeți-vă invitația</h2>
         <p class="lead">Fiecare model rulează pe telefon exact cum îl vor vedea invitații voștri.</p>
+        <p class="models-price">Prețuri începând de la <b>150 lei</b></p>
       </div>
       <div class="cards" id="modelList"></div>
       <div class="models-foot"><a class="btn ghost" href="templates/">Toate modelele</a></div>
+    </div>
+  </section>
+
+  <section class="section" id="personalizate">
+    <div class="wrap custom">
+      <div class="custom-text">
+        <p class="eyebrow">Invitații personalizate</p>
+        <h2>Nu găsiți modelul potrivit? <span class="script">O creăm de la zero, doar pentru voi.</span></h2>
+        <p class="lead">Pe lângă modelele gata făcute, desenăm invitații unice, pornind de la povestea, culorile și ideile voastre. Totul rămâne la fel de simplu: un link pe care îl trimiteți invitaților.</p>
+        <ul class="custom-list">
+          <li><span class="ci"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><circle cx="8.5" cy="10" r="1.4" fill="currentColor"/><circle cx="12" cy="7.5" r="1.4" fill="currentColor"/><circle cx="15.5" cy="10" r="1.4" fill="currentColor"/><path d="M12 21a2.5 2.5 0 0 1 0-5h2"/></svg></span><div><b>Tema și culorile voastre</b><span>După paleta nunții, un hobby sau o poză de inspirație.</span></div></li>
+          <li><span class="ci"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="m3.5 7 8.5 6.5L20.5 7"/><circle cx="12" cy="13.5" r="2.2" fill="currentColor"/></svg></span><div><b>Plicul și deschiderea</b><span>Sigiliu cu inițialele voastre și o animație de deschidere aleasă de voi.</span></div></li>
+          <li><span class="ci"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 20c3-1 4-3 5-6l7-7a2.1 2.1 0 0 1 3 3l-7 7c-3 1-5 2-6 5"/><path d="m14 9 1 1"/></svg></span><div><b>Ilustrații unice</b><span>Locul unde v-ați cunoscut, orașul vostru, chiar și animalul de companie.</span></div></li>
+          <li><span class="ci"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg></span><div><b>Secțiuni la cerere</b><span>Povestea voastră, galerie foto, meniu, cazare, ținută sau muzica preferată.</span></div></li>
+        </ul>
+        <ol class="custom-flow">
+          <li>Ne trimiteți ideea</li>
+          <li>Primiți prima variantă</li>
+          <li>O ajustăm până vă place</li>
+        </ol>
+        <p class="price-pill">Prețuri începând de la <b>150 lei</b></p>
+        <div class="custom-actions">
+          <a class="btn" href="https://wa.me/40772224059?text=Bun%C4%83%20ziua!%20A%C8%99%20dori%20o%20invita%C8%9Bie%20personalizat%C4%83%20pentru%20" target="_blank" rel="noopener">Cereți o invitație personalizată</a>
+          <a class="btn ghost" href="#modele">Vedeți modelele</a>
+        </div>
+      </div>
+      <div class="board" aria-hidden="true">
+        <div class="sheet s1">
+          <span class="lbl">Paleta voastră</span>
+          <div class="sw"><i style="background:#7a2434"></i><i style="background:#d9a7a0"></i><i style="background:#f3e6cf"></i><i style="background:#8a9a76"></i><i style="background:#c49a4a"></i></div>
+          <span class="lbl" style="margin-top:6px">Schița invitației</span>
+          <div class="sketch">
+            <svg viewBox="0 0 200 140" fill="none" stroke="#b49a6a" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="20" y="30" width="160" height="96" rx="8" stroke-dasharray="5 5"/><path d="M22 34l78 54 78-54" stroke-dasharray="5 5"/><circle cx="100" cy="88" r="13" stroke="#7a2434" stroke-width="2"/><path d="M95 88c2-5 8-5 10 0" stroke="#7a2434"/><path d="M60 16c8-8 18-8 26 0M114 16c8-8 18-8 26 0" stroke="#c49a4a"/></svg>
+          </div>
+        </div>
+        <div class="sheet s2">
+          <svg viewBox="0 0 48 48"><defs><radialGradient id="cw" cx=".38" cy=".32" r=".75"><stop offset="0" stop-color="#a3485a"/><stop offset=".55" stop-color="#6e1f2a"/><stop offset="1" stop-color="#3f0d16"/></radialGradient></defs><path fill="url(#cw)" d="M24 2.5c3 0 4.2 2.4 7 3 2.8.7 5.4-.6 7.3 1.4s.9 4.6 1.8 7.2c.8 2.5 3.4 3.9 3.4 6.9s-2.4 4.3-3 7c-.7 2.8.6 5.4-1.4 7.4s-4.7.8-7.3 1.6c-2.5.9-3.8 3.5-6.8 3.5s-4.3-2.5-7-3.2c-2.8-.7-5.4.7-7.3-1.3s-.8-4.7-1.6-7.3C6.3 26.2 3.7 25 3.7 22s2.5-4.4 3.2-7.1c.7-2.8-.6-5.3 1.4-7.3s4.6-.7 7.2-1.6c2.6-.8 3.8-3.5 8.5-3.5Z"/><circle cx="24" cy="23.5" r="13" fill="none" stroke="#e6c98a" stroke-width=".8" opacity=".8"/><text x="24" y="29" text-anchor="middle" font-family="Pinyon Script, cursive" font-size="15" fill="#e6c98a">A&amp;M</text></svg>
+          <em>Inițialele voastre</em>
+          <span>pe sigiliul plicului</span>
+        </div>
+        <span class="star" style="right:8%;top:2%">✦</span><span class="star" style="left:2%;bottom:14%;font-size:16px">✦</span>
+      </div>
     </div>
   </section>
 
@@ -233,8 +311,8 @@
   </div>
 </footer>
 
-<script src="templates/modele.js?v=202610190923"></script>
-<script src="assets/site.js?v=202610190923"></script>
+<script src="templates/modele.js?v=202610190928"></script>
+<script src="assets/site.js?v=202610190928"></script>
 <script>
   fitPhones(document.querySelector('.hero'));
   renderModels(document.getElementById('modelList'),'templates/','#contact');
