@@ -67,13 +67,25 @@ function openDemo(m, url, contactHref){
   demoBox.querySelector('h2').textContent=m.nume;
   demoBox.querySelector('.demo-desc').textContent=m.descriere;
   demoBox.querySelector('.demo-actions a').href=contactHref;
-  var f=demoBox.querySelector('iframe'); f.title='Demo '+m.nume; f.src=url+'?demo=1&sunet=1&v='+(m.v||'1');
+  var f=demoBox.querySelector('iframe'); f.title='Demo '+m.nume; f.src=url+'?demo=1&v='+(m.v||'1');
+  playDemoMusic(url+'muzica.mp3?v='+(m.v||'1'));
   demoBox.hidden=false; document.documentElement.classList.add('modal-open');
   fitPhones(demoBox);
   demoBox.querySelector('.demo-close').focus();
 }
+/* Muzica modelului pornește din pagina site-ului, chiar la apăsarea butonului „Vezi demo”,
+   pentru că telefoanele permit sunet doar ca răspuns direct la o atingere. */
+var demoAudio=null;
+function playDemoMusic(src){
+  try{
+    if(!demoAudio){ demoAudio=new Audio(); demoAudio.loop=true; }
+    demoAudio.src=src; demoAudio.currentTime=0; demoAudio.volume=.7;
+    var p=demoAudio.play(); if(p&&p.catch) p.catch(function(){});
+  }catch(e){}
+}
 function closeDemo(){
   if(!demoBox) return;
+  if(demoAudio){ demoAudio.pause(); }
   demoBox.hidden=true; document.documentElement.classList.remove('modal-open');
   demoBox.querySelector('iframe').src='about:blank';
   if(lastFocus) lastFocus.focus();
