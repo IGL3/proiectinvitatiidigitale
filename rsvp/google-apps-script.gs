@@ -7,7 +7,8 @@
  *   cu linkul invitației, tabelul clientului, numărul de confirmări și starea (activă sau oprită).
  * - Pentru fiecare client, scriptul creează un Google Sheet separat, i-l partajează pe email
  *   și îi trimite un email la fiecare confirmare nouă.
- * - Tu vezi oricum toate confirmările și în fila „Toate”.
+ * - Tu vezi toate confirmările în fila „Toate” și, separat, în câte o filă pentru fiecare invitație,
+ *   cu numele egal cu ID-ul invitației (se creează singură).
  *
  * INSTALARE (o singură dată)
  * 1. Creezi un Google Sheet nou, de ex. „Panou confirmări”.
@@ -62,6 +63,38 @@ function pregatestePanoul() {
   }
 }
 
+/* Fila din panou pentru o invitație: numele filei = ID-ul invitației. O creează dacă lipsește. */
+function filaInvitatie_(panou, id) {
+  const nume = String(id).trim().slice(0, 99);
+  let f = panou.getSheetByName(nume);
+  if (!f) {
+    f = panou.insertSheet(nume, panou.getSheets().length);
+    f.appendRow(ANTET); f.setFrozenRows(1); f.getRange('A1:E1').setFontWeight('bold').setBackground('#f3e8d6');
+    f.getRange('G1').setValue('Total persoane care vin:').setFontWeight('bold');
+    f.getRange('H1').setValue(0).setFontWeight('bold');
+    f.setColumnWidth(1, 150); f.setColumnWidth(2, 200); f.setColumnWidth(5, 320);
+  }
+  return f;
+}
+
+/* ID-ul din panoul Clienți devine link spre fila invitației. */
+function leagaIdDeFila_(c, rowIndex, id, fila) {
+  const url = '#gid=' + fila.getSheetId();
+  c.getRange(rowIndex, COL.id).setRichTextValue(SpreadsheetApp.newRichTextValue().setText(String(id)).setLinkUrl(url).build());
+}
+
+/* Rescrie fila invitației cu toate confirmările din tabelul clientului. */
+function sincronizeazaFila_(fila, client, total) {
+  const src = client.getSheets()[0];
+  const n = src.getLastRow() - 1;
+  if (fila.getLastRow() > 1) fila.getRange(2, 1, fila.getLastRow() - 1, 5).clearContent();
+  if (n > 0) {
+    fila.getRange(2, 1, n, 5).setValues(src.getRange(2, 1, n, 5).getValues());
+    fila.getRange(2, 1, n, 1).setNumberFormat('dd.mm.yyyy hh:mm');
+  }
+  fila.getRange('H1').setValue(total);
+}
+
 /* Linkul public al invitației, construit din ID (folderul de pe site). */
 function linkInvitatie_(id) { return SITE_INVITATII + encodeURIComponent(String(id).trim()) + '/'; }
 function scrieLink_(range, url) {
@@ -95,6 +128,7 @@ function tabelClient_(c, rowIndex, r) {
   c.getRange(rowIndex, COL.link).setValue(ss.getUrl());
   if (!c.getRange(rowIndex, COL.activ).getValue()) c.getRange(rowIndex, COL.activ).setValue('DA');
   scrieLink_(c.getRange(rowIndex, COL.invitatie), linkInvitatie_(id));
+  leagaIdDeFila_(c, rowIndex, id, filaInvitatie_(c.getParent(), id));
   return ss;
 }
 
@@ -129,8 +163,15 @@ function actualizeazaPanoul(tacut) {
     if (!id) return;
     const row = i + 2;
     if (!r[COL.invitatie - 1]) scrieLink_(c.getRange(row, COL.invitatie), linkInvitatie_(id));
+    const fila = filaInvitatie_(c.getParent(), id);
+    leagaIdDeFila_(c, row, id, fila);
     if (r[COL.link - 1]) {
-      try { scrieStatistici_(c, row, statistici_(SpreadsheetApp.openByUrl(r[COL.link - 1]))); } catch (e) {}
+      try {
+        const client = SpreadsheetApp.openByUrl(r[COL.link - 1]);
+        const st = statistici_(client);
+        scrieStatistici_(c, row, st);
+        sincronizeazaFila_(fila, client, st.vin);
+      } catch (e) {}
     }
     const activ = String(r[COL.activ - 1]).toUpperCase() === 'NU';
     c.getRange(row, 1, 1, NCOL).setBackground(activ ? '#eeeeee' : null).setFontColor(activ ? '#888888' : null);
@@ -170,6 +211,10 @@ function doPost(e) {
 
     const st = statistici_(client);
     sh.getRange('H1').setValue(st.vin);
+    const fila = filaInvitatie_(panou, id);
+    fila.appendRow(row);
+    fila.getRange(fila.getLastRow(), 1).setNumberFormat('dd.mm.yyyy hh:mm');
+    fila.getRange('H1').setValue(st.vin);
     scrieStatistici_(c, idx + 2, st);
     if (!r[COL.invitatie - 1]) scrieLink_(c.getRange(idx + 2, COL.invitatie), linkInvitatie_(id));
 
