@@ -22,7 +22,7 @@ window.MODELE = [
   },
   {
     slug: "constelatia-lebedei",
-    v: "202610190944",
+    v: "202610191635",
     nume: "Constelația Lebedei",
     eveniment: "Nuntă",
     descriere: "Copertă cu universul, nebuloase, planete și stele care sclipesc; la atingerea stelei din mijloc, lumina ei deschide invitația. Paletă perlă, albastru-ceață și bleumarin, program cu hartă, numărătoare, ținută, confirmare și salvare în calendar.",

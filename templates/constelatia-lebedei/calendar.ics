@@ -1,0 +1,21 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Invitatii Magice Digitale//RO
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+BEGIN:VEVENT
+UID:nunta-irina-andrei-model@invitatiimagiceonline.ro
+DTSTAMP:20261019T000000Z
+DTSTART:20270912T130000Z
+DTEND:20270913T010000Z
+SUMMARY:Nunta Irina & Andrei
+LOCATION:Biserica Sfântul Ioan\, Focșani
+DESCRIPTION:Invitația: https://invitatiimagiceonline.ro/templates/constelatia-lebedei/
+URL:https://invitatiimagiceonline.ro/templates/constelatia-lebedei/
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Mâine este nunta Irinei și a lui Andrei
+TRIGGER:-P1D
+END:VALARM
+END:VEVENT
+END:VCALENDAR

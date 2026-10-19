@@ -289,7 +289,7 @@ footer .tag{font-style:italic;color:var(--mist)}
       <p class="big">12 septembrie 2027</p>
       <div class="row">
         <a class="btn" id="gcal" target="_blank" rel="noopener" href="#">Google Calendar</a>
-        <a class="btn ghost" id="ical" href="#" download="nunta-irina-andrei.ics">Apple / Outlook</a>
+        <a class="btn ghost" id="ical" href="calendar.ics">Apple Calendar</a>
       </div>
     </div>
   </section>
@@ -357,11 +357,9 @@ footer .tag{font-style:italic;color:var(--mist)}
   })();
 
   /* Salvați data în calendar */
-  var title='Nunta Irinei și a lui Andrei', place='Biserica Sfântul Ioan, Focșani';
-  document.getElementById('gcal').href='https://calendar.google.com/calendar/render?action=TEMPLATE&text='+encodeURIComponent(title)+'&dates=20270912T130000Z/20270913T010000Z&location='+encodeURIComponent(place);
-  var ics=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Invitatii Magice Digitale//RO','BEGIN:VEVENT','UID:nunta-irina-andrei-20270912','DTSTAMP:20261018T000000Z',
-    'DTSTART:20270912T130000Z','DTEND:20270913T010000Z','SUMMARY:'+title,'LOCATION:'+place,'END:VEVENT','END:VCALENDAR'].join('\r\n');
-  document.getElementById('ical').href='data:text/calendar;charset=utf-8,'+encodeURIComponent(ics);
+  /* Google: link de adăugare. Apple: fișierul calendar.ics din același folder; pe iPhone se deschide direct în Calendar. */
+  var title='Nunta Irina & Andrei', place='Biserica Sfântul Ioan, Focșani';
+  document.getElementById('gcal').href='https://calendar.google.com/calendar/render?action=TEMPLATE&text='+encodeURIComponent(title)+'&dates=20270912T130000Z/20270913T010000Z&location='+encodeURIComponent(place)+'&details='+encodeURIComponent('Invitația: '+location.href.split('?')[0]);
 
   /* Confirmare: răspunsurile ajung în Google Sheets (fila cu numele invitației).
      Pentru o invitație reală completezi RSVP_URL cu adresa scriptului Google și INVITATIE cu numele filei. */
