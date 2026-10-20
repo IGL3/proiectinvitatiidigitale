@@ -26,7 +26,10 @@
  * 4. După eveniment scrii NU în coloana „Activ”: invitația nu mai primește confirmări.
  *
  * PLANIFICATORUL DE MESE
- * - Fiecare client are un link privat (coloana „Plan mese”), cu o cheie secretă.
+ * - Fiecare invitație din panou are un link privat (coloana „Plan mese”), cu o cheie secretă —
+ *   și cele FĂRĂ formular de confirmare (ex. zile de naștere): acolo clientul adaugă invitații manual, cu „+”.
+ * - Linkul apare singur după „Actualizează linkurile și statisticile” (sau „Creează tabelul…”).
+ * - Meniul „Invitații” → „Trimite clientului linkul pentru mese” îi trimite pe email linkul (rândul selectat).
  * - Pagina e pe site (invitatiimagiceonline.ro/planificator/) și citește/salvează prin acest script.
  * - Planul se salvează în tabelul clientului: fila „Mese” (lista pe mese) și fila ascunsă „_plan” (datele).
  */
@@ -46,6 +49,7 @@ function onOpen() {
   SpreadsheetApp.getUi().createMenu('Invitații')
     .addItem('Creează tabelul pentru clienții noi', 'creeazaTabeleNoi')
     .addItem('Actualizează linkurile și statisticile', 'actualizeazaPanoul')
+    .addItem('Trimite clientului linkul pentru mese', 'trimiteLinkPlan')
     .addSeparator()
     .addItem('Pregătește panoul', 'pregatestePanoul')
     .addToUi();
@@ -117,7 +121,9 @@ function creeazaTabeleNoi() {
   const data = c.getRange(2, 1, rows, NCOL).getValues();
   let noi = 0;
   data.forEach((r, i) => {
-    if (r[COL.id - 1] && r[COL.email - 1] && !r[COL.link - 1]) { tabelClient_(c, i + 2, r); noi++; }
+    if (!r[COL.id - 1]) return;
+    if (!r[COL.link - 1]) { tabelClient_(c, i + 2, r); noi++; }
+    else if (r[COL.email - 1]) { try { partajeaza_(SpreadsheetApp.openByUrl(r[COL.link - 1]), r[COL.email - 1]); } catch (e) {} }
   });
   actualizeazaPanoul(true);
   SpreadsheetApp.getActive().toast(noi ? 'Am creat ' + noi + ' tabel(e) noi.' : 'Nu sunt clienți noi.');
@@ -126,18 +132,26 @@ function creeazaTabeleNoi() {
 function tabelClient_(c, rowIndex, r) {
   const id = String(r[COL.id - 1]).trim(), email = String(r[COL.email - 1]).trim();
   const ev = String(r[COL.eveniment - 1] || id).trim();
-  const ss = SpreadsheetApp.create('Confirmări — ' + ev);
+  const ss = SpreadsheetApp.create('Invitați și mese — ' + ev);
   const sh = ss.getSheets()[0];
   sh.setName('Confirmări'); sh.appendRow(ANTET); sh.setFrozenRows(1); sh.getRange('A1:E1').setFontWeight('bold');
   sh.getRange('G1').setValue('Total persoane care vin:').setFontWeight('bold');
   sh.getRange('H1').setValue(0).setFontWeight('bold'); // totalul se actualizează din script la fiecare confirmare
-  ss.addViewer(email); // Google îi trimite clientului un email cu acces la tabel
+  partajeaza_(ss, email); // Google îi trimite clientului un email cu acces la tabel (dacă are email)
   c.getRange(rowIndex, COL.link).setValue(ss.getUrl());
   if (!c.getRange(rowIndex, COL.activ).getValue()) c.getRange(rowIndex, COL.activ).setValue('DA');
   scrieLink_(c.getRange(rowIndex, COL.invitatie), linkInvitatie_(id));
   leagaIdDeFila_(c, rowIndex, id, filaInvitatie_(c.getParent(), id));
-  asiguraPlan_(c, rowIndex, id, '');
+  asiguraPlan_(c, rowIndex, id, r[COL.cheie - 1] || '');
   return ss;
+}
+
+/* Dă acces de citire clientului, o singură dată (dacă emailul e completat). */
+function partajeaza_(ss, email) {
+  email = String(email || '').trim().toLowerCase();
+  if (!email) return;
+  const are = ss.getViewers().concat(ss.getEditors()).some(u => String(u.getEmail()).toLowerCase() === email);
+  if (!are) ss.addViewer(email);
 }
 
 /* Statisticile unui client, citite din tabelul lui: câte confirmări, câte persoane vin, ultima confirmare. */
@@ -173,6 +187,10 @@ function actualizeazaPanoul(tacut) {
     if (!r[COL.invitatie - 1]) scrieLink_(c.getRange(row, COL.invitatie), linkInvitatie_(id));
     const fila = filaInvitatie_(c.getParent(), id);
     leagaIdDeFila_(c, row, id, fila);
+    if (!r[COL.link - 1]) {
+      // și invitațiile fără confirmări primesc tabel + link pentru planul de mese
+      try { r[COL.link - 1] = tabelClient_(c, row, r).getUrl(); r[COL.cheie - 1] = c.getRange(row, COL.cheie).getValue(); } catch (e) {}
+    }
     if (r[COL.link - 1]) asiguraPlan_(c, row, id, r[COL.cheie - 1]);
     if (r[COL.link - 1]) {
       try {
@@ -259,6 +277,47 @@ function asiguraPlan_(c, rowIndex, id, cheie) {
     c.getRange(rowIndex, COL.cheie).setValue(cheie);
   }
   scrieLink_(c.getRange(rowIndex, COL.plan), linkPlan_(id, cheie));
+}
+
+/* Meniu: trimite clientului (rândurile selectate din „Clienți”) linkul privat pentru planul de mese. */
+function trimiteLinkPlan() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const c = ss.getSheetByName(PANOU_CLIENTI);
+  const sel = ss.getActiveRange();
+  if (!sel || sel.getSheet().getName() !== PANOU_CLIENTI || sel.getLastRow() < 2) {
+    SpreadsheetApp.getUi().alert('Selectează în fila „Clienți” rândul (sau rândurile) clientului, apoi alege din nou din meniu.');
+    return;
+  }
+  const prim = Math.max(2, sel.getRow());
+  let trimise = 0;
+  const fara = [];
+  for (let row = prim; row <= sel.getLastRow(); row++) {
+    const r = c.getRange(row, 1, 1, NCOL).getValues()[0];
+    const id = String(r[COL.id - 1]).trim();
+    if (!id) continue;
+    const email = String(r[COL.email - 1]).trim();
+    if (!email) { fara.push(id); continue; }
+    const client = r[COL.link - 1] ? SpreadsheetApp.openByUrl(r[COL.link - 1]) : tabelClient_(c, row, r);
+    asiguraPlan_(c, row, id, c.getRange(row, COL.cheie).getValue());
+    const cheie = c.getRange(row, COL.cheie).getValue();
+    const ev = String(r[COL.eveniment - 1] || id);
+    MailApp.sendEmail({
+      to: email,
+      name: 'Invitații Magice Digitale',
+      subject: 'Planul de mese pentru ' + ev,
+      body: 'Bună ziua,\n\nVă trimitem linkul privat pentru așezarea invitaților la mese — ' + ev + ':\n' +
+            linkPlan_(id, cheie) + '\n\n' +
+            'Acolo puteți crea mesele (rotunde, ovale, pătrate sau dreptunghiulare), le puteți așeza și roti cum doriți, ' +
+            'iar invitații îi adăugați cu „+” și îi trageți la masa dorită. ' +
+            'Dacă invitația are formular de confirmare, cei care confirmă cu „Da” apar automat în listă.\n\n' +
+            'Planul se salvează singur, iar lista pe mese o găsiți și în tabelul dumneavoastră (fila „Mese”):\n' + client.getUrl() +
+            '\n\nVă rugăm să păstrați linkul doar pentru dumneavoastră: oricine îl are poate modifica planul.' +
+            '\n\nCu drag,\nInvitații Magice Digitale'
+    });
+    trimise++;
+  }
+  ss.toast((trimise ? 'Am trimis linkul pentru mese la ' + trimise + ' client(i).' : 'Nu am trimis niciun email.') +
+           (fara.length ? ' Fără email: ' + fara.join(', ') + '.' : ''));
 }
 
 /* Găsește clientul după ID și verifică cheia. */

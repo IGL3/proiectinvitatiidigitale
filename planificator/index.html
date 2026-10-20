@@ -270,7 +270,7 @@ function renderList(){
   var todo=[],done=[];
   allGuests().forEach(function(g){if(f&&g.nume.toLowerCase().indexOf(f)<0)return;var r=g.n-seatedOf(g.key);(r>0?todo:done).push([g,r])});
   todo.sort(function(a,b){return a[0].nume.localeCompare(b[0].nume,'ro')});
-  if(!allGuests().length){L.innerHTML='<p style="color:var(--mist);font-size:14px;padding:8px">Încă nu au venit confirmări. Pe măsură ce invitații răspund, apar aici. Puteți adăuga și manual, cu „+”.</p>';return}
+  if(!allGuests().length){L.innerHTML='<p style="color:var(--mist);font-size:14px;padding:8px">Adăugați invitații cu „+”, apoi trageți-i la mese. Dacă invitația are formular de confirmare, cei care confirmă cu „Da” apar aici automat.</p>';return}
   if(todo.length){var h=document.createElement('h3');h.textContent='De așezat ('+todo.length+')';L.appendChild(h)}
   todo.forEach(function(x){L.appendChild(famRow(x[0],x[1],false))});
   if(done.length){var h2=document.createElement('h3');h2.textContent='Așezați ('+done.length+')';L.appendChild(h2);done.forEach(function(x){L.appendChild(famRow(x[0],0,true))})}
