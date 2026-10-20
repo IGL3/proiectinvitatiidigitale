@@ -128,7 +128,17 @@ button{cursor:pointer}
   .side-head p{display:none}
   .event{max-width:60vw}
   .brand b{display:none}
-  .panel{left:8px;right:8px;width:auto;top:auto;bottom:calc(38dvh + 8px);max-height:46dvh}
+  /* pe telefon setările stau jos, peste lista de invitați, iar masa rămâne la vedere deasupra */
+  .panel{left:0;right:0;width:auto;top:auto;bottom:0;max-height:min(46dvh,400px);border-radius:18px 18px 0 0;padding:10px 14px 14px;box-shadow:0 -14px 40px -18px rgba(60,40,20,.5)}
+  .panel h3{font-size:19px;margin-bottom:2px}
+  .panel label{margin:6px 0 3px;font-size:11px}
+  .pgrid{display:grid;grid-template-columns:1.25fr 1fr;gap:0 12px;align-items:end}
+  .f-name{grid-column:1}.f-seats{grid-column:2;grid-row:1}.f-shape{grid-column:1;grid-row:2}.f-rot{grid-column:2;grid-row:2}
+  .shapes{gap:4px}.shapes button{padding:6px 0}
+  .panel .qty button{width:32px;height:32px;font-size:16px}
+  .panel .acts{margin-top:10px;padding-top:8px}
+  .panel .acts .btn{padding:8px 10px;justify-content:center}
+  body.editing .stats,body.editing .zoom{display:none}
   .zoom{bottom:calc(38dvh + 12px)}
 }
 </style>
@@ -164,19 +174,21 @@ button{cursor:pointer}
 
 <div class="panel" id="panel" hidden>
   <h3><span id="pTitle">Masă</span><button class="icon" id="pClose" type="button" aria-label="Închide">×</button></h3>
-  <label for="pName">Nume</label>
-  <input type="text" id="pName" maxlength="40">
-  <label>Formă</label>
+  <div class="pgrid">
+  <div class="f-name"><label for="pName">Nume</label>
+  <input type="text" id="pName" maxlength="40"></div>
+  <div class="f-shape"><label>Formă</label>
   <div class="shapes" id="pShapes">
     <button type="button" data-shape="round" title="Rotundă"><i style="width:20px;height:20px;border-radius:50%"></i></button>
     <button type="button" data-shape="oval" title="Ovală"><i style="width:28px;height:17px;border-radius:50%"></i></button>
     <button type="button" data-shape="square" title="Pătrată"><i style="width:19px;height:19px;border-radius:3px"></i></button>
     <button type="button" data-shape="rect" title="Dreptunghiulară"><i style="width:30px;height:13px;border-radius:3px"></i></button>
+  </div></div>
+  <div class="f-seats"><label>Locuri</label>
+  <div class="qty"><button type="button" id="pSeatsMinus">−</button><output id="pSeats">10</output><button type="button" id="pSeatsPlus">+</button></div></div>
+  <div class="f-rot"><label for="pRot">Rotire</label>
+  <div class="row"><input type="range" id="pRot" min="0" max="355" step="5"><output id="pRotVal">0°</output></div></div>
   </div>
-  <label>Locuri</label>
-  <div class="qty"><button type="button" id="pSeatsMinus">−</button><output id="pSeats">10</output><button type="button" id="pSeatsPlus">+</button></div>
-  <label for="pRot">Rotire</label>
-  <div class="row"><input type="range" id="pRot" min="0" max="355" step="5"><output id="pRotVal">0°</output></div>
   <label class="exist">La această masă</label>
   <div class="who exist" id="pWho"></div>
   <div class="acts"><button class="btn new" id="pAdd" type="button">Adaugă masa</button><button class="btn ghost exist" id="pDup" type="button">Duplică</button><button class="btn ghost exist" id="pDel" type="button">Șterge masa</button><button class="btn ghost" id="pClose2" type="button">Închide</button></div>
@@ -251,7 +263,23 @@ function seatPos(t){
 }
 
 /* ---------- desenarea ---------- */
-function render(){renderStats();renderList();renderRoom();renderPanel();}
+function render(){renderStats();renderList();renderRoom();renderPanel();
+  // când se deschid setările (sau masa își schimbă mărimea), aducem masa la vedere, lângă panou
+  if(sel){var t=tableById(sel),d=t&&dims(t),k=t&&(sel+':'+d.w+'x'+d.h);if(t&&k!==focusKey){focusKey=k;requestAnimationFrame(function(){focusTable(t)})}}else focusKey=null;}
+var focusKey=null;
+function focusTable(t){
+  var w=$('roomwrap'),wr=w.getBoundingClientRect(),pn=$('panel'),mob=window.innerWidth<=820;
+  var right=wr.right,bottom=wr.bottom;
+  if(!pn.hidden){var pr=pn.getBoundingClientRect();if(mob)bottom=Math.min(bottom,pr.top);else right=Math.min(right,pr.left)}
+  var vw=right-wr.left,vh=bottom-wr.top;if(vw<80||vh<80)return;
+  var d=dims(t),r=Math.max(Math.hypot(d.w,d.h)/2+40,d.h/2+92);
+  var z=zoom;if(2*r*z>Math.min(vw,vh)*.96)z=clampN(Math.min(vw,vh)*.92/(2*r),.3,2);
+  // e deja toată la vedere? atunci nu mișcăm nimic
+  var bx=t.x*z-w.scrollLeft,by=t.y*z-w.scrollTop;
+  if(z===zoom&&bx-r*z>=0&&bx+r*z<=vw&&by-r*z>=0&&by+r*z<=vh)return;
+  if(z!==zoom){zoom=z;$('room').style.transform='scale('+zoom+')';$('sizer').style.width=ROOM_W*zoom+'px';$('sizer').style.height=ROOM_H*zoom+'px'}
+  w.scrollTo({left:t.x*zoom-vw/2,top:t.y*zoom-vh/2,behavior:'smooth'});
+}
 function renderStats(){
   var tot=0,sit=0;allGuests().forEach(function(g){tot+=g.n;sit+=Math.min(g.n,seatedOf(g.key))});
   var loc=0,nt=0;plan.tables.forEach(function(t){if(t.id!==draft){loc+=t.seats;nt++}});
@@ -295,8 +323,8 @@ function renderRoom(){
   });
 }
 function renderPanel(){
-  var t=sel&&tableById(sel);$('panel').hidden=!t;if(!t)return;
-  $('panel').classList.toggle('isdraft',t.id===draft);
+  var t=sel&&tableById(sel);$('panel').hidden=!t;if(!t){document.body.classList.remove('editing');return}
+  $('panel').classList.toggle('isdraft',t.id===draft);document.body.classList.add('editing');
   $('pTitle').textContent=t.id===draft?'Masă nouă':t.name;
   if(document.activeElement!==$('pName'))$('pName').value=t.name;
   $('pSeats').textContent=t.seats;$('pRot').value=t.rot;$('pRotVal').textContent=t.rot+'°';
