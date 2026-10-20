@@ -66,7 +66,8 @@ button{cursor:pointer}
 .zoom{position:fixed;right:16px;bottom:16px;display:flex;gap:6px;z-index:40}
 .hint{position:absolute;left:24px;top:20px;font-size:13px;color:var(--mist);pointer-events:none}
 /* mese */
-.table{position:absolute;touch-action:none;user-select:none;-webkit-user-select:none}
+.table{position:absolute;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.table.moving{z-index:5;filter:drop-shadow(0 14px 18px rgba(60,40,20,.35))}
 .shape{position:absolute;inset:0;background:#fff;border:2px solid #d9c7a5;box-shadow:0 10px 24px -14px rgba(60,40,20,.45);cursor:move;transition:border-color .2s,box-shadow .2s}
 .table.round .shape,.table.oval .shape{border-radius:50%}
 .table.square .shape,.table.rect .shape{border-radius:10px}
@@ -386,7 +387,8 @@ $('room').addEventListener('pointerdown',function(e){
   var seat=e.target.closest('.seat.on'), rot=e.target.closest('.rot'), tEl=e.target.closest('.table');
   if(seat&&tEl){var g=guestByKey(seat.dataset.g);drag={kind:'seat',key:seat.dataset.g,from:tEl.dataset.id,sx:e.clientX,sy:e.clientY,ghost:null,label:g?g.nume:''};e.preventDefault();return}
   if(rot&&tEl){var t=tableById(tEl.dataset.id);snapshot();drag={kind:'rot',t:t};e.preventDefault();return}
-  if(tEl){var t2=tableById(tEl.dataset.id),p=roomPt(e);if(draft&&t2.id!==draft){cancelDraft()}if(sel!==t2.id){sel=t2.id;render()}drag={kind:'move',t:t2,dx:p.x-t2.x,dy:p.y-t2.y,moved:false,sx:e.clientX,sy:e.clientY};e.preventDefault();return}
+  // apăsat și tras = mută masa (fără să deschidă setările); atingere scurtă = deschide setările
+  if(tEl){var t2=tableById(tEl.dataset.id),p=roomPt(e);drag={kind:'move',t:t2,dx:p.x-t2.x,dy:p.y-t2.y,moved:false,sx:e.clientX,sy:e.clientY};e.preventDefault();return}
   if(draft){cancelDraft();render()}else if(sel){sel=null;render()}
 });
 window.addEventListener('pointermove',function(e){
@@ -395,7 +397,7 @@ window.addEventListener('pointermove',function(e){
     if(!drag.ghost){if(Math.hypot(e.clientX-drag.sx,e.clientY-drag.sy)<6)return;drag.ghost=startGhost(e,drag.label)}
     drag.ghost.style.left=e.clientX+'px';drag.ghost.style.top=e.clientY+'px';highlight(tableAt(e.clientX,e.clientY));return}
   if(drag.kind==='move'){
-    if(!drag.moved){if(Math.hypot(e.clientX-drag.sx,e.clientY-drag.sy)<4)return;snapshot();drag.moved=true}
+    if(!drag.moved){if(Math.hypot(e.clientX-drag.sx,e.clientY-drag.sy)<6)return;if(draft&&drag.t.id!==draft){cancelDraft();render()}if(drag.t.id!==draft)snapshot();drag.moved=true;var me=document.querySelector('.table[data-id="'+drag.t.id+'"]');if(me)me.classList.add('moving')}
     var p=roomPt(e);drag.t.x=clampN(Math.round((p.x-drag.dx)/10)*10,40,ROOM_W-40);drag.t.y=clampN(Math.round((p.y-drag.dy)/10)*10,40,ROOM_H-40);
     var el=document.querySelector('.table[data-id="'+drag.t.id+'"]'),d=dims(drag.t);el.style.left=(drag.t.x-d.w/2)+'px';el.style.top=(drag.t.y-d.h/2)+'px';return}
   if(drag.kind==='rot'){
@@ -404,11 +406,13 @@ window.addEventListener('pointermove',function(e){
     el2.querySelectorAll('.label').forEach(function(l){l.style.transform='translate(-50%,-50%) rotate('+(-a)+'deg)'});
     el2.querySelectorAll('.seat span').forEach(function(l){l.style.transform='rotate('+(-a)+'deg)'});$('pRot').value=a;$('pRotVal').textContent=a+'°';}
 });
+window.addEventListener('pointercancel',function(){if(!drag)return;var d=drag;drag=null;highlight(null);if(d.ghost)d.ghost.remove();if(d.kind==='move'&&d.moved||d.kind==='rot'){if(d.t.id===draft)render();else changed()}});
 window.addEventListener('pointerup',function(e){
   if(!drag)return;var d=drag;drag=null;highlight(null);if(d.ghost)d.ghost.remove();
   if(d.kind==='guest'&&d.ghost){var tid=tableAt(e.clientX,e.clientY);if(tid)assign(d.key,tid,d.n)}
   else if(d.kind==='seat'&&d.ghost){var tid2=tableAt(e.clientX,e.clientY);moveAssignment(d.key,d.from,tid2)}
   else if(d.kind==='seat'&&!d.ghost){sel=d.from;render()}
+  else if(d.kind==='move'&&!d.moved){if(draft&&d.t.id!==draft)cancelDraft();sel=d.t.id;render()}
   else if((d.kind==='move'&&d.moved)||d.kind==='rot'){if(d.t.id===draft)render();else changed()}
 });
 
