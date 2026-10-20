@@ -85,6 +85,12 @@ body.dragging .zoom{display:none}
 .label b{display:block;font-family:var(--f-display);font-size:19px;font-weight:600;line-height:1.1}
 .label span{font-size:12px;color:var(--mist)}
 .seat{position:absolute;width:30px;height:30px;margin:-15px 0 0 -15px;border-radius:50%;background:#fff;border:1.5px solid #ddd0b8;display:grid;place-items:center;font-size:10px;font-weight:600;color:#fff}
+.slot{position:absolute;width:30px;height:30px;margin:-15px 0 0 -15px;border-radius:50%;border:1.5px dashed #c4ad80;background:rgba(255,255,255,.55);display:grid;place-items:center;color:#a8843f;font-size:17px;line-height:1;cursor:pointer}
+.sx{position:absolute;right:-11px;top:-11px;width:17px;height:17px;border-radius:50%;background:var(--wax);color:#fff;font-style:normal;font-size:12px;line-height:17px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.3);cursor:pointer}
+.sx::after{content:"";position:absolute;inset:-4px}
+.seat.ed{cursor:grab}
+.seat.aim,.slot.aim{box-shadow:0 0 0 4px var(--gold)!important;border-color:var(--gold)}
+.seat.lift{opacity:.35}
 .seat.on{border-color:#fff;box-shadow:0 2px 6px rgba(0,0,0,.18);cursor:grab}
 .seat span{display:block}
 .rot{position:absolute;left:50%;width:26px;height:26px;margin-left:-13px;border-radius:50%;background:var(--wax);color:#fff;display:grid;place-items:center;font-size:14px;cursor:grab;box-shadow:0 3px 8px rgba(0,0,0,.25)}
@@ -102,6 +108,7 @@ body.dragging .zoom{display:none}
 .row input[type=range]{flex:1;accent-color:var(--wax)}
 .who{display:flex;flex-direction:column;gap:6px;margin-top:4px}
 .who .fam{cursor:default;padding:6px 8px}
+.seathint{margin:8px 0 0;font-size:12px;color:var(--mist);line-height:1.4}.linkbtn{border:0;background:none;color:var(--wax);text-decoration:underline;font-size:12px;padding:0}
 .acts{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
 .panel .acts{position:sticky;bottom:-14px;margin:14px -14px -14px;padding:10px 14px 14px;background:var(--paper-hi);border-top:1px solid var(--line)}
 .panel .acts .btn{flex:1 1 auto}
@@ -200,6 +207,7 @@ body.dragging .zoom{display:none}
   </div>
   <label class="exist">La această masă</label>
   <div class="who exist" id="pWho"></div>
+  <p class="seathint">Pe masă: × scoate un scaun, + adaugă unul, iar un scaun tras se mută pe alt loc prestabilit. <button type="button" class="linkbtn" id="pReset" hidden>Scaune automate</button></p>
   <div class="acts"><button class="btn new" id="pAdd" type="button">Adaugă masa</button><button class="btn ghost exist" id="pDup" type="button">Duplică</button><button class="btn ghost exist" id="pDel" type="button">Șterge masa</button><button class="btn ghost" id="pClose2" type="button">Închide</button></div>
 </div>
 
@@ -243,8 +251,13 @@ function snapshot(){var j=JSON.stringify(clean());if(undoStack[undoStack.length-
 function clampN(v,a,b){return Math.max(a,Math.min(b,v))}
 
 /* ---------- mărimea mesei după formă și locuri ---------- */
+/* pozițiile prestabilite ale scaunelor („sloturi”): t.slots = câte poziții are masa, t.on = pe care dintre ele sunt scaune.
+   Fără t.on, toate pozițiile au scaun (aranjarea automată). */
+function slotsOf(t){return t.on?(t.slots||t.seats):t.seats}
+function activeSlots(t){if(!t.on){var a=[];for(var i=0;i<t.seats;i++)a.push(i);return a}return t.on.slice().sort(function(x,y){return x-y})}
+function customize(t){if(!t.on){t.slots=t.seats;t.on=activeSlots(t)}}
 function dims(t){
-  var s=t.seats;
+  var s=slotsOf(t);
   if(t.shape==='round'){var d=clampN(40+s*10,80,240);return {w:d,h:d}}
   if(t.shape==='oval'){var w=clampN(70+s*16,150,420);return {w:w,h:Math.round(w*.52)}}
   if(t.shape==='square'){var q=clampN(30+s*11,90,240);return {w:q,h:q}}
@@ -252,7 +265,7 @@ function dims(t){
 }
 /* poziția fiecărui loc, în jurul mesei (coordonate locale, față de colțul mesei) */
 function seatPos(t){
-  var d=dims(t), out=[], n=t.seats, off=22;
+  var d=dims(t), out=[], n=slotsOf(t), off=22;
   if(t.shape==='round'||t.shape==='oval'){
     var rx=d.w/2+off, ry=d.h/2+off;
     for(var i=0;i<n;i++){var a=-Math.PI/2+i*2*Math.PI/n;out.push({x:d.w/2+rx*Math.cos(a),y:d.h/2+ry*Math.sin(a)})}
@@ -275,11 +288,11 @@ function seatPos(t){
 /* ---------- locurile exacte ----------
    fiecare așezare are și lista locurilor (a.s); ce nu are loc ales se pune pe primele locuri libere */
 function seatMap(t){
-  var occ=[],pend=[];for(var i=0;i<t.seats;i++)occ.push(null);
+  var occ=[],act=activeSlots(t),on={},pend=[];for(var i=0;i<slotsOf(t);i++)occ.push(null);act.forEach(function(i){on[i]=1});
   plan.assign.forEach(function(a){if(a.t!==t.id)return;var g=guestByKey(a.g);if(!g)return;
-    var got=[];(a.s||[]).forEach(function(j){if(got.length<a.n&&j>=0&&j<t.seats&&!occ[j]){occ[j]={a:a,g:g};got.push(j)}});
+    var got=[];(a.s||[]).forEach(function(j){if(got.length<a.n&&on[j]&&!occ[j]){occ[j]={a:a,g:g};got.push(j)}});
     a.s=got;if(got.length<a.n)pend.push({a:a,g:g})});
-  pend.forEach(function(p){for(var j=0;j<t.seats&&p.a.s.length<p.a.n;j++)if(!occ[j]){occ[j]={a:p.a,g:p.g};p.a.s.push(j)}});
+  pend.forEach(function(p){act.forEach(function(j){if(p.a.s.length<p.a.n&&!occ[j]){occ[j]={a:p.a,g:p.g};p.a.s.push(j)}})});
   return occ;
 }
 /* locurile alese pentru n persoane: de la scaunul cel mai apropiat de deget, în sensul acelor de ceas, doar libere */
@@ -288,22 +301,26 @@ function pickSeats(t,x,y,n,own){
   var occ=seatMap(t),free=function(i){return !occ[i]||occ[i].a===own};
   var best=-1,bd=1e9;el.querySelectorAll('.seat').forEach(function(s){var i=+s.dataset.i;if(!free(i))return;var r=s.getBoundingClientRect(),d=Math.hypot(r.left+r.width/2-x,r.top+r.height/2-y);if(d<bd){bd=d;best=i}});
   if(best<0)return [];
-  var out=[];for(var k=0;k<t.seats&&out.length<n;k++){var i=(best+k)%t.seats;if(free(i))out.push(i)}
+  var act=activeSlots(t),st=act.indexOf(best),out=[];for(var k=0;k<act.length&&out.length<n;k++){var i=act[(st+k)%act.length];if(free(i))out.push(i)}
   return out;
 }
 
 /* ---------- desenarea ---------- */
 function render(){renderStats();renderList();renderRoom();renderPanel();
   // când se deschid setările (sau masa își schimbă mărimea), aducem masa la vedere, lângă panou
-  if(sel){var t=tableById(sel),d=t&&dims(t),k=t&&(sel+':'+d.w+'x'+d.h);if(t&&k!==focusKey){focusKey=k;requestAnimationFrame(function(){focusTable(t)})}}else focusKey=null;}
-var focusKey=null;
-function focusTable(t){
+  if(sel){var t=tableById(sel),d=t&&dims(t),k=t&&(sel+':'+d.w+'x'+d.h);if(t&&k!==focusKey){var full=!focusKey||focusKey.split(':')[0]!==sel;focusKey=k;requestAnimationFrame(function(){focusTable(t,full)})}}
+  else{if(focusKey&&prevView){var pv=prevView;prevView=null;requestAnimationFrame(function(){applyZoom(pv.z);$('roomwrap').scrollTo({left:pv.l,top:pv.t,behavior:'smooth'})})}focusKey=null}}
+var focusKey=null,prevView=null;
+function applyZoom(z){zoom=z;$('room').style.transform='scale('+zoom+')';$('sizer').style.width=ROOM_W*zoom+'px';$('sizer').style.height=ROOM_H*zoom+'px'}
+function focusTable(t,full){
   var w=$('roomwrap'),wr=w.getBoundingClientRect(),pn=$('panel'),mob=window.innerWidth<=820;
   var right=wr.right,bottom=wr.bottom;
   if(!pn.hidden){var pr=pn.getBoundingClientRect();if(mob)bottom=Math.min(bottom,pr.top);else right=Math.min(right,pr.left)}
   var vw=right-wr.left,vh=bottom-wr.top;if(vw<80||vh<80)return;
   var d=dims(t),r=Math.max(Math.hypot(d.w,d.h)/2+40,d.h/2+92);
   var z=zoom;if(2*r*z>Math.min(vw,vh)*.96)z=clampN(Math.min(vw,vh)*.92/(2*r),.3,2);
+  // pe telefon, masa deschisă se mărește cât încape, ca scaunele să se poată atinge ușor
+  if(full&&mob){if(!prevView)prevView={z:zoom,l:w.scrollLeft,t:w.scrollTop};z=clampN(Math.min(vw,vh)*.94/(2*r),.3,2.2);applyZoom(z);w.scrollTo({left:t.x*zoom-vw/2,top:t.y*zoom-vh/2,behavior:'smooth'});return}
   // e deja toată la vedere? atunci nu mișcăm nimic
   var bx=t.x*z-w.scrollLeft,by=t.y*z-w.scrollTop;
   if(z===zoom&&bx-r*z>=0&&bx+r*z<=vw&&by-r*z>=0&&by+r*z<=vh)return;
@@ -344,9 +361,10 @@ function renderRoom(){
     el.style.cssText='left:'+(t.x-d.w/2)+'px;top:'+(t.y-d.h/2)+'px;width:'+d.w+'px;height:'+d.h+'px;transform:rotate('+t.rot+'deg)';
     var html='<div class="shape"></div>';
     // locurile, colorate după familia care stă acolo
-    var occ=seatMap(t);
+    var occ=seatMap(t),act={},edit=sel===t.id;activeSlots(t).forEach(function(i){act[i]=1});
     seatPos(t).forEach(function(p,i){var f=occ[i];
-      html+='<div class="seat'+(f?' on':'')+'" data-i="'+i+'" style="left:'+p.x+'px;top:'+p.y+'px;'+(f?'background:'+color(f.g.key):'')+'"'+(f?' data-g="'+esc(f.g.key)+'" title="'+esc(f.g.nume)+'"':'')+'><span style="transform:rotate('+(-t.rot)+'deg)">'+(f?esc(initials(f.g.nume)):'')+'</span></div>'});
+      if(!act[i]){if(edit)html+='<div class="slot" data-i="'+i+'" title="Adaugă un scaun aici" style="left:'+p.x+'px;top:'+p.y+'px"><span>+</span></div>';return}
+      html+='<div class="seat'+(f?' on':'')+(edit?' ed':'')+'" data-i="'+i+'" style="left:'+p.x+'px;top:'+p.y+'px;'+(f?'background:'+color(f.g.key):'')+'"'+(f?' data-g="'+esc(f.g.key)+'" title="'+esc(f.g.nume)+'"':'')+'><span style="transform:rotate('+(-t.rot)+'deg)">'+(f?esc(initials(f.g.nume)):'')+'</span>'+(edit?'<i class="sx" data-x="'+i+'" title="Scoate scaunul">×</i>':'')+'</div>'});
     html+='<div class="label" style="transform:translate(-50%,-50%) rotate('+(-t.rot)+'deg)"><b>'+esc(t.name)+'</b><span>'+used+' din '+t.seats+'</span></div>';
     if(sel===t.id)html+='<div class="rot" style="top:-74px" title="Rotiți">⟳</div>';
     el.innerHTML=html;room.appendChild(el);
@@ -357,7 +375,7 @@ function renderPanel(){
   $('panel').classList.toggle('isdraft',t.id===draft);document.body.classList.add('editing');
   $('pTitle').textContent=t.id===draft?'Masă nouă':t.name;
   if(document.activeElement!==$('pName'))$('pName').value=t.name;
-  $('pSeats').textContent=t.seats;$('pRot').value=t.rot;$('pRotVal').textContent=t.rot+'°';
+  $('pSeats').textContent=t.seats;$('pReset').hidden=!t.on;$('pRot').value=t.rot;$('pRotVal').textContent=t.rot+'°';
   $('pShapes').querySelectorAll('button').forEach(function(b){b.classList.toggle('on',b.dataset.shape===t.shape)});
   var who=$('pWho');who.innerHTML='';
   var list=plan.assign.filter(function(a){return a.t===t.id&&guestByKey(a.g)});
@@ -423,6 +441,28 @@ function moveAssignment(key,fromT,toT,seats){
   var to=(seats||[]).slice(0,n);
   var ex=plan.assign.filter(function(x){return x.g===key&&x.t===toT})[0];if(ex){ex.n+=n;ex.s=(ex.s||[]).slice(0,ex.n-n).concat(to)}else plan.assign.push({g:key,t:toT,n:n,s:to});
   if(n<a.n+n)toast('Am mutat '+n+' — '+t.name+' s-a umplut');changed();
+}
+
+/* ---------- scaunele unei mese (în modul de editare) ---------- */
+function removeSeat(t,i){
+  customize(t);if(t.on.length<=1)return toast('Masa trebuie să aibă cel puțin un scaun');
+  snapshot();var f=seatMap(t)[i];
+  if(f){f.a.n--;f.a.s=f.a.s.filter(function(x){return x!==i});if(f.a.n<=0)plan.assign.splice(plan.assign.indexOf(f.a),1);toast(f.g.nume+': o persoană a revenit în listă')}
+  t.on=t.on.filter(function(x){return x!==i});t.seats=t.on.length;changed();
+}
+function addSeat(t,i){customize(t);if(t.on.indexOf(i)>=0)return;snapshot();t.on.push(i);t.seats=t.on.length;changed()}
+function moveChair(t,from,to){
+  if(from===to||to==null)return;customize(t);if(t.on.indexOf(to)>=0&&seatMap(t)[to])return;
+  snapshot();var swap=t.on.indexOf(to)>=0;
+  t.on=t.on.map(function(x){return x===from?to:(swap&&x===to?from:x)});
+  plan.assign.forEach(function(a){if(a.t===t.id&&a.s)a.s=a.s.map(function(x){return x===from?to:(swap&&x===to?from:x)})});
+  changed();
+}
+/* locul prestabilit (gol sau scaun liber) cel mai apropiat de deget */
+function nearestSlot(t,x,y,from){
+  var el=document.querySelector('.table[data-id="'+t.id+'"]');if(!el)return null;var occ=seatMap(t),best=null,bd=1e9;
+  el.querySelectorAll('.seat,.slot').forEach(function(s){var i=+s.dataset.i;if(i!==from&&s.classList.contains('seat')&&occ[i])return;var r=s.getBoundingClientRect(),d=Math.hypot(r.left+r.width/2-x,r.top+r.height/2-y);if(d<bd){bd=d;best=i}});
+  return best;
 }
 
 /* ---------- trasul cu degetul / mouse-ul ---------- */
@@ -498,6 +538,12 @@ $('roomwrap').addEventListener('pointerdown',function(e){
 },true);
 $('room').addEventListener('pointerdown',function(e){
   var seat=e.target.closest('.seat.on'), rot=e.target.closest('.rot'), tEl=e.target.closest('.table');
+  // masa deschisă: × scoate scaunul, + adaugă unul, scaunul tras se mută pe alt loc
+  if(tEl&&tEl.dataset.id===sel){var te=tableById(sel);
+    var sx=e.target.closest('.sx');if(sx){e.preventDefault();removeSeat(te,+sx.dataset.x);return}
+    var sl=e.target.closest('.slot');if(sl){e.preventDefault();addSeat(te,+sl.dataset.i);return}
+    var ch=e.target.closest('.seat');if(ch){drag={kind:'chair',t:te,from:+ch.dataset.i,sx:e.clientX,sy:e.clientY,moved:false,to:null};$('roomwrap').style.touchAction='none';e.preventDefault();return}
+  }
   if(seat&&tEl){var g=guestByKey(seat.dataset.g);drag={kind:'seat',key:seat.dataset.g,from:tEl.dataset.id,a:plan.assign.filter(function(x){return x.g===seat.dataset.g&&x.t===tEl.dataset.id})[0],sx:e.clientX,sy:e.clientY,ghost:null,label:g?g.nume:'',ini:g?initials(g.nume):''};e.preventDefault();return}
   if(rot&&tEl){var t=tableById(tEl.dataset.id);snapshot();drag={kind:'rot',t:t};e.preventDefault();return}
   // apăsat și tras = mută masa (fără să deschidă setările); atingere scurtă = deschide setările
@@ -512,6 +558,12 @@ window.addEventListener('pointermove',function(e){
     var ay=e.clientY-(e.pointerType==='touch'?52:0);
     if(!drag.mag)edgeScroll(e.clientX,e.clientY);aimSeats(drag,e.clientX,ay);
     drag.ghost.style.left=e.clientX+'px';drag.ghost.style.top=(drag.target?ay:e.clientY)+'px';return}
+  if(drag.kind==='chair'){
+    if(!drag.moved){if(Math.hypot(e.clientX-drag.sx,e.clientY-drag.sy)<6)return;drag.moved=true;var c0=document.querySelector('.table[data-id="'+drag.t.id+'"] .seat[data-i="'+drag.from+'"]');if(c0)c0.classList.add('lift')}
+    var to=nearestSlot(drag.t,e.clientX,e.clientY,drag.from);
+    document.querySelectorAll('.aim').forEach(function(x){x.classList.remove('aim')});
+    var tel=document.querySelector('.table[data-id="'+drag.t.id+'"] [data-i="'+to+'"]');if(tel&&to!==drag.from)tel.classList.add('aim');
+    drag.to=to;return}
   if(drag.kind==='twist'){var ang=twistAngle(drag);if(ang===null||drag.a0===null)return;var a=Math.round((drag.r0+ang-drag.a0)/5)*5;applyRot(drag.t,((a%360)+360)%360);return}
   if(drag.kind==='move'){
     if(e.pointerId!==drag.pid)return;
@@ -524,7 +576,7 @@ window.addEventListener('pointermove',function(e){
     el2.querySelectorAll('.label').forEach(function(l){l.style.transform='translate(-50%,-50%) rotate('+(-a)+'deg)'});
     el2.querySelectorAll('.seat span').forEach(function(l){l.style.transform='rotate('+(-a)+'deg)'});$('pRot').value=a;$('pRotVal').textContent=a+'°';}
 });
-window.addEventListener('pointercancel',function(){if(!drag)return;var d=drag;drag=null;highlight(null);if(d.ghost)d.ghost.remove();if(d.bar)d.bar.remove();if(d.mag){magnify(d,null)}if(d.kind==='move'&&d.moved||d.kind==='rot'||d.kind==='twist'){if(d.t.id===draft)render();else changed()}});
+window.addEventListener('pointercancel',function(){if(!drag)return;var d=drag;drag=null;highlight(null);if(d.ghost)d.ghost.remove();if(d.bar)d.bar.remove();if(d.mag){magnify(d,null)}if(d.kind==='chair'){render();return}if(d.kind==='move'&&d.moved||d.kind==='rot'||d.kind==='twist'){if(d.t.id===draft)render();else changed()}});
 window.addEventListener('pointerup',function(e){
   if(!drag)return;if(drag.kind==='move'&&e.pointerId!==drag.pid)return;var d=drag;drag=null;highlight(null);if(d.ghost)d.ghost.remove();
   if(d.bar)d.bar.remove();if(d.mag)magnify(d,null);
@@ -532,6 +584,7 @@ window.addEventListener('pointerup',function(e){
   else if(d.kind==='seat'&&d.ghost){moveAssignment(d.key,d.from,d.target?d.target.t:null,d.target&&d.target.seats)}
   else if(d.kind==='seat'&&!d.ghost){sel=d.from;render()}
   else if(d.kind==='twist'){if(d.t.id===draft)render();else changed()}
+  else if(d.kind==='chair'){if(d.moved&&d.to!=null&&d.to!==d.from)moveChair(d.t,d.from,d.to);else render()}
   else if(d.kind==='move'&&!d.moved){if(draft&&d.t.id!==draft)cancelDraft();sel=d.t.id;render()}
   else if((d.kind==='move'&&d.moved)||d.kind==='rot'){if(d.t.id===draft)render();else changed()}
 });
@@ -557,9 +610,12 @@ document.addEventListener('keydown',function(e){
 $('pClose').addEventListener('click',closePanel);
 $('pName').addEventListener('input',function(){var t=tableById(sel);if(!t)return;t.name=this.value.slice(0,40)||'Masă';changed()});
 $('pName').addEventListener('focus',snapshot);
-$('pShapes').addEventListener('click',function(e){var b=e.target.closest('button');var t=tableById(sel);if(!b||!t)return;snapshot();t.shape=b.dataset.shape;changed()});
-$('pSeatsMinus').addEventListener('click',function(){var t=tableById(sel);if(!t)return;if(t.seats<=Math.max(1,usedAt(t.id)))return toast('Mai întâi mutați invitații de pe locurile ocupate');snapshot();t.seats--;changed()});
-$('pSeatsPlus').addEventListener('click',function(){var t=tableById(sel);if(!t||t.seats>=40)return;snapshot();t.seats++;changed()});
+$('pShapes').addEventListener('click',function(e){var b=e.target.closest('button');var t=tableById(sel);if(!b||!t)return;snapshot();t.shape=b.dataset.shape;delete t.on;delete t.slots;changed()});
+$('pReset').addEventListener('click',function(){var t=tableById(sel);if(!t)return;snapshot();delete t.on;delete t.slots;changed()});
+$('pSeatsMinus').addEventListener('click',function(){var t=tableById(sel);if(!t)return;if(t.seats<=Math.max(1,usedAt(t.id)))return toast('Mai întâi mutați invitații de pe locurile ocupate');snapshot();
+  if(t.on){var occ=seatMap(t),act=activeSlots(t);for(var i=act.length-1;i>=0;i--)if(!occ[act[i]]){t.on=t.on.filter(function(x){return x!==act[i]});break}t.seats=t.on.length}else t.seats--;changed()});
+$('pSeatsPlus').addEventListener('click',function(){var t=tableById(sel);if(!t||t.seats>=40)return;snapshot();
+  if(t.on){var act={},free=-1;t.on.forEach(function(i){act[i]=1});for(var i=0;i<t.slots;i++)if(!act[i]){free=i;break}if(free<0){free=t.slots;t.slots++}t.on.push(free);t.seats=t.on.length}else t.seats++;changed()});
 $('pRot').addEventListener('pointerdown',snapshot);
 $('pRot').addEventListener('input',function(){var t=tableById(sel);if(!t)return;t.rot=Number(this.value);changed()});
 $('pDup').addEventListener('click',function(){var t=tableById(sel);if(!t)return;snapshot();var c=JSON.parse(JSON.stringify(t));c.id=uid();c.name='Masa '+(plan.tables.length+1);c.x=Math.min(ROOM_W-60,t.x+60);c.y=Math.min(ROOM_H-60,t.y+60);plan.tables.push(c);sel=c.id;changed()});
