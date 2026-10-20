@@ -383,12 +383,31 @@ $('list').addEventListener('pointerdown',function(e){
   drag={kind:'guest',key:g.key,n:qv,sx:e.clientX,sy:e.clientY,ghost:null,label:g.nume+' · '+qv};
   e.preventDefault();
 });
+/* degetele de pe ecran (pentru rotirea cu două degete) */
+var pts={};
+function trackPt(e){pts[e.pointerId]={x:e.clientX,y:e.clientY}}
+window.addEventListener('pointerdown',trackPt,true);window.addEventListener('pointermove',trackPt,true);
+function dropPt(e){delete pts[e.pointerId];if(!Object.keys(pts).length)$('roomwrap').style.touchAction=''}
+window.addEventListener('pointerup',dropPt,true);window.addEventListener('pointercancel',dropPt,true);
+function twistAngle(d){var a=pts[d.ids[0]],b=pts[d.ids[1]];return a&&b?Math.atan2(b.y-a.y,b.x-a.x)*180/Math.PI:null}
+function applyRot(t,a){t.rot=a;var el=document.querySelector('.table[data-id="'+t.id+'"]');if(!el)return;el.style.transform='rotate('+a+'deg)';
+  el.querySelectorAll('.label').forEach(function(l){l.style.transform='translate(-50%,-50%) rotate('+(-a)+'deg)'});
+  el.querySelectorAll('.seat span').forEach(function(l){l.style.transform='rotate('+(-a)+'deg)'});if(sel===t.id){$('pRot').value=a;$('pRotVal').textContent=a+'°'}}
+// al doilea deget (oriunde în sală) cât timp ții o masă: rotire cu două degete
+$('roomwrap').addEventListener('pointerdown',function(e){
+  if(drag&&(drag.kind==='move')&&e.pointerType==='touch'&&e.pointerId!==drag.pid){
+    var d0=drag;if(!d0.moved&&d0.t.id!==draft)snapshot();
+    drag={kind:'twist',t:d0.t,ids:[d0.pid,e.pointerId],r0:d0.t.rot,a0:null};drag.a0=twistAngle(drag);
+    var me=document.querySelector('.table[data-id="'+d0.t.id+'"]');if(me)me.classList.add('moving');
+    e.preventDefault();e.stopPropagation();return}
+  if(drag&&drag.kind==='twist'){e.stopPropagation()}
+},true);
 $('room').addEventListener('pointerdown',function(e){
   var seat=e.target.closest('.seat.on'), rot=e.target.closest('.rot'), tEl=e.target.closest('.table');
   if(seat&&tEl){var g=guestByKey(seat.dataset.g);drag={kind:'seat',key:seat.dataset.g,from:tEl.dataset.id,sx:e.clientX,sy:e.clientY,ghost:null,label:g?g.nume:''};e.preventDefault();return}
   if(rot&&tEl){var t=tableById(tEl.dataset.id);snapshot();drag={kind:'rot',t:t};e.preventDefault();return}
   // apăsat și tras = mută masa (fără să deschidă setările); atingere scurtă = deschide setările
-  if(tEl){var t2=tableById(tEl.dataset.id),p=roomPt(e);drag={kind:'move',t:t2,dx:p.x-t2.x,dy:p.y-t2.y,moved:false,sx:e.clientX,sy:e.clientY};e.preventDefault();return}
+  if(tEl){var t2=tableById(tEl.dataset.id),p=roomPt(e);drag={kind:'move',t:t2,pid:e.pointerId,dx:p.x-t2.x,dy:p.y-t2.y,moved:false,sx:e.clientX,sy:e.clientY};$('roomwrap').style.touchAction='none';e.preventDefault();return}
   if(draft){cancelDraft();render()}else if(sel){sel=null;render()}
 });
 window.addEventListener('pointermove',function(e){
@@ -396,7 +415,9 @@ window.addEventListener('pointermove',function(e){
   if(drag.kind==='guest'||drag.kind==='seat'){
     if(!drag.ghost){if(Math.hypot(e.clientX-drag.sx,e.clientY-drag.sy)<6)return;drag.ghost=startGhost(e,drag.label)}
     drag.ghost.style.left=e.clientX+'px';drag.ghost.style.top=e.clientY+'px';highlight(tableAt(e.clientX,e.clientY));return}
+  if(drag.kind==='twist'){var ang=twistAngle(drag);if(ang===null||drag.a0===null)return;var a=Math.round((drag.r0+ang-drag.a0)/5)*5;applyRot(drag.t,((a%360)+360)%360);return}
   if(drag.kind==='move'){
+    if(e.pointerId!==drag.pid)return;
     if(!drag.moved){if(Math.hypot(e.clientX-drag.sx,e.clientY-drag.sy)<6)return;if(draft&&drag.t.id!==draft){cancelDraft();render()}if(drag.t.id!==draft)snapshot();drag.moved=true;var me=document.querySelector('.table[data-id="'+drag.t.id+'"]');if(me)me.classList.add('moving')}
     var p=roomPt(e);drag.t.x=clampN(Math.round((p.x-drag.dx)/10)*10,40,ROOM_W-40);drag.t.y=clampN(Math.round((p.y-drag.dy)/10)*10,40,ROOM_H-40);
     var el=document.querySelector('.table[data-id="'+drag.t.id+'"]'),d=dims(drag.t);el.style.left=(drag.t.x-d.w/2)+'px';el.style.top=(drag.t.y-d.h/2)+'px';return}
@@ -406,12 +427,13 @@ window.addEventListener('pointermove',function(e){
     el2.querySelectorAll('.label').forEach(function(l){l.style.transform='translate(-50%,-50%) rotate('+(-a)+'deg)'});
     el2.querySelectorAll('.seat span').forEach(function(l){l.style.transform='rotate('+(-a)+'deg)'});$('pRot').value=a;$('pRotVal').textContent=a+'°';}
 });
-window.addEventListener('pointercancel',function(){if(!drag)return;var d=drag;drag=null;highlight(null);if(d.ghost)d.ghost.remove();if(d.kind==='move'&&d.moved||d.kind==='rot'){if(d.t.id===draft)render();else changed()}});
+window.addEventListener('pointercancel',function(){if(!drag)return;var d=drag;drag=null;highlight(null);if(d.ghost)d.ghost.remove();if(d.kind==='move'&&d.moved||d.kind==='rot'||d.kind==='twist'){if(d.t.id===draft)render();else changed()}});
 window.addEventListener('pointerup',function(e){
-  if(!drag)return;var d=drag;drag=null;highlight(null);if(d.ghost)d.ghost.remove();
+  if(!drag)return;if(drag.kind==='move'&&e.pointerId!==drag.pid)return;var d=drag;drag=null;highlight(null);if(d.ghost)d.ghost.remove();
   if(d.kind==='guest'&&d.ghost){var tid=tableAt(e.clientX,e.clientY);if(tid)assign(d.key,tid,d.n)}
   else if(d.kind==='seat'&&d.ghost){var tid2=tableAt(e.clientX,e.clientY);moveAssignment(d.key,d.from,tid2)}
   else if(d.kind==='seat'&&!d.ghost){sel=d.from;render()}
+  else if(d.kind==='twist'){if(d.t.id===draft)render();else changed()}
   else if(d.kind==='move'&&!d.moved){if(draft&&d.t.id!==draft)cancelDraft();sel=d.t.id;render()}
   else if((d.kind==='move'&&d.moved)||d.kind==='rot'){if(d.t.id===draft)render();else changed()}
 });
