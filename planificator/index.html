@@ -1,0 +1,487 @@
+<!doctype html>
+<html lang="ro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Planificator de mese · Invitații Magice Digitale</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Jost:wght@400;500;600&family=Pinyon+Script&display=swap&subset=latin-ext">
+<style>
+:root{
+  --paper:#f6efe3;--paper-hi:#fcf8f1;--line:#e3d4bb;--ink:#3d2f24;--mist:#86725f;--gold:#a8843f;--gold-deep:#8a6a2b;--wax:#6e1f2a;--sage:#7d9270;
+  --f-display:"Cormorant Garamond",Georgia,serif;--f-ui:"Jost","Avenir Next","Segoe UI",system-ui,sans-serif;--f-script:"Pinyon Script",cursive;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0;height:100%;background:var(--paper);color:var(--ink);font-family:var(--f-ui);font-size:15px}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+.app{display:grid;grid-template-rows:auto 1fr;height:100dvh}
+/* bara de sus */
+.top{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:10px 16px;background:var(--paper-hi);border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:10px;min-width:0}
+.brand svg{width:34px;height:34px;flex:none}
+.brand b{font-family:var(--f-script);font-weight:400;font-size:24px;color:var(--wax);white-space:nowrap}
+.event{font-family:var(--f-display);font-size:21px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:24vw}
+.stats{display:flex;gap:6px;flex-wrap:wrap}
+.stat{padding:4px 10px;border-radius:999px;background:var(--paper);border:1px solid var(--line);font-size:13px;color:var(--mist);white-space:nowrap}
+.stat b{color:var(--ink);font-weight:600}
+.spacer{flex:1}
+.save{font-size:13px;color:var(--mist);white-space:nowrap}
+.save.ok{color:var(--sage)}.save.err{color:#b3261e}
+.btn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--wax);background:var(--wax);color:#fff;border-radius:999px;padding:8px 16px;font-weight:500;font-size:14px;white-space:nowrap}
+.btn.ghost{background:var(--paper-hi);color:var(--ink);border-color:var(--line)}
+.btn:disabled{opacity:.45;cursor:default}
+.btn:focus-visible,.icon:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.icon{width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:var(--paper-hi);display:inline-grid;place-items:center;font-size:17px;line-height:1}
+.menu{position:absolute;z-index:60;background:var(--paper-hi);border:1px solid var(--line);border-radius:14px;box-shadow:0 16px 40px -18px rgba(60,40,20,.5);padding:8px;display:grid;grid-template-columns:1fr 1fr;gap:6px;min-width:260px}
+.menu button{display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 6px;border:1px solid var(--line);border-radius:10px;background:var(--paper);font-size:13px}
+.menu button:hover{border-color:var(--gold)}
+.menu i{display:block;background:#fff;border:2px solid var(--gold)}
+/* corpul */
+.body{display:grid;grid-template-columns:300px 1fr;min-height:0}
+.side{border-right:1px solid var(--line);background:var(--paper-hi);display:flex;flex-direction:column;min-height:0}
+.side-head{padding:12px 14px 8px;display:flex;flex-direction:column;gap:8px}
+.side-head h2{margin:0;font-family:var(--f-display);font-size:22px;font-weight:600}
+.side-head p{margin:0;font-size:13px;color:var(--mist);line-height:1.4}
+.search{width:100%;padding:8px 12px;border:1px solid var(--line);border-radius:10px;background:#fff}
+.list{overflow:auto;padding:4px 10px 16px;display:flex;flex-direction:column;gap:6px;flex:1}
+.list h3{margin:12px 4px 2px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-deep);font-weight:500}
+.fam{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:8px;padding:8px 8px 8px 10px;border:1px solid var(--line);border-radius:12px;background:#fff;touch-action:none;user-select:none;-webkit-user-select:none;cursor:grab}
+.fam.done{opacity:.55;cursor:default;background:var(--paper)}
+.fam .dot{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;color:#fff;font-size:11px;font-weight:600}
+.fam .nm{min-width:0}
+.fam .nm b{display:block;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fam .nm span{font-size:12px;color:var(--mist)}
+.qty{display:flex;align-items:center;gap:2px}
+.qty button{width:24px;height:24px;border-radius:50%;border:1px solid var(--line);background:var(--paper-hi);font-size:14px;line-height:1;padding:0}
+.qty output{min-width:22px;text-align:center;font-weight:600}
+.del{border:0;background:none;color:var(--mist);font-size:16px;padding:0 2px}
+/* sala */
+.roomwrap{position:relative;overflow:auto;min-height:0;background:#fbf8f2}
+.room{position:relative;transform-origin:0 0;
+  background-color:#fbf8f2;background-image:linear-gradient(rgba(168,132,63,.09) 1px,transparent 1px),linear-gradient(90deg,rgba(168,132,63,.09) 1px,transparent 1px);background-size:40px 40px}
+.sizer{position:relative}
+.zoom{position:fixed;right:16px;bottom:16px;display:flex;gap:6px;z-index:40}
+.hint{position:absolute;left:24px;top:20px;font-size:13px;color:var(--mist);pointer-events:none}
+/* mese */
+.table{position:absolute;touch-action:none;user-select:none;-webkit-user-select:none}
+.shape{position:absolute;inset:0;background:#fff;border:2px solid #d9c7a5;box-shadow:0 10px 24px -14px rgba(60,40,20,.45);cursor:move;transition:border-color .2s,box-shadow .2s}
+.table.round .shape,.table.oval .shape{border-radius:50%}
+.table.square .shape,.table.rect .shape{border-radius:10px}
+.table.sel .shape{border-color:var(--wax);box-shadow:0 0 0 4px rgba(110,31,42,.12),0 10px 24px -14px rgba(60,40,20,.45)}
+.table.full .shape{border-color:var(--sage)}
+.table.over .shape{border-color:var(--gold);box-shadow:0 0 0 6px rgba(168,132,63,.25)}
+.label{position:absolute;left:50%;top:50%;text-align:center;pointer-events:none;white-space:nowrap}
+.label b{display:block;font-family:var(--f-display);font-size:19px;font-weight:600;line-height:1.1}
+.label span{font-size:12px;color:var(--mist)}
+.seat{position:absolute;width:30px;height:30px;margin:-15px 0 0 -15px;border-radius:50%;background:#fff;border:1.5px solid #ddd0b8;display:grid;place-items:center;font-size:10px;font-weight:600;color:#fff}
+.seat.on{border-color:#fff;box-shadow:0 2px 6px rgba(0,0,0,.18);cursor:grab}
+.seat span{display:block}
+.rot{position:absolute;left:50%;width:26px;height:26px;margin-left:-13px;border-radius:50%;background:var(--wax);color:#fff;display:grid;place-items:center;font-size:14px;cursor:grab;box-shadow:0 3px 8px rgba(0,0,0,.25)}
+.rot::after{content:"";position:absolute;left:50%;top:26px;width:2px;height:16px;margin-left:-1px;background:var(--wax)}
+/* panoul mesei selectate */
+.panel{position:fixed;right:16px;top:76px;width:300px;max-height:calc(100dvh - 160px);overflow:auto;z-index:50;background:var(--paper-hi);border:1px solid var(--line);border-radius:16px;box-shadow:0 20px 50px -24px rgba(60,40,20,.55);padding:14px}
+.panel h3{margin:0 0 10px;font-family:var(--f-display);font-size:22px;font-weight:600;display:flex;justify-content:space-between;align-items:center}
+.panel label{display:block;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--gold-deep);margin:10px 0 4px}
+.panel input[type=text]{width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:#fff}
+.shapes{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.shapes button{padding:8px 0;border:1px solid var(--line);border-radius:10px;background:#fff;display:grid;place-items:center}
+.shapes button.on{border-color:var(--wax);box-shadow:0 0 0 2px rgba(110,31,42,.15)}
+.shapes i{display:block;border:2px solid var(--gold)}
+.row{display:flex;align-items:center;gap:8px}
+.row input[type=range]{flex:1;accent-color:var(--wax)}
+.who{display:flex;flex-direction:column;gap:6px;margin-top:4px}
+.who .fam{cursor:default;padding:6px 8px}
+.acts{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+/* trasul cu degetul */
+.dragghost{position:fixed;z-index:100;pointer-events:none;padding:8px 14px;border-radius:999px;background:var(--wax);color:#fff;font-weight:500;box-shadow:0 10px 24px rgba(0,0,0,.25);transform:translate(-50%,-130%);white-space:nowrap}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:120;background:var(--ink);color:#fff;padding:10px 18px;border-radius:999px;font-size:14px;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+.demo{background:#fff5d6;border-bottom:1px solid #ecd9a0;padding:6px 16px;font-size:13px;text-align:center}
+/* lista pentru print */
+.sheet{position:fixed;inset:0;z-index:200;background:rgba(40,30,20,.45);display:grid;place-items:center;padding:16px}
+.sheet .card{background:#fff;border-radius:16px;max-width:760px;width:100%;max-height:90dvh;overflow:auto;padding:24px 26px}
+.sheet h2{margin:0 0 4px;font-family:var(--f-display);font-size:30px}
+.sheet table{width:100%;border-collapse:collapse;margin-top:14px}
+.sheet td,.sheet th{text-align:left;padding:8px 6px;border-bottom:1px solid #eee;vertical-align:top;font-size:14px}
+.sheet th{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold-deep)}
+.err-screen{display:grid;place-items:center;height:100dvh;text-align:center;padding:24px}
+.err-screen h1{font-family:var(--f-display)}
+@media print{
+  body *{visibility:hidden}
+  .sheet,.sheet *{visibility:visible}
+  .sheet{position:absolute;inset:0;background:#fff;display:block;padding:0}
+  .sheet .card{max-height:none;box-shadow:none}
+  .sheet .noprint{display:none}
+}
+@media (max-width:1500px){.brand b{display:none}}
+@media (max-width:820px){
+  .body{grid-template-columns:1fr;grid-template-rows:1fr auto}
+  .side{order:2;border-right:0;border-top:1px solid var(--line);max-height:38dvh}
+  .side-head p{display:none}
+  .event{max-width:60vw}
+  .brand b{display:none}
+  .panel{left:8px;right:8px;width:auto;top:auto;bottom:calc(38dvh + 8px);max-height:46dvh}
+  .zoom{bottom:calc(38dvh + 12px)}
+}
+</style>
+</head>
+<body>
+<div class="app" id="app" hidden>
+  <div class="demo" id="demoBar" hidden>Demo: puteți încerca liber. Planul se păstrează doar în acest browser.</div>
+  <header class="top">
+    <div class="brand"><svg viewBox="0 0 48 48" aria-hidden="true"><defs><radialGradient id="w" cx=".38" cy=".32" r=".75"><stop offset="0" stop-color="#a3485a"/><stop offset=".55" stop-color="#6e1f2a"/><stop offset="1" stop-color="#3f0d16"/></radialGradient></defs><path fill="url(#w)" d="M24 2.5c3 0 4.2 2.4 7 3 2.8.7 5.4-.6 7.3 1.4s.9 4.6 1.8 7.2c.8 2.5 3.4 3.9 3.4 6.9s-2.4 4.3-3 7c-.7 2.8.6 5.4-1.4 7.4s-4.7.8-7.3 1.6c-2.5.9-3.8 3.5-6.8 3.5s-4.3-2.5-7-3.2c-2.8-.7-5.4.7-7.3-1.3s-.8-4.7-1.6-7.3C6.3 26.2 3.7 25 3.7 22s2.5-4.4 3.2-7.1c.7-2.8-.6-5.3 1.4-7.3s4.6-.7 7.2-1.6c2.6-.8 3.8-3.5 8.5-3.5Z"/><text x="24" y="31" text-anchor="middle" font-family="Pinyon Script, cursive" font-size="22" fill="#e6c98a">M</text></svg><b>Planificator de mese</b></div>
+    <div class="event" id="evName">Evenimentul vostru</div>
+    <div class="stats" id="stats"></div>
+    <div class="spacer"></div>
+    <span class="save" id="saveState" aria-live="polite"></span>
+    <button class="icon" id="undoBtn" type="button" title="Anulează ultima modificare" aria-label="Anulează ultima modificare" disabled>↶</button>
+    <button class="btn ghost" id="listBtn" type="button">Lista pe mese</button>
+    <button class="btn" id="addTableBtn" type="button">+ Masă</button>
+  </header>
+  <div class="body">
+    <aside class="side">
+      <div class="side-head">
+        <h2>Invitați</h2>
+        <p>Trageți o familie pe o masă. Cu − / + alegeți câte persoane mutați, ca să despărțiți o familie la mese diferite.</p>
+        <div class="row"><input class="search" id="search" type="search" placeholder="Caută un nume…" aria-label="Caută un invitat"><button class="icon" id="addGuestBtn" type="button" title="Adaugă un invitat" aria-label="Adaugă un invitat">+</button></div>
+      </div>
+      <div class="list" id="list"></div>
+    </aside>
+    <main class="roomwrap" id="roomwrap">
+      <div class="sizer" id="sizer"><div class="room" id="room"><div class="hint" id="roomHint">Apăsați „+ Masă” ca să adăugați mese. Trageți-le unde doriți în sală.</div></div></div>
+    </main>
+  </div>
+  <div class="zoom"><button class="icon" id="zoomOut" type="button" aria-label="Micșorează">−</button><button class="icon" id="zoomFit" type="button" aria-label="Arată toată sala">⤢</button><button class="icon" id="zoomIn" type="button" aria-label="Mărește">+</button></div>
+</div>
+
+<div class="menu" id="shapeMenu" hidden>
+  <button type="button" data-shape="round"><i style="width:34px;height:34px;border-radius:50%"></i>Rotundă</button>
+  <button type="button" data-shape="oval"><i style="width:46px;height:28px;border-radius:50%"></i>Ovală</button>
+  <button type="button" data-shape="square"><i style="width:32px;height:32px;border-radius:4px"></i>Pătrată</button>
+  <button type="button" data-shape="rect"><i style="width:52px;height:22px;border-radius:4px"></i>Dreptunghiulară</button>
+</div>
+
+<div class="panel" id="panel" hidden>
+  <h3><span id="pTitle">Masă</span><button class="icon" id="pClose" type="button" aria-label="Închide">×</button></h3>
+  <label for="pName">Nume</label>
+  <input type="text" id="pName" maxlength="40">
+  <label>Formă</label>
+  <div class="shapes" id="pShapes">
+    <button type="button" data-shape="round" title="Rotundă"><i style="width:20px;height:20px;border-radius:50%"></i></button>
+    <button type="button" data-shape="oval" title="Ovală"><i style="width:28px;height:17px;border-radius:50%"></i></button>
+    <button type="button" data-shape="square" title="Pătrată"><i style="width:19px;height:19px;border-radius:3px"></i></button>
+    <button type="button" data-shape="rect" title="Dreptunghiulară"><i style="width:30px;height:13px;border-radius:3px"></i></button>
+  </div>
+  <label>Locuri</label>
+  <div class="qty"><button type="button" id="pSeatsMinus">−</button><output id="pSeats">10</output><button type="button" id="pSeatsPlus">+</button></div>
+  <label for="pRot">Rotire</label>
+  <div class="row"><input type="range" id="pRot" min="0" max="355" step="5"><output id="pRotVal">0°</output></div>
+  <label>La această masă</label>
+  <div class="who" id="pWho"></div>
+  <div class="acts"><button class="btn ghost" id="pDup" type="button">Duplică</button><button class="btn ghost" id="pDel" type="button">Șterge masa</button></div>
+</div>
+
+<div class="sheet" id="sheet" hidden>
+  <div class="card">
+    <h2 id="shTitle">Lista pe mese</h2>
+    <div id="shBody"></div>
+    <div class="acts noprint"><button class="btn" type="button" id="shPrint">Printează</button><button class="btn ghost" type="button" id="shClose">Închide</button></div>
+  </div>
+</div>
+
+<div class="err-screen" id="errScreen" hidden><div><h1>Linkul nu este valid</h1><p>Verificați că ați deschis linkul complet primit de la Invitații Magice Digitale.</p></div></div>
+
+<script>
+(function(){
+'use strict';
+/* Adresa scriptului Google care păstrează confirmările și planul (aceeași ca în invitații). */
+var API='https://script.google.com/macros/s/AKfycbwD6OBhFRaViC2NUoUTjq5nwmyDRIs_67FDBfkf0fszbN6wKGcsvn8O-IrfvDBlb3_K/exec';
+var q=new URLSearchParams(location.search), ID=q.get('id'), KEY=q.get('k'), DEMO=!ID||!KEY;
+var ROOM_W=2400, ROOM_H=1600;
+var $=function(id){return document.getElementById(id)};
+var guests=[], plan=null, sel=null, zoom=1, undoStack=[];
+
+/* ---------- utilitare ---------- */
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function hue(s){var h=2166136261;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)>>>0}return Math.round((h%1000)*137.508)%360}
+function color(key){return 'hsl('+hue(key)+',38%,46%)'}
+function initials(n){var w=String(n).replace(/^(familia|fam\.?|dl\.?|dna\.?|d-na|d-l)\s+/i,'').trim().split(/\s+/);return ((w[0]||'?')[0]+((w[1]||'')[0]||'')).toUpperCase()}
+function toast(t){var d=document.createElement('div');d.className='toast';d.textContent=t;document.body.appendChild(d);setTimeout(function(){d.remove()},2600)}
+function uid(){return 't'+Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
+function allGuests(){return guests.concat(plan.manual||[])}
+function guestByKey(k){var a=allGuests();for(var i=0;i<a.length;i++)if(a[i].key===k)return a[i];return null}
+function seatedOf(k){var s=0;plan.assign.forEach(function(a){if(a.g===k)s+=a.n});return s}
+function usedAt(tid){var s=0;plan.assign.forEach(function(a){if(a.t===tid&&guestByKey(a.g))s+=a.n});return s}
+function tableById(id){for(var i=0;i<plan.tables.length;i++)if(plan.tables[i].id===id)return plan.tables[i];return null}
+function snapshot(){undoStack.push(JSON.stringify(plan));if(undoStack.length>40)undoStack.shift();$('undoBtn').disabled=false}
+function clampN(v,a,b){return Math.max(a,Math.min(b,v))}
+
+/* ---------- mărimea mesei după formă și locuri ---------- */
+function dims(t){
+  var s=t.seats;
+  if(t.shape==='round'){var d=clampN(40+s*10,80,240);return {w:d,h:d}}
+  if(t.shape==='oval'){var w=clampN(70+s*16,150,420);return {w:w,h:Math.round(w*.52)}}
+  if(t.shape==='square'){var q=clampN(30+s*11,90,240);return {w:q,h:q}}
+  var L=clampN(40+Math.ceil(s/2)*46,120,720);return {w:L,h:76};
+}
+/* poziția fiecărui loc, în jurul mesei (coordonate locale, față de colțul mesei) */
+function seatPos(t){
+  var d=dims(t), out=[], n=t.seats, off=22;
+  if(t.shape==='round'||t.shape==='oval'){
+    var rx=d.w/2+off, ry=d.h/2+off;
+    for(var i=0;i<n;i++){var a=-Math.PI/2+i*2*Math.PI/n;out.push({x:d.w/2+rx*Math.cos(a),y:d.h/2+ry*Math.sin(a)})}
+    return out;
+  }
+  if(t.shape==='rect'){
+    var top=Math.ceil(n/2), bot=n-top;
+    for(var j=0;j<top;j++)out.push({x:d.w*(j+.5)/top,y:-off});
+    for(var k=0;k<bot;k++)out.push({x:d.w*(bot-k-.5)/bot,y:d.h+off});
+    return out;
+  }
+  var per=[0,0,0,0];for(var m=0;m<n;m++)per[m%4]++;
+  for(var a1=0;a1<per[0];a1++)out.push({x:d.w*(a1+.5)/per[0],y:-off});
+  for(var a2=0;a2<per[1];a2++)out.push({x:d.w+off,y:d.h*(a2+.5)/per[1]});
+  for(var a3=0;a3<per[2];a3++)out.push({x:d.w*(per[2]-a3-.5)/per[2],y:d.h+off});
+  for(var a4=0;a4<per[3];a4++)out.push({x:-off,y:d.h*(per[3]-a4-.5)/per[3]});
+  return out;
+}
+
+/* ---------- desenarea ---------- */
+function render(){renderStats();renderList();renderRoom();renderPanel();}
+function renderStats(){
+  var tot=0,sit=0;allGuests().forEach(function(g){tot+=g.n;sit+=Math.min(g.n,seatedOf(g.key))});
+  var loc=0;plan.tables.forEach(function(t){loc+=t.seats});
+  $('stats').innerHTML='<span class="stat">Persoane <b>'+tot+'</b></span><span class="stat">Așezate <b>'+sit+'</b></span><span class="stat">Neașezate <b>'+(tot-sit)+'</b></span><span class="stat">Mese <b>'+plan.tables.length+'</b> · locuri <b>'+loc+'</b></span>';
+}
+var pickQty={};
+function famRow(g,rest,done){
+  var div=document.createElement('div');div.className='fam'+(done?' done':'');div.dataset.key=g.key;
+  var qv=clampN(pickQty[g.key]||rest,1,Math.max(1,rest));pickQty[g.key]=qv;
+  div.innerHTML='<span class="dot" style="background:'+color(g.key)+'">'+esc(initials(g.nume))+'</span>'+
+    '<span class="nm"><b>'+esc(g.nume)+'</b><span>'+(done?'așezați toți ('+g.n+')':(rest<g.n?rest+' din '+g.n+' neașezați':g.n+(g.n===1?' persoană':' persoane')))+'</span></span>'+
+    (done?(g.manual?'<button class="del" type="button" data-del="'+esc(g.key)+'" aria-label="Șterge">×</button>':''):
+      '<span class="qty"><button type="button" data-q="-1" aria-label="Mai puține">−</button><output>'+qv+'</output><button type="button" data-q="1" aria-label="Mai multe">+</button>'+(g.manual?'<button class="del" type="button" data-del="'+esc(g.key)+'" aria-label="Șterge">×</button>':'')+'</span>');
+  return div;
+}
+function renderList(){
+  var f=$('search').value.trim().toLowerCase(), L=$('list');L.innerHTML='';
+  var todo=[],done=[];
+  allGuests().forEach(function(g){if(f&&g.nume.toLowerCase().indexOf(f)<0)return;var r=g.n-seatedOf(g.key);(r>0?todo:done).push([g,r])});
+  todo.sort(function(a,b){return a[0].nume.localeCompare(b[0].nume,'ro')});
+  if(!allGuests().length){L.innerHTML='<p style="color:var(--mist);font-size:14px;padding:8px">Încă nu au venit confirmări. Pe măsură ce invitații răspund, apar aici. Puteți adăuga și manual, cu „+”.</p>';return}
+  if(todo.length){var h=document.createElement('h3');h.textContent='De așezat ('+todo.length+')';L.appendChild(h)}
+  todo.forEach(function(x){L.appendChild(famRow(x[0],x[1],false))});
+  if(done.length){var h2=document.createElement('h3');h2.textContent='Așezați ('+done.length+')';L.appendChild(h2);done.forEach(function(x){L.appendChild(famRow(x[0],0,true))})}
+}
+function renderRoom(){
+  var room=$('room');room.querySelectorAll('.table').forEach(function(e){e.remove()});
+  $('roomHint').hidden=plan.tables.length>0;
+  plan.tables.forEach(function(t){
+    var d=dims(t), used=usedAt(t.id);
+    var el=document.createElement('div');el.className='table '+t.shape+(sel===t.id?' sel':'')+(used>=t.seats?' full':'');el.dataset.id=t.id;
+    el.style.cssText='left:'+(t.x-d.w/2)+'px;top:'+(t.y-d.h/2)+'px;width:'+d.w+'px;height:'+d.h+'px;transform:rotate('+t.rot+'deg)';
+    var html='<div class="shape"></div>';
+    // locurile, colorate după familia care stă acolo
+    var fill=[];plan.assign.forEach(function(a){if(a.t===t.id){var g=guestByKey(a.g);if(g)for(var i=0;i<a.n;i++)fill.push({g:g,a:a})}});
+    seatPos(t).forEach(function(p,i){var f=fill[i];
+      html+='<div class="seat'+(f?' on':'')+'" style="left:'+p.x+'px;top:'+p.y+'px;'+(f?'background:'+color(f.g.key):'')+'"'+(f?' data-g="'+esc(f.g.key)+'" title="'+esc(f.g.nume)+'"':'')+'><span style="transform:rotate('+(-t.rot)+'deg)">'+(f?esc(initials(f.g.nume)):'')+'</span></div>'});
+    html+='<div class="label" style="transform:translate(-50%,-50%) rotate('+(-t.rot)+'deg)"><b>'+esc(t.name)+'</b><span>'+used+' din '+t.seats+'</span></div>';
+    if(sel===t.id)html+='<div class="rot" style="top:-74px" title="Rotiți">⟳</div>';
+    el.innerHTML=html;room.appendChild(el);
+  });
+}
+function renderPanel(){
+  var t=sel&&tableById(sel);$('panel').hidden=!t;if(!t)return;
+  $('pTitle').textContent=t.name;
+  if(document.activeElement!==$('pName'))$('pName').value=t.name;
+  $('pSeats').textContent=t.seats;$('pRot').value=t.rot;$('pRotVal').textContent=t.rot+'°';
+  $('pShapes').querySelectorAll('button').forEach(function(b){b.classList.toggle('on',b.dataset.shape===t.shape)});
+  var who=$('pWho');who.innerHTML='';
+  var list=plan.assign.filter(function(a){return a.t===t.id&&guestByKey(a.g)});
+  if(!list.length)who.innerHTML='<span style="font-size:13px;color:var(--mist)">Nimeni încă. Trageți invitați din listă pe masă.</span>';
+  list.forEach(function(a){var g=guestByKey(a.g);var d=document.createElement('div');d.className='fam';
+    d.innerHTML='<span class="dot" style="background:'+color(g.key)+'">'+esc(initials(g.nume))+'</span><span class="nm"><b>'+esc(g.nume)+'</b><span>'+a.n+(a.n===1?' persoană':' persoane')+'</span></span><span class="qty"><button type="button" data-a="-1">−</button><button type="button" data-a="1">+</button><button class="del" type="button" data-a="x" aria-label="Scoate de la masă">×</button></span>';
+    d.querySelectorAll('[data-a]').forEach(function(b){b.addEventListener('click',function(){
+      snapshot();var v=b.dataset.a;
+      if(v==='x')plan.assign.splice(plan.assign.indexOf(a),1);
+      else if(v==='1'){if(seatedOf(a.g)>=g.n)return toast('Toată familia e deja așezată');if(usedAt(t.id)>=t.seats)return toast('Masa e plină');a.n++}
+      else{a.n--;if(a.n<=0)plan.assign.splice(plan.assign.indexOf(a),1)}
+      changed();})});
+    who.appendChild(d)});
+}
+
+/* ---------- salvarea ---------- */
+var saveT=null, saving=false, pending=false;
+function changed(){render();if(DEMO){try{localStorage.setItem('imd-plan-demo',JSON.stringify({plan:plan,guests:guests}))}catch(e){}$('saveState').textContent='Salvat în browser';return}
+  try{localStorage.setItem('imd-plan-'+ID,JSON.stringify(plan))}catch(e){}
+  $('saveState').className='save';$('saveState').textContent='Se salvează…';clearTimeout(saveT);saveT=setTimeout(save,1200)}
+function save(){
+  if(saving){pending=true;return}saving=true;
+  var body=new URLSearchParams({action:'plan',id:ID,k:KEY,data:JSON.stringify(plan)});
+  fetch(API,{method:'POST',body:body}).then(function(r){return r.json()}).then(function(j){
+    if(!j.ok)throw new Error(j.error||'eroare');$('saveState').className='save ok';$('saveState').textContent='Salvat ✓';
+  }).catch(function(){$('saveState').className='save err';$('saveState').textContent='Nesalvat, reîncerc…';setTimeout(save,5000)})
+  .then(function(){saving=false;if(pending){pending=false;save()}});
+}
+window.addEventListener('beforeunload',function(e){if($('saveState').textContent==='Se salvează…'){e.preventDefault();e.returnValue=''}});
+
+/* ---------- acțiuni ---------- */
+function addTable(shape){
+  snapshot();var n=plan.tables.length+1, wrap=$('roomwrap');
+  var cx=(wrap.scrollLeft+wrap.clientWidth/2)/zoom, cy=(wrap.scrollTop+wrap.clientHeight/2)/zoom;
+  var t={id:uid(),name:'Masa '+n,shape:shape,seats:shape==='rect'?12:(shape==='square'?8:10),x:0,y:0,rot:0};
+  // caută un loc liber în jurul centrului vizibil, ca masa nouă să nu se suprapună peste altele
+  var best=null;for(var r=0;r<=1400&&!best;r+=60){for(var a=0;a<360;a+=30){var x=Math.round((cx+r*Math.cos(a*Math.PI/180))/10)*10,y=Math.round((cy+r*Math.sin(a*Math.PI/180))/10)*10;
+    if(x<150||y<150||x>ROOM_W-150||y>ROOM_H-150)continue;
+    var ok=plan.tables.every(function(o){var d1=dims(o),d2=dims(t);return Math.abs(o.x-x)>(d1.w+d2.w)/2+80||Math.abs(o.y-y)>(d1.h+d2.h)/2+80});
+    if(ok){best={x:x,y:y};break}if(r===0)break}}
+  t.x=best?best.x:Math.round(cx);t.y=best?best.y:Math.round(cy);
+  plan.tables.push(t);sel=t.id;changed();
+}
+function assign(key,tid,want){
+  var g=guestByKey(key),t=tableById(tid);if(!g||!t)return;
+  var rest=g.n-seatedOf(key), free=t.seats-usedAt(tid), n=Math.min(want,rest,free);
+  if(free<=0)return toast(t.name+' e plină');if(n<=0)return;
+  snapshot();
+  var ex=plan.assign.filter(function(a){return a.g===key&&a.t===tid})[0];if(ex)ex.n+=n;else plan.assign.push({g:key,t:tid,n:n});
+  pickQty[key]=0;
+  if(n<want)toast('Am așezat '+n+' din '+want+' — '+t.name+' s-a umplut');
+  changed();
+}
+function moveAssignment(key,fromT,toT){
+  var a=plan.assign.filter(function(x){return x.g===key&&x.t===fromT})[0];if(!a)return;
+  if(!toT){snapshot();plan.assign.splice(plan.assign.indexOf(a),1);return changed()}
+  if(toT===fromT)return;
+  var t=tableById(toT),free=t.seats-usedAt(toT);if(free<=0)return toast(t.name+' e plină');
+  snapshot();var n=Math.min(a.n,free);a.n-=n;if(a.n<=0)plan.assign.splice(plan.assign.indexOf(a),1);
+  var ex=plan.assign.filter(function(x){return x.g===key&&x.t===toT})[0];if(ex)ex.n+=n;else plan.assign.push({g:key,t:toT,n:n});
+  if(n<a.n+n)toast('Am mutat '+n+' — '+t.name+' s-a umplut');changed();
+}
+
+/* ---------- trasul cu degetul / mouse-ul ---------- */
+function roomPt(e){var r=$('room').getBoundingClientRect();return {x:(e.clientX-r.left)/zoom,y:(e.clientY-r.top)/zoom}}
+function tableAt(x,y){var els=document.elementsFromPoint(x,y);for(var i=0;i<els.length;i++){var t=els[i].closest&&els[i].closest('.table');if(t)return t.dataset.id}return null}
+var drag=null;
+function startGhost(e,text){var g=document.createElement('div');g.className='dragghost';g.textContent=text;document.body.appendChild(g);g.style.left=e.clientX+'px';g.style.top=e.clientY+'px';return g}
+function highlight(id){document.querySelectorAll('.table.over').forEach(function(t){t.classList.remove('over')});if(id){var el=document.querySelector('.table[data-id="'+id+'"]');if(el)el.classList.add('over')}}
+
+$('list').addEventListener('click',function(e){
+  var b=e.target.closest('button');if(!b)return;var row=b.closest('.fam');var key=row&&row.dataset.key;
+  if(b.dataset.del){var g=guestByKey(b.dataset.del);if(g&&confirm('Ștergeți '+g.nume+' din listă?')){snapshot();plan.manual=plan.manual.filter(function(m){return m.key!==g.key});plan.assign=plan.assign.filter(function(a){return a.g!==g.key});changed()}return}
+  if(b.dataset.q){var g2=guestByKey(key),rest=g2.n-seatedOf(key);pickQty[key]=clampN((pickQty[key]||rest)+Number(b.dataset.q),1,rest);renderList()}
+});
+$('list').addEventListener('pointerdown',function(e){
+  var row=e.target.closest('.fam');if(!row||row.classList.contains('done')||e.target.closest('button'))return;
+  var g=guestByKey(row.dataset.key),rest=g.n-seatedOf(g.key),qv=clampN(pickQty[g.key]||rest,1,rest);
+  drag={kind:'guest',key:g.key,n:qv,sx:e.clientX,sy:e.clientY,ghost:null,label:g.nume+' · '+qv};
+  e.preventDefault();
+});
+$('room').addEventListener('pointerdown',function(e){
+  var seat=e.target.closest('.seat.on'), rot=e.target.closest('.rot'), tEl=e.target.closest('.table');
+  if(seat&&tEl){var g=guestByKey(seat.dataset.g);drag={kind:'seat',key:seat.dataset.g,from:tEl.dataset.id,sx:e.clientX,sy:e.clientY,ghost:null,label:g?g.nume:''};e.preventDefault();return}
+  if(rot&&tEl){var t=tableById(tEl.dataset.id);snapshot();drag={kind:'rot',t:t};e.preventDefault();return}
+  if(tEl){var t2=tableById(tEl.dataset.id),p=roomPt(e);if(sel!==t2.id){sel=t2.id;render()}drag={kind:'move',t:t2,dx:p.x-t2.x,dy:p.y-t2.y,moved:false,sx:e.clientX,sy:e.clientY};e.preventDefault();return}
+  if(sel){sel=null;render()}
+});
+window.addEventListener('pointermove',function(e){
+  if(!drag)return;
+  if(drag.kind==='guest'||drag.kind==='seat'){
+    if(!drag.ghost){if(Math.hypot(e.clientX-drag.sx,e.clientY-drag.sy)<6)return;drag.ghost=startGhost(e,drag.label)}
+    drag.ghost.style.left=e.clientX+'px';drag.ghost.style.top=e.clientY+'px';highlight(tableAt(e.clientX,e.clientY));return}
+  if(drag.kind==='move'){
+    if(!drag.moved){if(Math.hypot(e.clientX-drag.sx,e.clientY-drag.sy)<4)return;snapshot();drag.moved=true}
+    var p=roomPt(e);drag.t.x=clampN(Math.round((p.x-drag.dx)/10)*10,40,ROOM_W-40);drag.t.y=clampN(Math.round((p.y-drag.dy)/10)*10,40,ROOM_H-40);
+    var el=document.querySelector('.table[data-id="'+drag.t.id+'"]'),d=dims(drag.t);el.style.left=(drag.t.x-d.w/2)+'px';el.style.top=(drag.t.y-d.h/2)+'px';return}
+  if(drag.kind==='rot'){
+    var q2=roomPt(e),a=Math.atan2(q2.y-drag.t.y,q2.x-drag.t.x)*180/Math.PI+90;a=(Math.round(a/(e.shiftKey?1:5))*(e.shiftKey?1:5)+360)%360;
+    drag.t.rot=a;var el2=document.querySelector('.table[data-id="'+drag.t.id+'"]');el2.style.transform='rotate('+a+'deg)';
+    el2.querySelectorAll('.label').forEach(function(l){l.style.transform='translate(-50%,-50%) rotate('+(-a)+'deg)'});
+    el2.querySelectorAll('.seat span').forEach(function(l){l.style.transform='rotate('+(-a)+'deg)'});$('pRot').value=a;$('pRotVal').textContent=a+'°';}
+});
+window.addEventListener('pointerup',function(e){
+  if(!drag)return;var d=drag;drag=null;highlight(null);if(d.ghost)d.ghost.remove();
+  if(d.kind==='guest'&&d.ghost){var tid=tableAt(e.clientX,e.clientY);if(tid)assign(d.key,tid,d.n)}
+  else if(d.kind==='seat'&&d.ghost){var tid2=tableAt(e.clientX,e.clientY);moveAssignment(d.key,d.from,tid2)}
+  else if(d.kind==='seat'&&!d.ghost){sel=d.from;render()}
+  else if(d.kind==='move'&&d.moved)changed();
+  else if(d.kind==='rot')changed();
+});
+
+/* ---------- butoane ---------- */
+$('addTableBtn').addEventListener('click',function(e){var m=$('shapeMenu'),r=e.currentTarget.getBoundingClientRect();m.hidden=!m.hidden;m.style.top=(r.bottom+8)+'px';m.style.left=Math.max(8,Math.min(window.innerWidth-280,r.right-270))+'px';e.stopPropagation()});
+$('shapeMenu').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;$('shapeMenu').hidden=true;addTable(b.dataset.shape)});
+document.addEventListener('click',function(e){if(!e.target.closest('#shapeMenu')&&!e.target.closest('#addTableBtn'))$('shapeMenu').hidden=true});
+$('addGuestBtn').addEventListener('click',function(){
+  var n=prompt('Numele invitatului sau al familiei:');if(!n||!n.trim())return;
+  var c=parseInt(prompt('Câte persoane?','2'),10);if(!(c>0))return;
+  snapshot();plan.manual=plan.manual||[];plan.manual.push({key:'m'+Date.now().toString(36),nume:n.trim().slice(0,60),n:Math.min(c,30),manual:true});changed();
+});
+$('search').addEventListener('input',renderList);
+$('undoBtn').addEventListener('click',function(){if(!undoStack.length)return;plan=JSON.parse(undoStack.pop());if(sel&&!tableById(sel))sel=null;$('undoBtn').disabled=!undoStack.length;changed()});
+document.addEventListener('keydown',function(e){
+  if((e.ctrlKey||e.metaKey)&&e.key==='z'){e.preventDefault();$('undoBtn').click()}
+  if((e.key==='Delete'||e.key==='Backspace')&&sel&&!/INPUT|TEXTAREA/.test(document.activeElement.tagName)){$('pDel').click()}
+});
+$('pClose').addEventListener('click',function(){sel=null;render()});
+$('pName').addEventListener('input',function(){var t=tableById(sel);if(!t)return;t.name=this.value.slice(0,40)||'Masă';changed()});
+$('pName').addEventListener('focus',snapshot);
+$('pShapes').addEventListener('click',function(e){var b=e.target.closest('button');var t=tableById(sel);if(!b||!t)return;snapshot();t.shape=b.dataset.shape;changed()});
+$('pSeatsMinus').addEventListener('click',function(){var t=tableById(sel);if(!t)return;if(t.seats<=Math.max(1,usedAt(t.id)))return toast('Mai întâi mutați invitații de pe locurile ocupate');snapshot();t.seats--;changed()});
+$('pSeatsPlus').addEventListener('click',function(){var t=tableById(sel);if(!t||t.seats>=40)return;snapshot();t.seats++;changed()});
+$('pRot').addEventListener('pointerdown',snapshot);
+$('pRot').addEventListener('input',function(){var t=tableById(sel);if(!t)return;t.rot=Number(this.value);changed()});
+$('pDup').addEventListener('click',function(){var t=tableById(sel);if(!t)return;snapshot();var c=JSON.parse(JSON.stringify(t));c.id=uid();c.name='Masa '+(plan.tables.length+1);c.x=Math.min(ROOM_W-60,t.x+60);c.y=Math.min(ROOM_H-60,t.y+60);plan.tables.push(c);sel=c.id;changed()});
+$('pDel').addEventListener('click',function(){var t=tableById(sel);if(!t)return;if(usedAt(t.id)&&!confirm('Ștergeți '+t.name+'? Invitații de la ea revin în listă.'))return;snapshot();plan.tables=plan.tables.filter(function(x){return x.id!==t.id});plan.assign=plan.assign.filter(function(a){return a.t!==t.id});sel=null;changed()});
+
+/* zoom */
+function setZoom(z){var w=$('roomwrap'),cx=(w.scrollLeft+w.clientWidth/2)/zoom,cy=(w.scrollTop+w.clientHeight/2)/zoom;zoom=clampN(z,.3,2);
+  $('room').style.transform='scale('+zoom+')';$('sizer').style.width=ROOM_W*zoom+'px';$('sizer').style.height=ROOM_H*zoom+'px';
+  w.scrollLeft=cx*zoom-w.clientWidth/2;w.scrollTop=cy*zoom-w.clientHeight/2}
+function fit(){
+  var w=$('roomwrap');if(!plan.tables.length){setZoom(Math.min(1,w.clientWidth/1200));w.scrollLeft=0;w.scrollTop=0;return}
+  var x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;plan.tables.forEach(function(t){var d=dims(t),r=Math.max(d.w,d.h)/2+50;x0=Math.min(x0,t.x-r);y0=Math.min(y0,t.y-r);x1=Math.max(x1,t.x+r);y1=Math.max(y1,t.y+r)});
+  zoom=clampN(Math.min(w.clientWidth/(x1-x0),w.clientHeight/(y1-y0)),.3,1.4);setZoom(zoom);w.scrollLeft=x0*zoom-(w.clientWidth-(x1-x0)*zoom)/2;w.scrollTop=y0*zoom-(w.clientHeight-(y1-y0)*zoom)/2}
+$('zoomIn').addEventListener('click',function(){setZoom(zoom*1.2)});
+$('zoomOut').addEventListener('click',function(){setZoom(zoom/1.2)});
+$('zoomFit').addEventListener('click',fit);
+$('roomwrap').addEventListener('wheel',function(e){if(e.ctrlKey){e.preventDefault();setZoom(zoom*(e.deltaY<0?1.1:1/1.1))}},{passive:false});
+
+/* lista pe mese, pentru print sau restaurant */
+$('listBtn').addEventListener('click',function(){
+  var h='<table><tr><th>Masa</th><th>Ocupate</th><th>Invitați</th></tr>';
+  plan.tables.forEach(function(t){var l=plan.assign.filter(function(a){return a.t===t.id&&guestByKey(a.g)});
+    h+='<tr><td><b>'+esc(t.name)+'</b></td><td>'+usedAt(t.id)+' / '+t.seats+'</td><td>'+(l.map(function(a){return esc(guestByKey(a.g).nume)+' ('+a.n+')'}).join('<br>')||'—')+'</td></tr>'});
+  h+='</table>';var ne=allGuests().filter(function(g){return seatedOf(g.key)<g.n});
+  if(ne.length)h+='<h3 style="font-family:var(--f-display);font-size:22px;margin:22px 0 4px">Neașezați</h3><p>'+ne.map(function(g){return esc(g.nume)+' ('+(g.n-seatedOf(g.key))+')'}).join(', ')+'</p>';
+  $('shTitle').textContent='Lista pe mese · '+$('evName').textContent;$('shBody').innerHTML=h;$('sheet').hidden=false});
+$('shClose').addEventListener('click',function(){$('sheet').hidden=true});
+$('shPrint').addEventListener('click',function(){window.print()});
+
+/* ---------- pornire ---------- */
+function defaultPlan(){return {v:1,tables:[{id:uid(),name:'Masa mirilor',shape:'rect',seats:8,x:1200,y:260,rot:0},{id:uid(),name:'Masa 1',shape:'round',seats:10,x:980,y:560,rot:0},{id:uid(),name:'Masa 2',shape:'round',seats:10,x:1420,y:560,rot:0}],assign:[],manual:[]}}
+function start(evName,list,saved){
+  guests=list||[];plan=saved&&saved.tables?saved:defaultPlan();plan.assign=plan.assign||[];plan.manual=plan.manual||[];
+  plan.manual.forEach(function(m){m.manual=true});
+  $('evName').textContent=evName;document.title='Mese · '+evName;$('app').hidden=false;
+  render();setZoom(1);requestAnimationFrame(fit);
+}
+if(DEMO){
+  $('demoBar').hidden=false;
+  var demoGuests=[['Familia Popescu',4],['Familia Ionescu',3],['Andrei și Maria',2],['Familia Stan',5],['Elena Georgescu',1],['Familia Dumitrescu',4],['Radu și Ana',2],['Familia Marin',3],['Mihai Vasile',1],['Familia Constantin',4]]
+    .map(function(x,i){return {key:'d'+i,nume:x[0],n:x[1]}});
+  var st=null;try{st=JSON.parse(localStorage.getItem('imd-plan-demo')||'null')}catch(e){}
+  start('Nunta Ioanei și a lui Ion (demo)',demoGuests,st&&st.plan);
+}else{
+  $('saveState').textContent='Se încarcă…';
+  fetch(API+'?action=plan&id='+encodeURIComponent(ID)+'&k='+encodeURIComponent(KEY)).then(function(r){return r.json()}).then(function(j){
+    if(!j.ok){$('errScreen').hidden=false;return}
+    var local=null;try{local=JSON.parse(localStorage.getItem('imd-plan-'+ID)||'null')}catch(e){}
+    start(j.eveniment,j.invitati,j.plan||local);$('saveState').className='save ok';$('saveState').textContent=j.plan?'Salvat ✓':'';
+  }).catch(function(){$('errScreen').hidden=false;$('errScreen').querySelector('h1').textContent='Nu am putut încărca planul';$('errScreen').querySelector('p').textContent='Verificați conexiunea la internet și reîncărcați pagina.'});
+}
+})();
+</script>
+</body>
+</html>
