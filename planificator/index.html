@@ -69,6 +69,11 @@ button{cursor:pointer}
 .hint{position:absolute;left:24px;top:20px;font-size:13px;color:var(--mist);pointer-events:none}
 /* mese */
 .table{position:absolute;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.table.magnify{z-index:20;transition:transform .16s ease-out}
+.dragghost.aim{transform:translate(-50%,-50%);padding:0;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-size:11px;font-weight:600;opacity:.92;box-shadow:0 0 0 3px #fff,0 6px 14px rgba(0,0,0,.3)}
+.aimbar{position:fixed;z-index:110;transform:translateX(-50%);background:var(--wax);color:#fff;padding:7px 14px;border-radius:999px;font-size:13px;font-weight:500;white-space:nowrap;max-width:94vw;overflow:hidden;text-overflow:ellipsis;box-shadow:0 8px 22px rgba(0,0,0,.25);pointer-events:none}
+body.dragging .zoom{display:none}
+.seat.target{background:var(--gold)!important;border-color:#fff!important;box-shadow:0 0 0 3px rgba(168,132,63,.35)}
 .table.moving{z-index:5;filter:drop-shadow(0 14px 18px rgba(60,40,20,.35))}
 .shape{position:absolute;inset:0;background:#fff;border:2px solid #d9c7a5;box-shadow:0 10px 24px -14px rgba(60,40,20,.45);cursor:move;transition:border-color .2s,box-shadow .2s}
 .table.round .shape,.table.oval .shape{border-radius:50%}
@@ -267,6 +272,26 @@ function seatPos(t){
   return out;
 }
 
+/* ---------- locurile exacte ----------
+   fiecare așezare are și lista locurilor (a.s); ce nu are loc ales se pune pe primele locuri libere */
+function seatMap(t){
+  var occ=[],pend=[];for(var i=0;i<t.seats;i++)occ.push(null);
+  plan.assign.forEach(function(a){if(a.t!==t.id)return;var g=guestByKey(a.g);if(!g)return;
+    var got=[];(a.s||[]).forEach(function(j){if(got.length<a.n&&j>=0&&j<t.seats&&!occ[j]){occ[j]={a:a,g:g};got.push(j)}});
+    a.s=got;if(got.length<a.n)pend.push({a:a,g:g})});
+  pend.forEach(function(p){for(var j=0;j<t.seats&&p.a.s.length<p.a.n;j++)if(!occ[j]){occ[j]={a:p.a,g:p.g};p.a.s.push(j)}});
+  return occ;
+}
+/* locurile alese pentru n persoane: de la scaunul cel mai apropiat de deget, în sensul acelor de ceas, doar libere */
+function pickSeats(t,x,y,n,own){
+  var el=document.querySelector('.table[data-id="'+t.id+'"]');if(!el)return [];
+  var occ=seatMap(t),free=function(i){return !occ[i]||occ[i].a===own};
+  var best=-1,bd=1e9;el.querySelectorAll('.seat').forEach(function(s){var i=+s.dataset.i;if(!free(i))return;var r=s.getBoundingClientRect(),d=Math.hypot(r.left+r.width/2-x,r.top+r.height/2-y);if(d<bd){bd=d;best=i}});
+  if(best<0)return [];
+  var out=[];for(var k=0;k<t.seats&&out.length<n;k++){var i=(best+k)%t.seats;if(free(i))out.push(i)}
+  return out;
+}
+
 /* ---------- desenarea ---------- */
 function render(){renderStats();renderList();renderRoom();renderPanel();
   // când se deschid setările (sau masa își schimbă mărimea), aducem masa la vedere, lângă panou
@@ -319,9 +344,9 @@ function renderRoom(){
     el.style.cssText='left:'+(t.x-d.w/2)+'px;top:'+(t.y-d.h/2)+'px;width:'+d.w+'px;height:'+d.h+'px;transform:rotate('+t.rot+'deg)';
     var html='<div class="shape"></div>';
     // locurile, colorate după familia care stă acolo
-    var fill=[];plan.assign.forEach(function(a){if(a.t===t.id){var g=guestByKey(a.g);if(g)for(var i=0;i<a.n;i++)fill.push({g:g,a:a})}});
-    seatPos(t).forEach(function(p,i){var f=fill[i];
-      html+='<div class="seat'+(f?' on':'')+'" style="left:'+p.x+'px;top:'+p.y+'px;'+(f?'background:'+color(f.g.key):'')+'"'+(f?' data-g="'+esc(f.g.key)+'" title="'+esc(f.g.nume)+'"':'')+'><span style="transform:rotate('+(-t.rot)+'deg)">'+(f?esc(initials(f.g.nume)):'')+'</span></div>'});
+    var occ=seatMap(t);
+    seatPos(t).forEach(function(p,i){var f=occ[i];
+      html+='<div class="seat'+(f?' on':'')+'" data-i="'+i+'" style="left:'+p.x+'px;top:'+p.y+'px;'+(f?'background:'+color(f.g.key):'')+'"'+(f?' data-g="'+esc(f.g.key)+'" title="'+esc(f.g.nume)+'"':'')+'><span style="transform:rotate('+(-t.rot)+'deg)">'+(f?esc(initials(f.g.nume)):'')+'</span></div>'});
     html+='<div class="label" style="transform:translate(-50%,-50%) rotate('+(-t.rot)+'deg)"><b>'+esc(t.name)+'</b><span>'+used+' din '+t.seats+'</span></div>';
     if(sel===t.id)html+='<div class="rot" style="top:-74px" title="Rotiți">⟳</div>';
     el.innerHTML=html;room.appendChild(el);
@@ -378,23 +403,25 @@ function addTable(shape){
   t.x=best?best.x:Math.round(cx);t.y=best?best.y:Math.round(cy);
   plan.tables.push(t);sel=t.id;draft=t.id;render();
 }
-function assign(key,tid,want){
+function assign(key,tid,want,seats){
   var g=guestByKey(key),t=tableById(tid);if(!g||!t)return;
   var rest=g.n-seatedOf(key), free=t.seats-usedAt(tid), n=Math.min(want,rest,free);
   if(free<=0)return toast(t.name+' e plină');if(n<=0)return;
   snapshot();
-  var ex=plan.assign.filter(function(a){return a.g===key&&a.t===tid})[0];if(ex)ex.n+=n;else plan.assign.push({g:key,t:tid,n:n});
+  var to=(seats||[]).slice(0,n);
+  var ex=plan.assign.filter(function(a){return a.g===key&&a.t===tid})[0];if(ex){ex.n+=n;ex.s=(ex.s||[]).slice(0,ex.n-n).concat(to)}else plan.assign.push({g:key,t:tid,n:n,s:to});
   pickQty[key]=0;
   if(n<want)toast('Am așezat '+n+' din '+want+' — '+t.name+' s-a umplut');
   changed();
 }
-function moveAssignment(key,fromT,toT){
+function moveAssignment(key,fromT,toT,seats){
   var a=plan.assign.filter(function(x){return x.g===key&&x.t===fromT})[0];if(!a)return;
   if(!toT){snapshot();plan.assign.splice(plan.assign.indexOf(a),1);return changed()}
-  if(toT===fromT)return;
+  if(toT===fromT){if(seats&&seats.length){snapshot();a.s=seats.slice(0,a.n);changed()}return}
   var t=tableById(toT),free=t.seats-usedAt(toT);if(free<=0)return toast(t.name+' e plină');
-  snapshot();var n=Math.min(a.n,free);a.n-=n;if(a.n<=0)plan.assign.splice(plan.assign.indexOf(a),1);
-  var ex=plan.assign.filter(function(x){return x.g===key&&x.t===toT})[0];if(ex)ex.n+=n;else plan.assign.push({g:key,t:toT,n:n});
+  snapshot();var n=Math.min(a.n,free);a.n-=n;a.s=(a.s||[]).slice(0,a.n);if(a.n<=0)plan.assign.splice(plan.assign.indexOf(a),1);
+  var to=(seats||[]).slice(0,n);
+  var ex=plan.assign.filter(function(x){return x.g===key&&x.t===toT})[0];if(ex){ex.n+=n;ex.s=(ex.s||[]).slice(0,ex.n-n).concat(to)}else plan.assign.push({g:key,t:toT,n:n,s:to});
   if(n<a.n+n)toast('Am mutat '+n+' — '+t.name+' s-a umplut');changed();
 }
 
@@ -402,7 +429,41 @@ function moveAssignment(key,fromT,toT){
 function roomPt(e){var r=$('room').getBoundingClientRect();return {x:(e.clientX-r.left)/zoom,y:(e.clientY-r.top)/zoom}}
 function tableAt(x,y){var els=document.elementsFromPoint(x,y);for(var i=0;i<els.length;i++){var t=els[i].closest&&els[i].closest('.table');if(t)return t.dataset.id}return null}
 var drag=null;
-function startGhost(e,text){var g=document.createElement('div');g.className='dragghost';g.textContent=text;document.body.appendChild(g);g.style.left=e.clientX+'px';g.style.top=e.clientY+'px';return g}
+function startGhost(e,text){document.body.classList.add('dragging');var g=document.createElement('div');g.className='dragghost';g.textContent=text;document.body.appendChild(g);g.style.left=e.clientX+'px';g.style.top=e.clientY+'px';return g}
+/* masa „în dreptul” degetului: sub deget sau la cel mult ~40px de ea */
+function tableNear(x,y){var id=tableAt(x,y);if(id)return id;var best=null,bd=44;
+  document.querySelectorAll('.table').forEach(function(el){var r=el.getBoundingClientRect(),dx=Math.max(r.left-x,0,x-r.right),dy=Math.max(r.top-y,0,y-r.bottom),d=Math.hypot(dx,dy);if(d<bd){bd=d;best=el.dataset.id}});return best}
+/* masa se mărește cât timp ții un invitat deasupra ei, ca să alegi ușor scaunul */
+function magnify(d,tid){
+  if(d.mag===tid)return;
+  if(d.mag){var o=document.querySelector('.table[data-id="'+d.mag+'"]'),ot=tableById(d.mag);if(o&&ot){o.classList.remove('magnify','over');o.style.transform='rotate('+ot.rot+'deg)';o.querySelectorAll('.seat.target').forEach(function(s){s.classList.remove('target')})}}
+  d.mag=tid;if(!tid)return;
+  var el=document.querySelector('.table[data-id="'+tid+'"]'),t=tableById(tid);if(!el||!t)return;
+  // mărirea rămâne în partea vizibilă a sălii (nu iese peste margini)
+  var w=$('roomwrap').getBoundingClientRect(),dm=dims(t),R=(Math.max(dm.w,dm.h)/2+38)*zoom,er=el.getBoundingClientRect(),cx=er.left+er.width/2,cy=er.top+er.height/2;
+  var k=clampN(42/(30*zoom),1.3,3);k=Math.max(1.15,Math.min(k,(Math.min(w.width,w.height)/2-6)/R));
+  var kR=k*R,nx=w.width>2*kR?clampN(cx,w.left+kR,w.right-kR):cx,ny=w.height>2*kR?clampN(cy,w.top+kR,w.bottom-kR):cy;
+  el.classList.add('magnify','over');el.style.transform='translate('+((nx-cx)/zoom)+'px,'+((ny-cy)/zoom)+'px) rotate('+t.rot+'deg) scale('+k+')';
+  // după ce s-a terminat mărirea, recalculăm scaunul de sub deget
+  setTimeout(function(){if(drag===d&&d.mag===tid&&d.lx!=null)aimSeats(d,d.lx,d.ly)},190);
+}
+function aimSeats(d,x,y){
+  d.lx=x;d.ly=y;
+  var tid=tableNear(x,y);magnify(d,tid);
+  document.querySelectorAll('.seat.target').forEach(function(s){s.classList.remove('target')});
+  d.target=null;if(!tid){d.ghost.classList.remove('aim');d.ghost.textContent=d.label;if(d.bar){d.bar.remove();d.bar=null}return}
+  var t=tableById(tid),own=d.kind==='seat'?d.a:null,n=d.kind==='guest'?d.n:(own?own.n:1);
+  var seats=pickSeats(t,x,y,n,own),el=document.querySelector('.table[data-id="'+tid+'"]');
+  seats.forEach(function(i){var s=el.querySelector('.seat[data-i="'+i+'"]');if(s)s.classList.add('target')});
+  d.target={t:tid,seats:seats};
+  d.ghost.classList.add('aim');d.ghost.textContent=d.ini;
+  if(!d.bar){d.bar=document.createElement('div');d.bar.className='aimbar';document.body.appendChild(d.bar)}
+  var wr=$('roomwrap').getBoundingClientRect();d.bar.style.left=(wr.left+wr.width/2)+'px';d.bar.style.top=(wr.top+8)+'px';
+  d.bar.textContent=d.label+' → '+t.name+(seats.length?' · '+(seats.length>1?'locurile ':'locul ')+seats.map(function(i){return i+1}).join(', '):' · e plină');
+}
+/* lângă marginea sălii, sala se derulează singură */
+function edgeScroll(x,y){var w=$('roomwrap'),r=w.getBoundingClientRect();if(x<r.left||x>r.right||y<r.top||y>r.bottom)return;var m=36,v=14;
+  if(x<r.left+m)w.scrollLeft-=v;else if(x>r.right-m)w.scrollLeft+=v;if(y<r.top+m)w.scrollTop-=v;else if(y>r.bottom-m)w.scrollTop+=v}
 function highlight(id){document.querySelectorAll('.table.over').forEach(function(t){t.classList.remove('over')});if(id){var el=document.querySelector('.table[data-id="'+id+'"]');if(el)el.classList.add('over')}}
 
 $('list').addEventListener('click',function(e){
@@ -413,7 +474,7 @@ $('list').addEventListener('click',function(e){
 $('list').addEventListener('pointerdown',function(e){
   var row=e.target.closest('.fam');if(!row||row.classList.contains('done')||e.target.closest('button'))return;
   var g=guestByKey(row.dataset.key),rest=g.n-seatedOf(g.key),qv=clampN(pickQty[g.key]||rest,1,rest);
-  drag={kind:'guest',key:g.key,n:qv,sx:e.clientX,sy:e.clientY,ghost:null,label:g.nume+' · '+qv};
+  drag={kind:'guest',key:g.key,n:qv,sx:e.clientX,sy:e.clientY,ghost:null,label:g.nume+' · '+qv,ini:initials(g.nume)};
   e.preventDefault();
 });
 /* degetele de pe ecran (pentru rotirea cu două degete) */
@@ -421,7 +482,7 @@ var pts={};
 function trackPt(e){pts[e.pointerId]={x:e.clientX,y:e.clientY}}
 window.addEventListener('pointerdown',trackPt,true);window.addEventListener('pointermove',trackPt,true);
 function dropPt(e){delete pts[e.pointerId];if(!Object.keys(pts).length)$('roomwrap').style.touchAction=''}
-window.addEventListener('pointerup',dropPt,true);window.addEventListener('pointercancel',dropPt,true);
+window.addEventListener('pointerup',dropPt,true);window.addEventListener('pointerup',function(){document.body.classList.remove('dragging')});window.addEventListener('pointercancel',function(){document.body.classList.remove('dragging')});window.addEventListener('pointercancel',dropPt,true);
 function twistAngle(d){var a=pts[d.ids[0]],b=pts[d.ids[1]];return a&&b?Math.atan2(b.y-a.y,b.x-a.x)*180/Math.PI:null}
 function applyRot(t,a){t.rot=a;var el=document.querySelector('.table[data-id="'+t.id+'"]');if(!el)return;el.style.transform='rotate('+a+'deg)';
   el.querySelectorAll('.label').forEach(function(l){l.style.transform='translate(-50%,-50%) rotate('+(-a)+'deg)'});
@@ -437,7 +498,7 @@ $('roomwrap').addEventListener('pointerdown',function(e){
 },true);
 $('room').addEventListener('pointerdown',function(e){
   var seat=e.target.closest('.seat.on'), rot=e.target.closest('.rot'), tEl=e.target.closest('.table');
-  if(seat&&tEl){var g=guestByKey(seat.dataset.g);drag={kind:'seat',key:seat.dataset.g,from:tEl.dataset.id,sx:e.clientX,sy:e.clientY,ghost:null,label:g?g.nume:''};e.preventDefault();return}
+  if(seat&&tEl){var g=guestByKey(seat.dataset.g);drag={kind:'seat',key:seat.dataset.g,from:tEl.dataset.id,a:plan.assign.filter(function(x){return x.g===seat.dataset.g&&x.t===tEl.dataset.id})[0],sx:e.clientX,sy:e.clientY,ghost:null,label:g?g.nume:'',ini:g?initials(g.nume):''};e.preventDefault();return}
   if(rot&&tEl){var t=tableById(tEl.dataset.id);snapshot();drag={kind:'rot',t:t};e.preventDefault();return}
   // apăsat și tras = mută masa (fără să deschidă setările); atingere scurtă = deschide setările
   if(tEl){var t2=tableById(tEl.dataset.id),p=roomPt(e);drag={kind:'move',t:t2,pid:e.pointerId,dx:p.x-t2.x,dy:p.y-t2.y,moved:false,sx:e.clientX,sy:e.clientY};$('roomwrap').style.touchAction='none';e.preventDefault();return}
@@ -447,7 +508,10 @@ window.addEventListener('pointermove',function(e){
   if(!drag)return;
   if(drag.kind==='guest'||drag.kind==='seat'){
     if(!drag.ghost){if(Math.hypot(e.clientX-drag.sx,e.clientY-drag.sy)<6)return;drag.ghost=startGhost(e,drag.label)}
-    drag.ghost.style.left=e.clientX+'px';drag.ghost.style.top=e.clientY+'px';highlight(tableAt(e.clientX,e.clientY));return}
+    // pe telefon ținta e puțin deasupra degetului, ca să vezi scaunul ales
+    var ay=e.clientY-(e.pointerType==='touch'?52:0);
+    if(!drag.mag)edgeScroll(e.clientX,e.clientY);aimSeats(drag,e.clientX,ay);
+    drag.ghost.style.left=e.clientX+'px';drag.ghost.style.top=(drag.target?ay:e.clientY)+'px';return}
   if(drag.kind==='twist'){var ang=twistAngle(drag);if(ang===null||drag.a0===null)return;var a=Math.round((drag.r0+ang-drag.a0)/5)*5;applyRot(drag.t,((a%360)+360)%360);return}
   if(drag.kind==='move'){
     if(e.pointerId!==drag.pid)return;
@@ -460,11 +524,12 @@ window.addEventListener('pointermove',function(e){
     el2.querySelectorAll('.label').forEach(function(l){l.style.transform='translate(-50%,-50%) rotate('+(-a)+'deg)'});
     el2.querySelectorAll('.seat span').forEach(function(l){l.style.transform='rotate('+(-a)+'deg)'});$('pRot').value=a;$('pRotVal').textContent=a+'°';}
 });
-window.addEventListener('pointercancel',function(){if(!drag)return;var d=drag;drag=null;highlight(null);if(d.ghost)d.ghost.remove();if(d.kind==='move'&&d.moved||d.kind==='rot'||d.kind==='twist'){if(d.t.id===draft)render();else changed()}});
+window.addEventListener('pointercancel',function(){if(!drag)return;var d=drag;drag=null;highlight(null);if(d.ghost)d.ghost.remove();if(d.bar)d.bar.remove();if(d.mag){magnify(d,null)}if(d.kind==='move'&&d.moved||d.kind==='rot'||d.kind==='twist'){if(d.t.id===draft)render();else changed()}});
 window.addEventListener('pointerup',function(e){
   if(!drag)return;if(drag.kind==='move'&&e.pointerId!==drag.pid)return;var d=drag;drag=null;highlight(null);if(d.ghost)d.ghost.remove();
-  if(d.kind==='guest'&&d.ghost){var tid=tableAt(e.clientX,e.clientY);if(tid)assign(d.key,tid,d.n)}
-  else if(d.kind==='seat'&&d.ghost){var tid2=tableAt(e.clientX,e.clientY);moveAssignment(d.key,d.from,tid2)}
+  if(d.bar)d.bar.remove();if(d.mag)magnify(d,null);
+  if(d.kind==='guest'&&d.ghost){if(d.target)assign(d.key,d.target.t,d.n,d.target.seats)}
+  else if(d.kind==='seat'&&d.ghost){moveAssignment(d.key,d.from,d.target?d.target.t:null,d.target&&d.target.seats)}
   else if(d.kind==='seat'&&!d.ghost){sel=d.from;render()}
   else if(d.kind==='twist'){if(d.t.id===draft)render();else changed()}
   else if(d.kind==='move'&&!d.moved){if(draft&&d.t.id!==draft)cancelDraft();sel=d.t.id;render()}
