@@ -6,6 +6,8 @@
 <meta name="robots" content="noindex, nofollow">
 <title>Planificator de mese · Invitații Magice Digitale</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://script.google.com">
+<link rel="preconnect" href="https://script.googleusercontent.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Jost:wght@400;500;600&family=Pinyon+Script&display=swap&subset=latin-ext">
 <style>
 :root{
@@ -114,6 +116,8 @@ button{cursor:pointer}
 .sheet th{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold-deep)}
 .err-screen{display:grid;place-items:center;height:100dvh;text-align:center;padding:24px}
 .err-screen h1{font-family:var(--f-display)}
+.spin{width:42px;height:42px;margin:0 auto 14px;border-radius:50%;border:3px solid var(--line);border-top-color:var(--wax);animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
 @media print{
   body *{visibility:hidden}
   .sheet,.sheet *{visibility:visible}
@@ -202,6 +206,7 @@ button{cursor:pointer}
   </div>
 </div>
 
+<div class="err-screen" id="loadScreen" hidden><div><div class="spin" aria-hidden="true"></div><p>Se încarcă planul de mese…</p></div></div>
 <div class="err-screen" id="errScreen" hidden><div><h1>Linkul nu este valid</h1><p>Verificați că ați deschis linkul complet primit de la Invitații Magice Digitale.</p></div></div>
 
 <script>
@@ -345,9 +350,9 @@ function renderPanel(){
 
 /* ---------- salvarea ---------- */
 var saveT=null, saving=false, pending=false;
-var lastJ=null;
-function changed(){render();var j=JSON.stringify(clean());if(j===lastJ)return;lastJ=j;if(DEMO){try{localStorage.setItem('imd-plan-demo',JSON.stringify({plan:clean(),guests:guests}))}catch(e){}$('saveState').textContent='Salvat în browser';return}
-  try{localStorage.setItem('imd-plan-'+ID,JSON.stringify(clean()))}catch(e){}
+var lastJ=null, dirty=false;
+function changed(){render();var j=JSON.stringify(clean());if(j===lastJ)return;lastJ=j;dirty=true;if(DEMO){try{localStorage.setItem('imd-plan-demo',JSON.stringify({plan:clean(),guests:guests}))}catch(e){}$('saveState').textContent='Salvat în browser';return}
+  try{localStorage.setItem('imd-plan-'+ID,JSON.stringify(clean()));localStorage.setItem('imd-plan-cache-'+ID,JSON.stringify({ev:$('evName').textContent,invitati:guests,plan:clean()}))}catch(e){}
   $('saveState').className='save';$('saveState').textContent='Se salvează…';clearTimeout(saveT);saveT=setTimeout(save,1200)}
 function save(){
   if(saving){pending=true;return}saving=true;
@@ -534,12 +539,27 @@ if(DEMO){
   var st=null;try{st=JSON.parse(localStorage.getItem('imd-plan-demo')||'null')}catch(e){}
   start('Nunta Ioanei și a lui Ion (demo)',demoGuests,st&&st.plan);
 }else{
-  $('saveState').textContent='Se încarcă…';
+  // 1) arătăm imediat ultima variantă salvată pe acest telefon/calculator; 2) o actualizăm când răspunde Google (durează câteva secunde)
+  var cache=null;try{cache=JSON.parse(localStorage.getItem('imd-plan-cache-'+ID)||'null')}catch(e){}
+  if(cache&&cache.plan){start(cache.ev,cache.invitati,cache.plan);$('saveState').textContent='Se actualizează…'}
+  else{$('loadScreen').hidden=false}
   fetch(API+'?action=plan&id='+encodeURIComponent(ID)+'&k='+encodeURIComponent(KEY)).then(function(r){return r.json()}).then(function(j){
-    if(!j.ok){$('errScreen').hidden=false;return}
+    $('loadScreen').hidden=true;
+    if(!j.ok){$('app').hidden=true;$('errScreen').hidden=false;return}
     var local=null;try{local=JSON.parse(localStorage.getItem('imd-plan-'+ID)||'null')}catch(e){}
-    start(j.eveniment,j.invitati,j.plan||local);$('saveState').className='save ok';$('saveState').textContent=j.plan?'Salvat ✓':'';
-  }).catch(function(){$('errScreen').hidden=false;$('errScreen').querySelector('h1').textContent='Nu am putut încărca planul';$('errScreen').querySelector('p').textContent='Verificați conexiunea la internet și reîncărcați pagina.'});
+    try{localStorage.setItem('imd-plan-cache-'+ID,JSON.stringify({ev:j.eveniment,invitati:j.invitati,plan:j.plan||local}))}catch(e){}
+    if(!plan){start(j.eveniment,j.invitati,j.plan||local)}
+    else{
+      // pagina era deja deschisă din memorie: aducem confirmările noi și planul de pe server (dacă între timp nu s-a modificat nimic aici)
+      guests=j.invitati||[];$('evName').textContent=j.eveniment;
+      if(!dirty&&!draft&&!drag&&j.plan){plan=j.plan;plan.assign=plan.assign||[];plan.manual=plan.manual||[];plan.manual.forEach(function(m){m.manual=true});lastJ=JSON.stringify(plan);if(sel&&!tableById(sel))sel=null}
+      render();
+    }
+    if(!dirty){$('saveState').className='save ok';$('saveState').textContent=j.plan?'Salvat ✓':''}
+  }).catch(function(){
+    $('loadScreen').hidden=true;
+    if(plan){$('saveState').className='save err';$('saveState').textContent='Fără conexiune';return}
+    $('errScreen').hidden=false;$('errScreen').querySelector('h1').textContent='Nu am putut încărca planul';$('errScreen').querySelector('p').textContent='Verificați conexiunea la internet și reîncărcați pagina.'});
 }
 })();
 </script>
