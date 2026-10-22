@@ -130,10 +130,26 @@ body.dragging .zoom{display:none}
 .err-screen h1{font-family:var(--f-display)}
 .spin{width:42px;height:42px;margin:0 auto 14px;border-radius:50%;border:3px solid var(--line);border-top-color:var(--wax);animation:spin 1s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
+/* schița sălii */
+.shtabs{display:inline-flex;gap:4px;padding:4px;border-radius:999px;background:var(--paper);border:1px solid var(--line);margin-bottom:14px}
+.shtabs button{border:0;background:none;padding:7px 16px;border-radius:999px;font-size:14px;font-weight:500;color:var(--mist)}
+.shtabs button.on{background:var(--wax);color:#fff}
+#shMap svg{width:100%;height:auto;display:block;max-height:62vh}
+.legend{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px 18px;margin-top:14px;font-size:12.5px;line-height:1.45}
+.legend b{display:block;font-family:var(--f-display);font-size:17px}
+.legend .chip{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;color:#fff;font-size:9px;font-weight:600;margin-right:5px;vertical-align:-5px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+@page{size:A4;margin:12mm}
+@page land{size:A4 landscape;margin:10mm}
 @media print{
-  body *{visibility:hidden}
-  .sheet,.sheet *{visibility:visible}
-  .sheet{position:absolute;inset:0;background:#fff;display:block;padding:0}
+  .sheet.map .card{page:land}
+  html,body{background:#fff!important;height:auto!important;overflow:visible!important}
+  .sheet .card{padding:0!important;border-radius:0}
+  .sheet.map h2{font-size:24px;margin-bottom:6px}
+  #shMap svg{max-height:128mm}
+  .legend{font-size:11px;gap:6px 14px;grid-template-columns:repeat(4,1fr)}.legend b{font-size:14px}.legend>div{break-inside:avoid}
+  .sheet *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  body>*:not(.sheet){display:none!important}
+  .sheet{position:static;inset:auto;background:#fff;display:block;padding:0}
   .sheet .card{max-height:none;box-shadow:none}
   .sheet .noprint{display:none}
 }
@@ -169,7 +185,7 @@ body.dragging .zoom{display:none}
     <div class="spacer"></div>
     <span class="save" id="saveState" aria-live="polite"></span>
     <button class="icon" id="undoBtn" type="button" title="Anulează ultima modificare" aria-label="Anulează ultima modificare" disabled>↶</button>
-    <button class="btn ghost" id="listBtn" type="button">Lista pe mese</button>
+    <button class="btn ghost" id="listBtn" type="button">Listă și schiță</button>
     <button class="btn" id="addTableBtn" type="button">+ Masă</button>
   </header>
   <div class="body">
@@ -213,8 +229,10 @@ body.dragging .zoom{display:none}
 
 <div class="sheet" id="sheet" hidden>
   <div class="card">
+    <div class="shtabs noprint" role="tablist"><button type="button" data-v="list" class="on">Lista pe mese</button><button type="button" data-v="map">Schița sălii</button></div>
     <h2 id="shTitle">Lista pe mese</h2>
     <div id="shBody"></div>
+    <div id="shMap" hidden></div>
     <div class="acts noprint"><button class="btn" type="button" id="shPrint">Printează</button><button class="btn ghost" type="button" id="shClose">Închide</button></div>
   </div>
 </div>
@@ -635,13 +653,49 @@ $('zoomFit').addEventListener('click',fit);
 $('roomwrap').addEventListener('wheel',function(e){if(e.ctrlKey){e.preventDefault();setZoom(zoom*(e.deltaY<0?1.1:1/1.1))}},{passive:false});
 
 /* lista pe mese, pentru print sau restaurant */
-$('listBtn').addEventListener('click',function(){
+/* ---------- lista pe mese și schița sălii (de printat) ---------- */
+function listHTML(){
   var h='<table><tr><th>Masa</th><th>Ocupate</th><th>Invitați</th></tr>';
-  plan.tables.forEach(function(t){var l=plan.assign.filter(function(a){return a.t===t.id&&guestByKey(a.g)});
+  plan.tables.forEach(function(t){if(t.id===draft)return;var l=plan.assign.filter(function(a){return a.t===t.id&&guestByKey(a.g)});
     h+='<tr><td><b>'+esc(t.name)+'</b></td><td>'+usedAt(t.id)+' / '+t.seats+'</td><td>'+(l.map(function(a){return esc(guestByKey(a.g).nume)+' ('+a.n+')'}).join('<br>')||'—')+'</td></tr>'});
   h+='</table>';var ne=allGuests().filter(function(g){return seatedOf(g.key)<g.n});
   if(ne.length)h+='<h3 style="font-family:var(--f-display);font-size:22px;margin:22px 0 4px">Neașezați</h3><p>'+ne.map(function(g){return esc(g.nume)+' ('+(g.n-seatedOf(g.key))+')'}).join(', ')+'</p>';
-  $('shTitle').textContent='Lista pe mese · '+$('evName').textContent;$('shBody').innerHTML=h;$('sheet').hidden=false});
+  return h;
+}
+/* desenul sălii: mesele așezate și rotite exact ca în plan, cu inițialele pe fiecare scaun */
+function sketchHTML(){
+  var ts=plan.tables.filter(function(t){return t.id!==draft});
+  if(!ts.length)return '<p style="color:var(--mist)">Nu ați adăugat încă nicio masă.</p>';
+  var x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;
+  ts.forEach(function(t){var d=dims(t),r=Math.hypot(d.w,d.h)/2+42;x0=Math.min(x0,t.x-r);y0=Math.min(y0,t.y-r);x1=Math.max(x1,t.x+r);y1=Math.max(y1,t.y+r)});
+  var g='';
+  ts.forEach(function(t){var d=dims(t),hw=d.w/2,hh=d.h/2,occ=seatMap(t),act={},used=usedAt(t.id);activeSlots(t).forEach(function(i){act[i]=1});
+    g+='<g transform="translate('+t.x+' '+t.y+') rotate('+t.rot+')">';
+    g+=(t.shape==='round'||t.shape==='oval')?'<ellipse rx="'+hw+'" ry="'+hh+'" fill="#fff" stroke="#a8843f" stroke-width="2.5"/>':'<rect x="'+(-hw)+'" y="'+(-hh)+'" width="'+d.w+'" height="'+d.h+'" rx="10" fill="#fff" stroke="#a8843f" stroke-width="2.5"/>';
+    seatPos(t).forEach(function(p,i){if(!act[i])return;var f=occ[i],cx=p.x-hw,cy=p.y-hh;
+      g+='<circle cx="'+cx+'" cy="'+cy+'" r="15" fill="'+(f?color(f.g.key):'#fff')+'" stroke="'+(f?'#fff':'#cdb98f')+'" stroke-width="1.5"/>';
+      if(f)g+='<text transform="translate('+cx+' '+cy+') rotate('+(-t.rot)+')" y="3.6" text-anchor="middle" font-size="10.5" font-weight="600" fill="#fff" font-family="Jost,sans-serif">'+esc(initials(f.g.nume))+'</text>'});
+    var fs=Math.max(14,Math.min(26,Math.min(d.w,d.h)/3.2));
+    g+='<g transform="rotate('+(-t.rot)+')"><text y="'+(-fs*.15)+'" text-anchor="middle" font-size="'+fs+'" font-weight="600" fill="#3d2f24" font-family="Cormorant Garamond,serif">'+esc(t.name)+'</text><text y="'+(fs*.85)+'" text-anchor="middle" font-size="'+(fs*.62)+'" fill="#86725f" font-family="Jost,sans-serif">'+used+' / '+t.seats+'</text></g>';
+    g+='</g>'});
+  var svg='<svg xmlns="http://www.w3.org/2000/svg" viewBox="'+[x0,y0,x1-x0,y1-y0].map(Math.round).join(' ')+'"><rect x="'+x0+'" y="'+y0+'" width="'+(x1-x0)+'" height="'+(y1-y0)+'" fill="#fbf8f2" rx="16"/>'+g+'</svg>';
+  // legenda: cine e pe fiecare masă, cu culoarea și inițialele de pe scaune
+  var lg='<div class="legend">';
+  ts.forEach(function(t){var l=plan.assign.filter(function(a){return a.t===t.id&&guestByKey(a.g)});
+    lg+='<div><b>'+esc(t.name)+' · '+usedAt(t.id)+'/'+t.seats+'</b>'+(l.map(function(a){var gg=guestByKey(a.g);return '<span class="chip" style="background:'+color(gg.key)+'">'+esc(initials(gg.nume))+'</span>'+esc(gg.nume)+' ('+a.n+')'}).join('<br>')||'<span style="color:var(--mist)">liberă</span>')+'</div>'});
+  return svg+lg+'</div>';
+}
+var shView='list';
+function showSheet(v){shView=v;
+  $('sheet').classList.toggle('map',v==='map');
+  $('sheet').querySelectorAll('.shtabs button').forEach(function(b){b.classList.toggle('on',b.dataset.v===v)});
+  var ev=$('evName').textContent;
+  if(v==='map'){$('shTitle').textContent='Schița sălii · '+ev;$('shMap').innerHTML=sketchHTML();$('shMap').hidden=false;$('shBody').hidden=true}
+  else{$('shTitle').textContent='Lista pe mese · '+ev;$('shBody').innerHTML=listHTML();$('shBody').hidden=false;$('shMap').hidden=true}
+  $('sheet').hidden=false;
+}
+$('listBtn').addEventListener('click',function(){showSheet(shView)});
+$('sheet').querySelector('.shtabs').addEventListener('click',function(e){var b=e.target.closest('button');if(b)showSheet(b.dataset.v)});
 $('shClose').addEventListener('click',function(){$('sheet').hidden=true});
 $('shPrint').addEventListener('click',function(){window.print()});
 
