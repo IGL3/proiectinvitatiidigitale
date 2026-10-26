@@ -40,13 +40,26 @@ body{min-height:100vh;display:flex;align-items:center;justify-content:center;ove
 .ed-on #ed-toggle .on{display:inline}
 #ed-toast{position:fixed;left:50%;bottom:18px;z-index:21;transform:translate(-50%,8px);max-width:calc(100vw - 32px);background:#0a2169;color:#fff;padding:8px 14px;border-radius:8px;font:500 13px/1.3 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s}
 #ed-toast.show{opacity:1;transform:translate(-50%,0)}
+#ed-bar.busy button{opacity:.6;pointer-events:none}
+#ed-auth{position:fixed;inset:0;z-index:30;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(10,20,50,.45);font:400 14px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+#ed-auth form{width:min(440px,100%);background:#fff;color:#1d2433;border-radius:12px;padding:20px 20px 16px;box-shadow:0 12px 40px rgba(0,0,0,.25)}
+#ed-auth h2{margin:0 0 8px;font-size:17px;color:#0a2169}
+#ed-auth p{margin:0 0 12px}
+#ed-auth input{width:100%;font:inherit;padding:9px 11px;border:1px solid #b9c1d6;border-radius:8px}
+#ed-auth input:focus{outline:2px solid #c8883e;outline-offset:1px}
+#ed-auth .err{min-height:1.2em;margin:8px 0;color:#b3261e;font-size:13px}
+#ed-auth .row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+#ed-auth .row a{color:#0a2169;font-size:13px}
+#ed-auth .row span{display:flex;gap:8px}
+#ed-auth button{font:inherit;cursor:pointer;border-radius:999px;padding:7px 14px;border:1px solid rgba(10,33,105,.3);background:#fff;color:#0a2169}
+#ed-auth button[type=submit]{background:#0a2169;color:#fff;border-color:#0a2169}
 .ed-on .page .t{cursor:text}
 .ed-on .page .t:hover{outline:1px dashed rgba(200,136,62,.95);outline-offset:2px}
 .ed-on .page .t:focus{outline:2px solid #c8883e;outline-offset:2px;background:rgba(255,228,170,.35)}
 .ed-on .page .t:empty{min-width:.6em}
 .t.flat .w{position:static;transform:none}
 @media print{
-  #ed-bar,#ed-toast{display:none!important}
+  #ed-bar,#ed-toast,#ed-auth{display:none!important}
   @page{size:1491px 1055px;margin:0}
   html,body{background:#fefefe;display:block;min-height:0}
   .viewport{width:1491px!important;height:1055px!important}
@@ -297,7 +310,7 @@ body{min-height:100vh;display:flex;align-items:center;justify-content:center;ove
 <div class="t footer" id="t-footer" data-a="c" style="left:621px;top:1021px;letter-spacing:5.17px">PANITO BISTRO</div>
 </main>
 </div>
-<div id="ed-bar" role="toolbar" aria-label="Editare meniu" data-file="Panito_Bistro_pagina_2.html">
+<div id="ed-bar" role="toolbar" aria-label="Editare meniu" data-file="Panito_Bistro_pagina_2.html" data-repo="IGL3/proiectinvitatiidigitale" data-branch="main" data-host="invitatiimagiceonline.ro">
 <button type="button" id="ed-save" title="Salvează fișierul HTML cu modificările (Ctrl+S)">Salvează</button>
 <button type="button" id="ed-toggle" aria-pressed="false" title="Pornește sau oprește editarea textelor"><span class="off">✎ Editează</span><span class="on">✓ Gata</span></button>
 </div>
@@ -467,8 +480,13 @@ body{min-height:100vh;display:flex;align-items:center;justify-content:center;ove
     btnToggle.setAttribute('aria-pressed', on ? 'true' : 'false');
   }
 
-  function serialize() {
+  function serialize(stamp) {
     var root = doc.documentElement.cloneNode(true);
+    if (stamp) root.setAttribute('data-version', stamp);
+    var au = root.querySelector('#ed-auth');
+    if (au) au.remove();
+    var eb = root.querySelector('#ed-bar');
+    if (eb) { eb.removeAttribute('style'); eb.classList.remove('busy'); if (!eb.className) eb.removeAttribute('class'); }
     [].forEach.call(root.querySelectorAll('[contenteditable]'), function (n) {
       n.removeAttribute('contenteditable'); n.removeAttribute('spellcheck');
     });
@@ -498,8 +516,124 @@ body{min-height:100vh;display:flex;align-items:center;justify-content:center;ove
     setDirty(false);
     flash('Fișierul modificat s-a descărcat: ' + name);
   }
+  /* ---------- online saving (the page on the site is updated through GitHub) ---------- */
+  var cfg = { repo: bar.getAttribute('data-repo'), branch: bar.getAttribute('data-branch') || 'main', host: bar.getAttribute('data-host') };
+  var online = /^https?:$/.test(location.protocol) && !!cfg.repo &&
+               (location.hostname === cfg.host || /\.github\.io$/.test(location.hostname));
+  var version = doc.documentElement.getAttribute('data-version') || '0';
+  var TOKEN_KEY = 'ed-gh-token', saving = false;
+
+  function store(k, v) { try { if (v === null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch (e) { /* storage off */ } }
+  function load(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+  function repoPath() {
+    var p = '';
+    try { p = decodeURIComponent(location.pathname); } catch (e) { p = location.pathname; }
+    p = p.replace(/^\/+/, '');
+    if (/\.github\.io$/.test(location.hostname)) p = p.split('/').slice(1).join('/');
+    if (!p || /\/$/.test(p)) p += 'index.html';
+    return p;
+  }
+  function b64encode(str) {
+    var bytes = new TextEncoder().encode(str), bin = '', CH = 0x8000;
+    for (var i = 0; i < bytes.length; i += CH) bin += String.fromCharCode.apply(null, bytes.subarray(i, i + CH));
+    return btoa(bin);
+  }
+  function b64decode(b) {
+    var bin = atob((b || '').replace(/\s/g, '')), bytes = new Uint8Array(bin.length);
+    for (var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    return new TextDecoder('utf-8').decode(bytes);
+  }
+  function fail(kind, status) { var e = new Error(kind); e.kind = kind; e.status = status; return e; }
+
+  function askToken(msg) {
+    var old = doc.getElementById('ed-auth');
+    if (old) old.remove();
+    var box = doc.createElement('div');
+    box.id = 'ed-auth';
+    box.setAttribute('role', 'dialog');
+    box.setAttribute('aria-modal', 'true');
+    box.innerHTML =
+      '<form><h2>Salvare online</h2>' +
+      '<p>Ca modificările să apară direct în link, pune o singură dată cheia GitHub a site-ului (token). ' +
+      'Rămâne salvată doar în acest browser.</p>' +
+      '<input type="password" autocomplete="off" spellcheck="false" placeholder="github_pat_…" aria-label="Token GitHub" required>' +
+      '<p class="err" role="alert"></p>' +
+      '<div class="row"><a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">Creează un token pe GitHub</a>' +
+      '<span><button type="button" class="cancel">Anulează</button><button type="submit">Salvează online</button></span></div></form>';
+    body.appendChild(box);
+    var input = box.querySelector('input'), err = box.querySelector('.err');
+    if (msg) err.textContent = msg;
+    box.querySelector('.cancel').addEventListener('click', function () { box.remove(); });
+    box.addEventListener('keydown', function (e) { if (e.key === 'Escape') box.remove(); });
+    box.querySelector('form').addEventListener('submit', function (e) {
+      e.preventDefault();
+      var t = input.value.trim();
+      if (!t) return;
+      store(TOKEN_KEY, t);
+      box.remove();
+      bar.style.display = '';
+      saveOnline();
+    });
+    setTimeout(function () { input.focus(); }, 0);
+  }
+
+  function saveOnline() {
+    if (saving) return;
+    var token = load(TOKEN_KEY);
+    if (!token) { askToken(); return; }
+    saving = true;
+    bar.classList.add('busy');
+    flash('Se salvează online…', 30000);
+    var path = repoPath();
+    var api = 'https://api.github.com/repos/' + cfg.repo + '/contents/' + path.split('/').map(encodeURIComponent).join('/');
+    var hdr = { 'Accept': 'application/vnd.github+json', 'Authorization': 'Bearer ' + token, 'X-GitHub-Api-Version': '2022-11-28' };
+    fetch(api + '?ref=' + encodeURIComponent(cfg.branch) + '&_=' + Date.now(), { headers: hdr, cache: 'no-store' })
+      .then(function (r) {
+        if (r.status === 401) throw fail('auth', 401);
+        if (!r.ok) throw fail('http', r.status);
+        return r.json();
+      })
+      .then(function (f) {
+        /* never overwrite a newer version that was saved after this page was opened */
+        if (f.content) {
+          var m = b64decode(f.content).match(/<html[^>]*\sdata-version="(\d+)"/);
+          if ((m ? m[1] : '0') !== version) throw fail('conflict');
+        }
+        var stamp = String(Date.now());
+        var html = serialize(stamp);
+        return fetch(api, {
+          method: 'PUT', headers: hdr, cache: 'no-store',
+          body: JSON.stringify({ message: 'Meniu: modificare din pagină (' + path.split('/').pop() + ')', content: b64encode(html), sha: f.sha, branch: cfg.branch })
+        }).then(function (r) {
+          if (r.status === 401) throw fail('auth', 401);
+          if (r.status === 409 || r.status === 422) throw fail('conflict', r.status);
+          if (!r.ok) throw fail('http', r.status);
+          version = stamp;
+          doc.documentElement.setAttribute('data-version', stamp);
+          store('ed-saved:' + path, stamp);
+          setDirty(false);
+          flash('Salvat online ✓ Linkul se actualizează pentru toți în câteva minute.', 7000);
+        });
+      })
+      .catch(function (e) {
+        if (e.kind === 'auth') { store(TOKEN_KEY, null); askToken('Tokenul nu mai este valid. Pune unul nou.'); return; }
+        if (e.kind === 'http' && (e.status === 403 || e.status === 404)) {
+          store(TOKEN_KEY, null);
+          askToken('Tokenul nu are voie să scrie în site. La creare alege repository-ul site-ului și „Contents: Read and write”.');
+          return;
+        }
+        if (e.kind === 'conflict') {
+          flash('Între timp s-a salvat o versiune mai nouă a paginii. Reîncarcă pagina peste câteva minute și refă modificarea.', 9000);
+          return;
+        }
+        flash('Nu s-a putut salva online (verifică internetul) și încearcă din nou.', 7000);
+      })
+      .then(function () { saving = false; bar.classList.remove('busy'); });
+  }
+
   function save() {
     if (cur) { var el = cur.el; finish(true); el.blur(); }
+    if (online) { saveOnline(); return; }
     var html = serialize(), name = fileName();
     if (window.showSaveFilePicker) {
       window.showSaveFilePicker({ suggestedName: name, types: [{ description: 'Pagină web (HTML)', accept: { 'text/html': ['.html', '.htm'] } }] })
@@ -557,6 +691,19 @@ body{min-height:100vh;display:flex;align-items:center;justify-content:center;ove
     if (editing && (e.ctrlKey || e.metaKey) && !e.altKey && (e.key === 's' || e.key === 'S')) { e.preventDefault(); save(); }
   });
   window.addEventListener('beforeunload', function (e) { if (dirty) { e.preventDefault(); e.returnValue = ''; } });
+
+  if (online) {
+    var showBar = function () {
+      if (load(TOKEN_KEY) || /^#edit/i.test(location.hash)) bar.style.display = '';
+    };
+    bar.style.display = 'none';
+    showBar();
+    window.addEventListener('hashchange', showBar);
+    var saved = Number(load('ed-saved:' + repoPath()) || 0);
+    if (saved > Number(version) && Date.now() - saved < 30 * 60 * 1000) {
+      flash('Ultima ta salvare încă se publică. Reîncarcă pagina peste câteva minute ca s-o vezi.', 7000);
+    }
+  }
 
   /* the toolbar only shows while the mouse moves, so the menu stays clean on screen */
   function wake() {
