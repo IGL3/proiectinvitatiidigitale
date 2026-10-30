@@ -48,10 +48,6 @@ body{background:#e9e6de;color:var(--navy);font-family:Georgia,'Times New Roman',
 .nl{display:flex;align-items:baseline;gap:3px;white-space:nowrap}
 .nl .k,.nl .v{flex:none;min-width:4px}
 .nl .lead{flex:1;min-width:6px;border-bottom:1px dotted currentColor;opacity:.75;transform:translateY(-2px)}
-.legend{border:1.5px solid var(--gold);border-radius:8px;padding:7px 10px;margin-top:10px}
-.legend-title{font-weight:bold;font-size:15px;margin-bottom:5px}
-.legend-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px 8px;font-size:clamp(9px,.9vw,12px)}
-.legend-grid span:before{content:"●";color:var(--gold);margin-right:6px}
 .potatoes{border:1.5px solid var(--gold);border-radius:8px;padding:12px 10px;margin-top:12px;display:flex;align-items:baseline;gap:10px;font-weight:bold}
 .potatoes .name{font-size:clamp(18px,2vw,27px);min-width:0;overflow-wrap:anywhere}
 .potatoes .weight{font-size:18px}
@@ -68,9 +64,43 @@ body{background:#e9e6de;color:var(--navy);font-family:Georgia,'Times New Roman',
 .toast.show{opacity:1;transform:translate(-50%,0)}
 .loading .sheet{visibility:hidden;animation:reveal 0s 4s forwards}
 @keyframes reveal{to{visibility:visible}}
-@media(max-width:760px){.sheet{padding:12px}.columns{grid-template-columns:1fr;gap:10px}.column+ .column{border-left:0;border-top:2px solid var(--gold);padding:8px 0 0}.item{min-height:108px}.footer{margin-left:-12px;margin-right:-12px}.section-title{font-size:28px}.legend-grid{grid-template-columns:repeat(2,1fr);font-size:12px}}
+@media(max-width:760px){.sheet{padding:12px}.columns{grid-template-columns:1fr;gap:10px}.column+ .column{border-left:0;border-top:2px solid var(--gold);padding:8px 0 0}.item{min-height:108px}.footer{margin-left:-12px;margin-right:-12px}.section-title{font-size:28px}}
 @media(max-width:560px){.item-body{flex-direction:column;align-items:stretch;gap:6px}.nutrition{width:auto;align-self:stretch;font-size:11px;padding:5px 8px}.nutrition .nls{display:grid;grid-template-columns:1fr 1fr;column-gap:14px}.item-head{gap:7px}}
-@media print{.toolbar,.toast,.remove,.add-item{display:none!important}body{background:white}.sheet{margin:0;width:100%;box-shadow:none}}
+@page{size:A4 landscape;margin:6mm}
+@media print{
+  .toolbar,.toast,.remove,.add-item{display:none!important}
+  html,body{background:#fff!important}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .editing [contenteditable="true"],.editing [contenteditable="plaintext-only"]{outline:none!important;background:transparent!important}
+  .editing .footer[contenteditable]{background:#0b397d!important}
+  .sheet{margin:0!important;box-shadow:none!important}
+}
+/* print layout: switched on right before printing and scaled so the whole menu fills one A4 landscape page */
+.printing body{background:#fff}
+.printing .sheet{margin:0;padding:3mm 5mm 0;box-shadow:none;background:#fff;zoom:var(--pz,1);display:flex;flex-direction:column}
+.printing .brand{margin:0 0 2px}
+.printing .brand .panito{font-size:46px}
+.printing .brand .bistro{font-size:19px;margin-top:3px}
+.printing .columns{grid-template-columns:1fr 1fr;gap:18px;margin-bottom:6px}
+.printing .column{padding:0}
+.printing .column+ .column{border-left:2px solid var(--gold);border-top:0;padding:0 0 0 18px}
+.printing .section-title{font-size:28px;margin:2px 0 2px}
+.printing .item,.printing .editing .item{min-height:0;padding:3px 0 5px}
+.printing .item-head{gap:8px}
+.printing .item-name{font-size:18px}
+.printing .weight{font-size:13px}
+.printing .price{font-size:19px}
+.printing .dots{transform:translateY(-3px)}
+.printing .item-body{flex-direction:row;align-items:flex-start;gap:10px;margin-top:1px}
+.printing .description{font-size:12.5px;line-height:1.15}
+.printing .allergens{font-size:11px;margin-top:2px;min-height:0}
+.printing .nutrition{width:215px;align-self:flex-end;font-size:9px;padding:2px 6px}
+.printing .nutrition strong{margin-bottom:1px}
+.printing .nutrition .nls{display:grid;grid-template-columns:1fr 1fr;column-gap:10px}
+.printing .potatoes{margin-top:8px;padding:7px 10px}
+.printing .potatoes .name,.printing .potatoes .price{font-size:19px}
+.printing .potatoes .weight{font-size:13px}
+.printing .footer{margin:auto -5mm 0;padding:6px;font-size:13px}
 </style>
 </head>
 <body>
@@ -267,10 +297,6 @@ body{background:#e9e6de;color:var(--navy);font-family:Georgia,'Times New Roman',
       </div>
     </article>
       <button class="add-item" type="button" data-add="burger">+ Adauga burger</button>
-      <div class="legend">
-        <div class="legend-title" contenteditable="false">LEGENDA ALERGENI</div>
-        <div class="legend-grid"><span contenteditable="false">Gluten</span><span contenteditable="false">Crustacee</span><span contenteditable="false">Oua</span><span contenteditable="false">Peste</span><span contenteditable="false">Arahide</span><span contenteditable="false">Soia</span><span contenteditable="false">Lapte</span><span contenteditable="false">Fructe cu coaja lemnoasa</span><span contenteditable="false">Telina</span><span contenteditable="false">Mustar</span><span contenteditable="false">Susan</span><span contenteditable="false">Dioxid de sulf si sulfiti</span><span contenteditable="false">Lupin</span><span contenteditable="false">Moluste</span></div>
-      </div>
     </section>
     <section class="column" id="paniniColumn">
       <h1 class="section-title" contenteditable="false">FOCACCIA PANINI</h1>
@@ -496,6 +522,7 @@ body{background:#e9e6de;color:var(--navy);font-family:Georgia,'Times New Roman',
     var tpl = doc.createElement('template');
     tpl.innerHTML = h;
     clean(tpl.content);
+    tpl.content.querySelectorAll('.legend').forEach(function (n) { n.remove(); });   /* removed from the menu */
     while (sheet.firstChild) sheet.removeChild(sheet.firstChild);
     sheet.appendChild(tpl.content);
     markPlaceholders();
@@ -601,6 +628,40 @@ body{background:#e9e6de;color:var(--navy);font-family:Georgia,'Times New Roman',
     if (editing && (e.ctrlKey || e.metaKey) && !e.altKey && (e.key === 's' || e.key === 'S')) { e.preventDefault(); save(); }
   });
   window.addEventListener('beforeunload', function (e) { if (dirty) { e.preventDefault(); e.returnValue = ''; } });
+
+  /* print: lay the menu out for A4 landscape (6 mm margins) and scale it to fill exactly one page */
+  var PW = 1075, PH = 742;
+  function fitPrint() {
+    var root = doc.documentElement;
+    if (doc.activeElement && sheet.contains(doc.activeElement)) doc.activeElement.blur();
+    root.classList.add('printing');
+    sheet.style.minHeight = '0px';
+    /* the browser lays text out again at the zoomed size, so measure with the zoom applied and correct until it fits */
+    var z = 1;
+    for (var i = 0; i < 12; i++) {
+      root.style.setProperty('--pz', String(z));
+      sheet.style.width = (PW / z) + 'px';
+      var r = sheet.getBoundingClientRect();
+      var rectIsZoomed = Math.abs(r.width - PW) <= Math.abs(r.width - PW / z);   /* some engines report unzoomed sizes */
+      var hz = rectIsZoomed ? r.height : r.height * z;
+      if (hz <= PH && (z >= 1 || hz > PH * 0.985)) break;
+      z = Math.min(1, z * (hz > PH ? PH / hz * 0.995 : PH / hz));
+    }
+    sheet.style.minHeight = ((PH - 2) / z) + 'px';
+  }
+  function unfitPrint() {
+    doc.documentElement.classList.remove('printing');
+    doc.documentElement.style.removeProperty('--pz');
+    sheet.style.removeProperty('width');
+    sheet.style.removeProperty('min-height');
+  }
+  window.addEventListener('beforeprint', fitPrint);
+  window.addEventListener('afterprint', unfitPrint);
+  if (window.matchMedia) {
+    var mq = window.matchMedia('print');
+    var onMq = function (m) { if (m.matches) { if (!doc.documentElement.classList.contains('printing')) fitPrint(); } else unfitPrint(); };
+    if (mq.addEventListener) mq.addEventListener('change', onMq); else if (mq.addListener) mq.addListener(onMq);
+  }
 
   /* start */
   var owner = online ? !!secret() : true;
