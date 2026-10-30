@@ -53,6 +53,15 @@ body{background:#e9e6de;color:var(--navy);font-family:Georgia,'Times New Roman',
 .potatoes .weight{font-size:18px}
 .potatoes .dots{border-bottom:2px dotted #d9a04b}
 .potatoes .price{font-size:clamp(18px,2vw,27px)}
+.extras{position:relative;border:1.5px solid var(--gold);border-radius:8px;padding:18px 14px 9px;margin-top:22px}
+.extras-title{position:absolute;top:0;left:50%;transform:translate(-50%,-55%);background:var(--cream);padding:0 10px;font-weight:bold;font-size:clamp(15px,1.55vw,21px);white-space:nowrap;max-width:calc(100% - 20px);overflow:hidden}
+.extra{display:flex;align-items:baseline;gap:10px;font-weight:bold;padding:2px 0}
+.extra-name{font-size:clamp(13px,1.35vw,18px);text-transform:uppercase;min-width:0;overflow-wrap:anywhere}
+.extra .dots{border-bottom-width:1.5px;transform:translateY(-3px)}
+.extra-price{font-size:clamp(14px,1.45vw,20px);white-space:nowrap;flex:none}
+.rm-extra,.add-extra{display:none}
+.editing .rm-extra{display:inline-block;flex:none;border:0;border-radius:50%;width:20px;height:20px;background:#a62828;color:#fff;font:bold 14px/20px Arial;padding:0;cursor:pointer;align-self:center}
+.editing .add-extra{display:inline-block;margin-top:6px;border:1px dashed var(--gold);background:#fff8e9;color:var(--navy);padding:5px 9px;cursor:pointer;border-radius:4px;font:13px Arial,sans-serif}
 .footer{background:#0b397d;color:#e7a12d;text-align:center;margin:12px -24px 0;padding:13px;font-family:Arial,sans-serif;font-weight:bold;letter-spacing:.2em}
 .remove,.add-item{display:none}
 .editing .remove{display:block;position:absolute;right:0;top:-2px;z-index:2;border:0;border-radius:50%;width:22px;height:22px;background:#a62828;color:white;font:bold 16px Arial;cursor:pointer}
@@ -68,7 +77,7 @@ body{background:#e9e6de;color:var(--navy);font-family:Georgia,'Times New Roman',
 @media(max-width:560px){.item-body{flex-direction:column;align-items:stretch;gap:6px}.nutrition{width:auto;align-self:stretch;font-size:11px;padding:5px 8px}.nutrition .nls{display:grid;grid-template-columns:1fr 1fr;column-gap:14px}.item-head{gap:7px}}
 @page{size:A4 landscape;margin:6mm}
 @media print{
-  .toolbar,.toast,.remove,.add-item{display:none!important}
+  .toolbar,.toast,.remove,.add-item,.rm-extra,.add-extra{display:none!important}
   html,body{background:#fff!important}
   *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
   .editing [contenteditable="true"],.editing [contenteditable="plaintext-only"]{outline:none!important;background:transparent!important}
@@ -100,6 +109,11 @@ body{background:#e9e6de;color:var(--navy);font-family:Georgia,'Times New Roman',
 .printing .potatoes{margin-top:8px;padding:7px 10px}
 .printing .potatoes .name,.printing .potatoes .price{font-size:19px}
 .printing .potatoes .weight{font-size:13px}
+.printing .extras{margin-top:14px;padding:13px 12px 5px}
+.printing .extras-title{background:#fff;font-size:17px}
+.printing .extra{padding:1px 0}
+.printing .extra-name{font-size:14px}
+.printing .extra-price{font-size:15px}
 .printing .footer{margin:auto -5mm 0;padding:6px;font-size:13px}
 </style>
 </head>
@@ -297,6 +311,15 @@ body{background:#e9e6de;color:var(--navy);font-family:Georgia,'Times New Roman',
       </div>
     </article>
       <button class="add-item" type="button" data-add="burger">+ Adauga burger</button>
+      <div class="extras">
+        <div class="extras-title" contenteditable="false">COMPLETEAZA BURGERUL CU:</div>
+        <div class="extra"><span class="extra-name" contenteditable="false">EXTRA CARNE + CHEDDAR</span><span class="dots"></span><span class="extra-price" contenteditable="false">12 RON</span><button class="rm-extra" type="button" title="Sterge extra" aria-label="Sterge extra">×</button></div>
+        <div class="extra"><span class="extra-name" contenteditable="false">EXTRA GORGONZOLA</span><span class="dots"></span><span class="extra-price" contenteditable="false">5 RON</span><button class="rm-extra" type="button" title="Sterge extra" aria-label="Sterge extra">×</button></div>
+        <div class="extra"><span class="extra-name" contenteditable="false">EXTRA CEAPA CARAMELIZATA</span><span class="dots"></span><span class="extra-price" contenteditable="false">4 RON</span><button class="rm-extra" type="button" title="Sterge extra" aria-label="Sterge extra">×</button></div>
+        <div class="extra"><span class="extra-name" contenteditable="false">JALAPENO MURATI</span><span class="dots"></span><span class="extra-price" contenteditable="false">3 RON</span><button class="rm-extra" type="button" title="Sterge extra" aria-label="Sterge extra">×</button></div>
+        <div class="extra"><span class="extra-name" contenteditable="false">EXTRA PANCETTA AFUMATA</span><span class="dots"></span><span class="extra-price" contenteditable="false">7 RON</span><button class="rm-extra" type="button" title="Sterge extra" aria-label="Sterge extra">×</button></div>
+        <button class="add-extra" type="button" data-add="extra">+ Adauga extra</button>
+      </div>
     </section>
     <section class="column" id="paniniColumn">
       <h1 class="section-title" contenteditable="false">FOCACCIA PANINI</h1>
@@ -475,6 +498,8 @@ body{background:#e9e6de;color:var(--navy);font-family:Georgia,'Times New Roman',
   var editing = false, dirty = false, saving = false, version = '0', toastTimer = 0;
   var PLAIN = (function () { var d = doc.createElement('div'); try { d.contentEditable = 'plaintext-only'; } catch (e) { return false; } return d.contentEditable === 'plaintext-only'; })();
   var NEW_ITEM = "\n    <article class=\"item\">\n      <button class=\"remove\" type=\"button\" title=\"Sterge preparatul\" aria-label=\"Sterge preparatul\">\u00d7</button>\n      <div class=\"item-head\">\n        <span class=\"item-name\" contenteditable=\"true\">NUME PREPARAT</span>\n        <span class=\"weight\" contenteditable=\"true\">400 g</span>\n        <span class=\"dots\"></span>\n        <span class=\"price\" contenteditable=\"true\">00 RON</span>\n      </div>\n      <div class=\"item-body\">\n        <div class=\"item-text\">\n          <div class=\"description\" contenteditable=\"true\">Descriere ingrediente</div>\n          <div class=\"allergens\"><b>Alergeni: </b><span contenteditable=\"true\">Completeaza alergenii aici</span></div>\n        </div>\n      <div class=\"nutrition\">\n          <strong contenteditable=\"true\">Valori nutritionale (per 100 g)</strong>\n          <div class=\"nls\">\n          <div class=\"nl\"><span class=\"k\" contenteditable=\"true\">Energie</span><i class=\"lead\"></i><span class=\"v\" contenteditable=\"true\">kcal</span></div>\n          <div class=\"nl\"><span class=\"k\" contenteditable=\"true\">Proteine</span><i class=\"lead\"></i><span class=\"v\" contenteditable=\"true\">g</span></div>\n          <div class=\"nl\"><span class=\"k\" contenteditable=\"true\">Grasimi</span><i class=\"lead\"></i><span class=\"v\" contenteditable=\"true\">g</span></div>\n          <div class=\"nl\"><span class=\"k\" contenteditable=\"true\">Carbohidrati</span><i class=\"lead\"></i><span class=\"v\" contenteditable=\"true\">g</span></div>\n          <div class=\"nl\"><span class=\"k\" contenteditable=\"true\">Sare</span><i class=\"lead\"></i><span class=\"v\" contenteditable=\"true\">g</span></div>\n          </div>\n      </div>\n      </div>\n    </article>";
+  var EXTRAS_DEFAULT = "\n      <div class=\"extras\">\n        <div class=\"extras-title\" contenteditable=\"false\">COMPLETEAZA BURGERUL CU:</div>\n        <div class=\"extra\"><span class=\"extra-name\" contenteditable=\"false\">EXTRA CARNE + CHEDDAR</span><span class=\"dots\"></span><span class=\"extra-price\" contenteditable=\"false\">12 RON</span><button class=\"rm-extra\" type=\"button\" title=\"Sterge extra\" aria-label=\"Sterge extra\">\u00d7</button></div>\n        <div class=\"extra\"><span class=\"extra-name\" contenteditable=\"false\">EXTRA GORGONZOLA</span><span class=\"dots\"></span><span class=\"extra-price\" contenteditable=\"false\">5 RON</span><button class=\"rm-extra\" type=\"button\" title=\"Sterge extra\" aria-label=\"Sterge extra\">\u00d7</button></div>\n        <div class=\"extra\"><span class=\"extra-name\" contenteditable=\"false\">EXTRA CEAPA CARAMELIZATA</span><span class=\"dots\"></span><span class=\"extra-price\" contenteditable=\"false\">4 RON</span><button class=\"rm-extra\" type=\"button\" title=\"Sterge extra\" aria-label=\"Sterge extra\">\u00d7</button></div>\n        <div class=\"extra\"><span class=\"extra-name\" contenteditable=\"false\">JALAPENO MURATI</span><span class=\"dots\"></span><span class=\"extra-price\" contenteditable=\"false\">3 RON</span><button class=\"rm-extra\" type=\"button\" title=\"Sterge extra\" aria-label=\"Sterge extra\">\u00d7</button></div>\n        <div class=\"extra\"><span class=\"extra-name\" contenteditable=\"false\">EXTRA PANCETTA AFUMATA</span><span class=\"dots\"></span><span class=\"extra-price\" contenteditable=\"false\">7 RON</span><button class=\"rm-extra\" type=\"button\" title=\"Sterge extra\" aria-label=\"Sterge extra\">\u00d7</button></div>\n        <button class=\"add-extra\" type=\"button\" data-add=\"extra\">+ Adauga extra</button>\n      </div>";
+  var NEW_EXTRA = "\n        <div class=\"extra\"><span class=\"extra-name\" contenteditable=\"true\">EXTRA NOU</span><span class=\"dots\"></span><span class=\"extra-price\" contenteditable=\"true\">0 RON</span><button class=\"rm-extra\" type=\"button\" title=\"Sterge extra\" aria-label=\"Sterge extra\">\u00d7</button></div>";
 
   function store(k, v) { try { if (v === null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch (e) { /* storage off */ } }
   function load(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
@@ -523,6 +548,10 @@ body{background:#e9e6de;color:var(--navy);font-family:Georgia,'Times New Roman',
     tpl.innerHTML = h;
     clean(tpl.content);
     tpl.content.querySelectorAll('.legend').forEach(function (n) { n.remove(); });   /* removed from the menu */
+    var bc = tpl.content.getElementById ? tpl.content.getElementById('burgerColumn') : tpl.content.querySelector('#burgerColumn');
+    if (bc && !tpl.content.querySelector('.extras')) {                                   /* the extras box is part of the menu again */
+      var x = doc.createElement('template'); x.innerHTML = EXTRAS_DEFAULT.trim(); bc.appendChild(x.content);
+    }
     while (sheet.firstChild) sheet.removeChild(sheet.firstChild);
     sheet.appendChild(tpl.content);
     markPlaceholders();
@@ -552,6 +581,15 @@ body{background:#e9e6de;color:var(--navy);font-family:Georgia,'Times New Roman',
     if (nm) { nm.focus(); art.scrollIntoView({ block: 'center', behavior: 'smooth' }); }
   }
 
+  function addExtra(btn) {
+    var tpl = doc.createElement('template');
+    tpl.innerHTML = NEW_EXTRA.trim();
+    var row = tpl.content.firstElementChild;
+    btn.parentNode.insertBefore(row, btn);
+    setEditable(true);
+    setDirty(true);
+    var nm = row.querySelector('.extra-name'); if (nm) nm.focus();
+  }
   function save() {
     if (saving) return;
     if (doc.activeElement && sheet.contains(doc.activeElement)) doc.activeElement.blur();
@@ -601,7 +639,13 @@ body{background:#e9e6de;color:var(--navy);font-family:Georgia,'Times New Roman',
       if (confirm('Stergi acest preparat?')) { rm.closest('.item').remove(); setDirty(true); }
       return;
     }
+    var rx = t.closest('.rm-extra');
+    if (rx && editing) {
+      if (confirm('Stergi acest extra?')) { rx.closest('.extra').remove(); setDirty(true); }
+      return;
+    }
     var add = t.closest('[data-add]');
+    if (add && add.getAttribute('data-add') === 'extra') { addExtra(add); return; }
     if (add) { addItem(add.getAttribute('data-add')); return; }
     if (t.closest('#editBtn')) {
       var was = editing;
