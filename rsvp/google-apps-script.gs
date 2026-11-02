@@ -25,6 +25,9 @@
  * 3. În invitația clientului, INVITATIE = același ID (folderul invitatii/<ID>/ de pe site).
  * 4. După eveniment scrii NU în coloana „Activ”: invitația nu mai primește confirmări.
  *
+ * PAGINI DE EVENIMENT (restaurante): formularul trimite tip=rezervare și telefon. Telefonul ajunge în coloana F,
+ *   iar emailul are subiectul „Rezervare nouă”. Rândul din „Clienți” se adaugă la fel ca pentru o invitație.
+ *
  * PLANIFICATORUL DE MESE
  * - Fiecare invitație din panou are un link privat (coloana „Plan mese”), cu o cheie secretă —
  *   și cele FĂRĂ formular de confirmare (ex. zile de naștere): acolo clientul adaugă invitații manual, cu „+”.
@@ -38,7 +41,7 @@ const PANOU_CLIENTI = 'Clienți';
 const PANOU_TOATE = 'Toate';
 const SITE_INVITATII = 'https://invitatiimagiceonline.ro/invitatii/';
 const SITE_PLAN = 'https://invitatiimagiceonline.ro/planificator/';
-const ANTET = ['Data', 'Nume', 'Participă', 'Persoane', 'Mesaj'];
+const ANTET = ['Data', 'Nume', 'Participă', 'Persoane', 'Mesaj', 'Telefon'];
 const ANTET_CLIENTI = ['ID invitație', 'Email client', 'Eveniment', 'Tabel client (automat)', 'Activ (DA/NU)',
                        'Link invitație (automat)', 'Confirmări (automat)', 'Persoane care vin (automat)', 'Ultima confirmare (automat)', 'Note',
                        'Plan mese (link privat)', 'Cheie plan (automat)'];
@@ -70,7 +73,7 @@ function pregatestePanoul() {
   if (!t) {
     t = ss.insertSheet(PANOU_TOATE);
     t.appendRow(['Data', 'ID invitație'].concat(ANTET.slice(1)));
-    t.setFrozenRows(1); t.getRange('A1:F1').setFontWeight('bold');
+    t.setFrozenRows(1); t.getRange('A1:G1').setFontWeight('bold');
   }
 }
 
@@ -80,7 +83,7 @@ function filaInvitatie_(panou, id) {
   let f = panou.getSheetByName(nume);
   if (!f) {
     f = panou.insertSheet(nume, panou.getSheets().length);
-    f.appendRow(ANTET); f.setFrozenRows(1); f.getRange('A1:E1').setFontWeight('bold').setBackground('#f3e8d6');
+    f.appendRow(ANTET); f.setFrozenRows(1); f.getRange('A1:F1').setFontWeight('bold').setBackground('#f3e8d6');
     f.getRange('G1').setValue('Total persoane care vin:').setFontWeight('bold');
     f.getRange('H1').setValue(0).setFontWeight('bold');
     f.setColumnWidth(1, 150); f.setColumnWidth(2, 200); f.setColumnWidth(5, 320);
@@ -98,9 +101,9 @@ function leagaIdDeFila_(c, rowIndex, id, fila) {
 function sincronizeazaFila_(fila, client, total) {
   const src = client.getSheets()[0];
   const n = src.getLastRow() - 1;
-  if (fila.getLastRow() > 1) fila.getRange(2, 1, fila.getLastRow() - 1, 5).clearContent();
+  if (fila.getLastRow() > 1) fila.getRange(2, 1, fila.getLastRow() - 1, 6).clearContent();
   if (n > 0) {
-    fila.getRange(2, 1, n, 5).setValues(src.getRange(2, 1, n, 5).getValues());
+    fila.getRange(2, 1, n, 6).setValues(src.getRange(2, 1, n, 6).getValues());
     fila.getRange(2, 1, n, 1).setNumberFormat('dd.mm.yyyy hh:mm');
   }
   fila.getRange('H1').setValue(total);
@@ -134,7 +137,7 @@ function tabelClient_(c, rowIndex, r) {
   const ev = String(r[COL.eveniment - 1] || id).trim();
   const ss = SpreadsheetApp.create('Invitați și mese — ' + ev);
   const sh = ss.getSheets()[0];
-  sh.setName('Confirmări'); sh.appendRow(ANTET); sh.setFrozenRows(1); sh.getRange('A1:E1').setFontWeight('bold');
+  sh.setName('Confirmări'); sh.appendRow(ANTET); sh.setFrozenRows(1); sh.getRange('A1:F1').setFontWeight('bold');
   sh.getRange('G1').setValue('Total persoane care vin:').setFontWeight('bold');
   sh.getRange('H1').setValue(0).setFontWeight('bold'); // totalul se actualizează din script la fiecare confirmare
   partajeaza_(ss, email); // Google îi trimite clientului un email cu acces la tabel (dacă are email)
@@ -229,13 +232,14 @@ function doPost(e) {
     const r = data[idx];
     if (String(r[COL.activ - 1]).toUpperCase() === 'NU') return ok_(); // invitație oprită
 
-    const row = [new Date(), clean(p.nume), clean(p.participa), Number(p.persoane) || 0, clean(p.mesaj)];
+    const row = [new Date(), clean(p.nume), clean(p.participa), Number(p.persoane) || 0, clean(p.mesaj), clean(p.telefon)];
+    const rezervare = p.tip === 'rezervare'; // pagini de eveniment (restaurante): rezervare de locuri, cu telefon
 
     const link = r[COL.link - 1];
     const client = link ? SpreadsheetApp.openByUrl(link) : tabelClient_(c, idx + 2, r);
     const sh = client.getSheets()[0];
     sh.appendRow(row);
-    panou.getSheetByName(PANOU_TOATE).appendRow([row[0], id, row[1], row[2], row[3], row[4]]);
+    panou.getSheetByName(PANOU_TOATE).appendRow([row[0], id, row[1], row[2], row[3], row[4], row[5]]);
 
     const st = statistici_(client);
     sh.getRange('H1').setValue(st.vin);
@@ -248,12 +252,24 @@ function doPost(e) {
 
     const email = String(r[COL.email - 1]).trim();
     if (email) {
+      if (rezervare) {
+        MailApp.sendEmail({
+          to: email,
+          name: 'Invitații Magice Digitale',
+          subject: 'Rezervare nouă: ' + row[1] + ' (' + row[3] + ' pers.)',
+          body: 'Ați primit o rezervare nouă pentru ' + (r[COL.eveniment - 1] || id) + ':\n\n' +
+                'Nume: ' + row[1] + '\nTelefon: ' + (row[5] || '-') + '\nPersoane: ' + row[3] + '\nMesaj: ' + (row[4] || '-') +
+                '\n\nTotal persoane rezervate până acum: ' + st.vin +
+                '\nToate rezervările: ' + client.getUrl() +
+                '\n\nCu drag,\nInvitații Magice Digitale'
+        });
+      } else
       MailApp.sendEmail({
         to: email,
         name: 'Invitații Magice Digitale',
         subject: 'Confirmare nouă: ' + row[1] + ' (' + row[2] + ')',
         body: 'Ați primit o confirmare nouă pentru ' + (r[COL.eveniment - 1] || id) + ':\n\n' +
-              'Nume: ' + row[1] + '\nParticipă: ' + row[2] + '\nPersoane: ' + row[3] + '\nMesaj: ' + (row[4] || '-') +
+              'Nume: ' + row[1] + '\nParticipă: ' + row[2] + '\nPersoane: ' + row[3] + '\nMesaj: ' + (row[4] || '-') + (row[5] ? '\nTelefon: ' + row[5] : '') +
               '\n\nTotal persoane confirmate până acum: ' + st.vin +
               '\nToate confirmările: ' + client.getUrl() +
               (r[COL.cheie - 1] ? '\nPlanificați mesele: ' + linkPlan_(id, r[COL.cheie - 1]) : '') +

@@ -1,0 +1,409 @@
+<!doctype html>
+<html lang="ro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Petrecere de Lăsata Secului · Zephira Events · 14 noiembrie</title>
+<meta name="description" content="Petrecere tradițională de Lăsata Secului la Zephira Events: sâmbătă, 14 noiembrie 2026, ora 19:00, cu formația Nunta Vrânceană. 200 lei de persoană. Rezervări: 0769 990 800.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Petrecere de Lăsata Secului la Zephira Events">
+<meta property="og:description" content="Sâmbătă, 14 noiembrie, ora 19:00 · Cântă Nunta Vrânceană · Platouri tradiționale · 200 lei/persoană · Rezervă-ți masa!">
+<meta property="og:image" content="https://invitatiimagiceonline.ro/invitatii/zephira-lasata-secului/og.jpg?v=1">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:url" content="https://invitatiimagiceonline.ro/invitatii/zephira-lasata-secului/">
+<meta name="theme-color" content="#f6efe2">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Nunito:wght@400;600;700&display=swap&subset=latin-ext">
+<style>
+:root{
+  --linen:#f6efe2; --linen-hi:#fcf8f0; --ink:#221b18; --mist:#6e6058; --red:#b3192b; --red-d:#7d0f1c; --gold:#c9962e; --line:#e6d8bf;
+  --f-d:'Playfair Display',Georgia,serif; --f-b:'Nunito',system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0}
+body{font-family:var(--f-b);color:var(--ink);background:var(--linen);line-height:1.5;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+body.locked{overflow:hidden;height:100dvh}
+/* pânză de in */
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.5;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .45 0 0 0 0 .36 0 0 0 0 .24 0 0 0 .07 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+.band{height:34px;background:url(band.svg?v=1) repeat-x center/auto 34px}
+.band.thin{height:22px;background-size:auto 22px}
+.band.tall{height:46px;background-size:auto 46px}
+
+/* ---------- coperta: un ștergar cusut care se deschide ---------- */
+.cover{position:fixed;inset:0;z-index:50;display:grid;place-items:center;overflow:hidden}
+.half{position:absolute;top:0;bottom:0;width:50.5%;background:var(--linen-hi);transition:transform 1.25s cubic-bezier(.7,0,.25,1),box-shadow .3s;overflow:hidden}
+.cover.open .half{box-shadow:0 0 50px rgba(60,30,10,.25)}
+.half.l{left:0}.half.r{right:0}
+.half::before{content:"";position:absolute;inset:0;background:inherit;opacity:.6;
+  background-image:repeating-linear-gradient(0deg,rgba(150,120,80,.06) 0 1px,transparent 1px 3px),repeating-linear-gradient(90deg,rgba(150,120,80,.05) 0 1px,transparent 1px 3px)}
+.half .b1,.half .b2{position:absolute;left:0;width:200%;}
+.half .b1{top:calc(env(safe-area-inset-top) + 26px)}.half .b2{bottom:26px}
+.half.r .b1,.half.r .b2{left:-100%}
+.half .fringe{position:absolute;left:0;right:0;height:16px;background:repeating-linear-gradient(90deg,#efe4cf 0 2px,transparent 2px 6px)}
+.half .fringe.t{top:0}.half .fringe.bt{bottom:0}
+.cover.open .half.l{transform:translateX(-102%)}
+.cover.open .half.r{transform:translateX(102%)}
+.cover.open .seal{transform:scale(.4) rotate(140deg);opacity:0}
+.cover.gone{pointer-events:none}
+.seal{position:relative;z-index:2;border:0;background:none;padding:0;cursor:pointer;display:grid;justify-items:center;gap:14px;transition:transform .9s cubic-bezier(.6,0,.3,1),opacity .7s;color:var(--ink);font:inherit;-webkit-tap-highlight-color:transparent}
+.seal .kick{font-family:var(--f-d);font-style:italic;font-size:19px;color:var(--mist)}
+.seal .ttl{font-family:var(--f-d);font-weight:900;font-size:clamp(40px,12vw,56px);line-height:.95;color:var(--red);letter-spacing:.01em}
+.seal .disc{width:168px;height:168px;border-radius:50%;background:#fff;display:grid;place-items:center;
+  box-shadow:0 0 0 3px var(--red),0 0 0 9px #fff,0 0 0 11px var(--ink),0 18px 40px -14px rgba(80,20,20,.5);animation:breathe 2.6s ease-in-out infinite}
+.seal .disc img{width:118px;height:118px;image-rendering:pixelated;animation:spin 18s linear infinite}
+.seal .tap{font-size:15px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--red-d)}
+@keyframes breathe{50%{transform:scale(1.05)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ---------- conținut ---------- */
+main{position:relative;z-index:1;max-width:520px;margin:0 auto;padding:0 18px 30px}
+section{padding:34px 0 8px;text-align:center}
+.reveal{opacity:0;transform:translateY(22px);transition:opacity .9s ease,transform .9s ease}
+.reveal.in{opacity:1;transform:none}
+.kicker{font-size:13px;letter-spacing:.24em;text-transform:uppercase;color:var(--red-d);font-weight:700;margin:0 0 6px}
+h2{font-family:var(--f-d);font-weight:700;font-size:34px;line-height:1.1;margin:0 0 14px}
+h2 em{font-style:italic;color:var(--red)}
+.muted{color:var(--mist)}
+.card{background:var(--linen-hi);border:1px solid var(--line);border-radius:18px;padding:22px 18px;box-shadow:0 18px 40px -26px rgba(70,40,20,.45);position:relative}
+.card.stitched::after{content:"";position:absolute;inset:7px;border:1.5px dashed rgba(179,25,43,.45);border-radius:13px;pointer-events:none}
+
+.hero{padding-top:calc(env(safe-area-inset-top) + 26px)}
+.logo{width:116px;height:116px;border-radius:50%;object-fit:cover;box-shadow:0 0 0 3px var(--gold),0 0 0 8px var(--linen-hi),0 0 0 9.5px var(--line),0 14px 30px -12px rgba(0,0,0,.5);margin:14px auto 12px;display:block}
+.hero .invite{font-family:var(--f-d);font-style:italic;font-size:19px;color:var(--mist);margin:0}
+.hero h1{font-family:var(--f-d);font-weight:900;font-size:clamp(50px,15vw,72px);line-height:.92;color:var(--red);margin:10px 0 8px;letter-spacing:.005em}
+.hero h1 span{display:block;font-size:.5em;font-weight:400;font-style:italic;color:var(--ink);letter-spacing:.02em;margin-bottom:4px}
+.hero .sub{font-size:17px;margin:4px auto 0;max-width:330px}
+.ros{width:54px;height:54px;image-rendering:pixelated;display:block;margin:18px auto 0}
+
+/* data răzuibilă */
+.scratch{position:relative;width:min(100%,340px);height:132px;margin:6px auto 10px;border-radius:16px;overflow:hidden;background:#fff;border:1px solid var(--line);box-shadow:0 16px 36px -22px rgba(70,40,20,.55)}
+.scratch .under{position:absolute;inset:0;display:grid;place-items:center;align-content:center;gap:2px}
+.scratch .under b{font-family:var(--f-d);font-size:34px;line-height:1;color:var(--red)}
+.scratch .under span{font-size:15px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.scratch canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none;cursor:grab;transition:opacity .7s}
+.scratch.done canvas{opacity:0;pointer-events:none}
+.hint{font-size:14px;color:var(--mist);margin:0}
+.linkbtn{border:0;background:none;color:var(--red-d);font:inherit;font-size:14px;text-decoration:underline;margin-top:6px;cursor:pointer}
+
+/* formația */
+.band-name{font-family:var(--f-d);font-weight:900;font-style:italic;font-size:clamp(36px,11vw,48px);line-height:1;color:var(--red);margin:4px 0 8px}
+.instr{display:flex;justify-content:center;gap:16px;margin:8px 0 4px}
+.instr svg{width:44px;height:44px}
+
+/* meniul */
+.menu{text-align:left}
+.menu h3{font-family:var(--f-d);font-size:22px;margin:0 0 10px;text-align:center}
+.menu ul{list-style:none;margin:0 0 6px;padding:0;display:grid;gap:8px}
+.menu li{display:flex;align-items:center;gap:12px;font-size:17px;font-weight:600;padding:8px 12px;border-radius:12px;background:#fff;border:1px solid var(--line);opacity:0;transform:translateX(-14px);transition:opacity .5s ease,transform .5s ease}
+.menu.in li{opacity:1;transform:none}
+.menu li img{width:22px;height:22px;image-rendering:pixelated;flex:none}
+.menu li small{margin-left:auto;font-weight:400;color:var(--mist);font-size:13px}
+.drinks{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:4px}
+.drinks span{padding:7px 14px;border-radius:999px;background:#fff;border:1px solid var(--line);font-weight:600;font-size:15px}
+.divider{height:12px;margin:18px -4px;background:url(band.svg?v=1) repeat-x center/auto 12px;opacity:.85}
+
+/* prețul */
+.price{display:inline-grid;place-items:center;width:196px;height:196px;border-radius:50%;background:var(--red);color:#fff;margin:6px auto 4px;
+  box-shadow:0 0 0 5px var(--linen-hi),0 0 0 7px var(--red),0 20px 40px -18px rgba(125,15,28,.8);position:relative}
+.price::before{content:"";position:absolute;inset:12px;border-radius:50%;border:1.5px dashed rgba(255,255,255,.6)}
+.price b{font-family:var(--f-d);font-size:68px;line-height:.9;font-weight:900}
+.price span{font-size:14px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;margin-top:-30px}
+
+/* numărătoarea inversă */
+.countdown{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;max-width:400px;margin:0 auto}
+.countdown div{background:var(--linen-hi);border:1px solid var(--line);border-radius:14px;padding:12px 4px 8px;box-shadow:0 10px 24px -18px rgba(70,40,20,.6)}
+.countdown b{display:block;font-family:var(--f-d);font-size:32px;line-height:1;color:var(--red)}
+.countdown span{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--mist);font-weight:700}
+
+/* rezervarea */
+form{display:grid;gap:12px;text-align:left}
+label{font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--red-d)}
+label i{font-style:normal;color:var(--mist);text-transform:none;letter-spacing:0;font-weight:600}
+input[type=text],input[type=tel],textarea{width:100%;margin-top:5px;padding:13px 14px;border:1.5px solid var(--line);border-radius:12px;background:#fff;font:inherit;font-size:17px;color:var(--ink)}
+input:focus,textarea:focus{outline:none;border-color:var(--red);box-shadow:0 0 0 3px rgba(179,25,43,.15)}
+textarea{min-height:72px;resize:vertical}
+.qty{display:flex;align-items:center;gap:14px;margin-top:6px}
+.qty button{width:46px;height:46px;border-radius:50%;border:1.5px solid var(--line);background:#fff;font-size:24px;line-height:1;color:var(--red);cursor:pointer}
+.qty output{font-family:var(--f-d);font-size:34px;font-weight:700;min-width:46px;text-align:center}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;padding:15px 26px;border-radius:999px;border:0;background:var(--red);color:#fff;font:inherit;font-weight:700;font-size:17px;text-decoration:none;cursor:pointer;box-shadow:0 14px 28px -14px rgba(125,15,28,.9)}
+.btn:disabled{opacity:.6}
+.btn.ghost{background:#fff;color:var(--red-d);border:1.5px solid var(--red);box-shadow:none}
+.btn svg{width:20px;height:20px}
+.err{color:#b3261e;font-size:14px;margin:0}
+.ok-msg{text-align:center}
+.ok-msg .tick{width:76px;height:76px;border-radius:50%;background:var(--red);display:grid;place-items:center;margin:0 auto 10px}
+.ok-msg .tick svg{width:40px;height:40px}
+.or{margin:16px 0 8px;font-size:14px;color:var(--mist)}
+
+/* locația */
+.venue{display:flex;flex-direction:column;align-items:center;gap:10px}
+.venue h3{font-family:var(--f-d);font-size:28px;margin:4px 0 0}
+
+footer{position:relative;z-index:1;text-align:center;padding:26px 18px calc(env(safe-area-inset-bottom) + 24px)}
+footer .sig{font-family:var(--f-d);font-style:italic;font-size:26px;color:var(--red);display:block;margin:4px 0 12px}
+footer .brand{font-size:12px;color:var(--mist)}
+footer .brand a{color:var(--mist)}
+#petals{position:fixed;inset:0;pointer-events:none;z-index:60}
+@media (prefers-reduced-motion:reduce){.reveal,.menu li{opacity:1;transform:none;transition:none}.seal .disc,.seal .disc img{animation:none}}
+</style>
+</head>
+<body class="locked">
+<canvas id="petals" aria-hidden="true"></canvas>
+
+<div class="cover" id="cover">
+  <div class="half l"><div class="fringe t"></div><div class="band tall b1"></div><div class="band tall b2"></div><div class="fringe bt"></div></div>
+  <div class="half r"><div class="fringe t"></div><div class="band tall b1"></div><div class="band tall b2"></div><div class="fringe bt"></div></div>
+  <button class="seal" id="seal" type="button" aria-label="Deschide invitația">
+    <span class="kick">Zephira Events vă invită la</span>
+    <span class="ttl">Lăsata<br>Secului</span>
+    <span class="disc"><img src="rozeta.svg?v=1" alt=""></span>
+    <span class="tap">Atinge ca să intri la petrecere</span>
+  </button>
+</div>
+
+<main>
+  <section class="hero" aria-label="Invitație">
+    <div class="band reveal"></div>
+    <img class="logo reveal" src="zephira.jpg" alt="Sigla Zephira Events" width="116" height="116">
+    <p class="invite reveal">Zephira Events vă invită la</p>
+    <h1 class="reveal"><span>petrecerea de</span>Lăsata Secului</h1>
+    <p class="sub reveal">Ultima petrecere mare înainte de Postul Crăciunului: cu masă îmbelșugată, muzică live și horă până târziu!</p>
+    <img class="ros reveal" src="rozeta.svg?v=1" alt="">
+  </section>
+
+  <section aria-label="Data">
+    <p class="kicker reveal">Data petrecerii</p>
+    <h2 class="reveal">Când <em>petrecem?</em></h2>
+    <div class="scratch reveal" id="scratch">
+      <div class="under"><b>14 noiembrie 2026</b><span>Sâmbătă · ora 19:00</span></div>
+      <canvas id="foil" aria-label="Răzuiește cu degetul ca să afli data"></canvas>
+    </div>
+    <p class="hint reveal" id="scratchHint">Răzuiește cu degetul ca să afli data</p>
+    <button class="linkbtn" id="revealBtn" type="button">Arată data direct</button>
+  </section>
+
+  <section aria-label="Formația">
+    <p class="kicker reveal">Muzică live</p>
+    <h2 class="reveal">Cântă pentru <em>dumneavoastră</em></h2>
+    <div class="card stitched reveal">
+      <div class="instr" aria-hidden="true">
+        <svg viewBox="0 0 48 48" fill="none" stroke-linecap="round" stroke-linejoin="round"><g transform="rotate(32 24 24)"><path d="M24 2.5v7" stroke="#221b18" stroke-width="2.4"/><circle cx="24" cy="2.8" r="1.8" fill="#221b18"/><path d="M24 9.5c-4.6 0-6.6 2.6-6.6 5.4 0 2 1.5 2.9 1.5 4.3s-3 2.4-3 6.8c0 5 3.8 8.7 8.1 8.7s8.1-3.7 8.1-8.7c0-4.4-3-5.4-3-6.8s1.5-2.3 1.5-4.3c0-2.8-2-5.4-6.6-5.4z" fill="#b3192b" stroke="#7d0f1c" stroke-width="1.4"/><path d="M20.3 20.5c.8 1 .8 3 0 4M27.7 20.5c-.8 1-.8 3 0 4M24 12v19" stroke="#221b18" stroke-width="1.1"/><path d="M21.5 34.7h5" stroke="#221b18" stroke-width="1.6"/></g><path d="M7 41L41 9" stroke="#221b18" stroke-width="1.6"/></svg>
+        <svg viewBox="0 0 48 48" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="9" height="26" rx="2" fill="#b3192b" stroke="#7d0f1c" stroke-width="1.4"/><rect x="35" y="11" width="9" height="26" rx="2" fill="#b3192b" stroke="#7d0f1c" stroke-width="1.4"/><path d="M13 12l4.4 4-4.4 4 4.4 4-4.4 4 4.4 4-4.4 4M17.4 12h4.4M17.4 36h4.4M21.8 12l4.4 4-4.4 4 4.4 4-4.4 4 4.4 4-4.4 4M26.2 12h4.4M26.2 36h4.4M30.6 12L35 16l-4.4 4 4.4 4-4.4 4 4.4 4-4.4 4" stroke="#221b18" stroke-width="1.4"/><g fill="#fff"><circle cx="8.5" cy="17" r="1.2"/><circle cx="8.5" cy="22" r="1.2"/><circle cx="8.5" cy="27" r="1.2"/><circle cx="8.5" cy="32" r="1.2"/><circle cx="39.5" cy="17" r="1.2"/><circle cx="39.5" cy="22" r="1.2"/><circle cx="39.5" cy="27" r="1.2"/><circle cx="39.5" cy="32" r="1.2"/></g></svg>
+        <svg viewBox="0 0 48 48" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M17 36V12l22-5v24" stroke="#221b18" stroke-width="2.4"/><path d="M17 17l22-5" stroke="#221b18" stroke-width="2.4"/><ellipse cx="12.5" cy="36.5" rx="5.5" ry="4.2" transform="rotate(-20 12.5 36.5)" fill="#b3192b"/><ellipse cx="34.5" cy="31.5" rx="5.5" ry="4.2" transform="rotate(-20 34.5 31.5)" fill="#b3192b"/></svg>
+      </div>
+      <p class="band-name">Nunta Vrânceană</p>
+      <p class="muted" style="margin:0">Muzică populară și de petrecere, live, toată seara. Pregătiți-vă de horă!</p>
+    </div>
+  </section>
+
+  <section aria-label="Meniul">
+    <p class="kicker reveal">Meniul serii</p>
+    <h2 class="reveal">Masă <em>îmbelșugată</em></h2>
+    <div class="card menu reveal" id="menu">
+      <h3>Platouri tradiționale</h3>
+      <ul>
+        <li><img src="rozeta.svg?v=1" alt="">Sărmăluțe</li>
+        <li><img src="rozeta.svg?v=1" alt="">Friptură</li>
+        <li><img src="rozeta.svg?v=1" alt="">Cartofi</li>
+        <li><img src="rozeta.svg?v=1" alt="">Mămăliguță</li>
+        <li><img src="rozeta.svg?v=1" alt="">Brânză</li>
+        <li><img src="rozeta.svg?v=1" alt="">Salată</li>
+      </ul>
+      <div class="divider"></div>
+      <h3>Băuturi</h3>
+      <div class="drinks"><span>Vin</span><span>Apă minerală</span><span>Coca-Cola</span><span>Fanta</span><span>Cafea</span></div>
+    </div>
+  </section>
+
+  <section aria-label="Preț">
+    <p class="kicker reveal">Preț</p>
+    <div class="price reveal"><b>200</b><span>lei / persoană</span></div>
+    <p class="muted reveal" style="margin:10px auto 0;max-width:300px">Meniul tradițional și băuturile de mai sus sunt incluse.</p>
+  </section>
+
+  <section aria-label="Numărătoare inversă">
+    <p class="kicker reveal">Numărătoare inversă</p>
+    <h2 class="reveal">Până la <em>petrecere</em></h2>
+    <div class="countdown reveal" role="timer" aria-live="off">
+      <div><b id="cdD">0</b><span>Zile</span></div>
+      <div><b id="cdH">00</b><span>Ore</span></div>
+      <div><b id="cdM">00</b><span>Minute</span></div>
+      <div><b id="cdS">00</b><span>Secunde</span></div>
+    </div>
+  </section>
+
+  <section aria-label="Rezervare" id="rezervare">
+    <p class="kicker reveal">Rezervare</p>
+    <h2 class="reveal">Rezervă-ți <em>masa</em></h2>
+    <div class="card reveal" id="formCard">
+      <form id="form" novalidate>
+        <div><label for="fName">Nume și prenume</label><input type="text" id="fName" name="nume" autocomplete="name" required maxlength="80"></div>
+        <div><label for="fTel">Telefon <i>(vă sunăm pentru confirmare)</i></label><input type="tel" id="fTel" name="telefon" autocomplete="tel" inputmode="tel" required maxlength="20" placeholder="07xx xxx xxx"></div>
+        <div><label>Număr de persoane</label>
+          <div class="qty"><button type="button" id="qMinus" aria-label="Mai puține persoane">−</button><output id="qVal">2</output><button type="button" id="qPlus" aria-label="Mai multe persoane">+</button></div></div>
+        <div><label for="fMsg">Mesaj <i>(opțional)</i></label><textarea id="fMsg" name="mesaj" maxlength="400" placeholder="Ex.: o masă lângă ring"></textarea></div>
+        <input type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0">
+        <p class="err" id="fErr" hidden></p>
+        <button class="btn" type="submit" id="fSend">Trimite rezervarea</button>
+      </form>
+      <div class="ok-msg" id="okMsg" hidden>
+        <div class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
+        <h3 style="font-family:var(--f-d);font-size:26px;margin:0 0 6px">Mulțumim!</h3>
+        <p class="muted" style="margin:0" id="okText">Rezervarea a fost trimisă. Vă sunăm în curând pentru confirmare.</p>
+      </div>
+    </div>
+    <p class="or reveal">sau sunați direct</p>
+    <a class="btn ghost reveal" href="tel:+40769990800"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg>0769 990 800</a>
+  </section>
+
+  <section aria-label="Locație">
+    <p class="kicker reveal">Locația</p>
+    <h2 class="reveal">Vă așteptăm la</h2>
+    <div class="card stitched venue reveal">
+      <img class="logo" src="zephira.jpg" alt="Sigla Zephira Events" width="116" height="116" loading="lazy" style="margin:6px auto 0">
+      <h3>Zephira Events</h3>
+      <p class="muted" style="margin:0">Sâmbătă, 14 noiembrie 2026, de la ora 19:00</p>
+      <a class="btn" href="https://www.google.com/maps/search/?api=1&amp;query=Zephira%20Events%20Foc%C8%99ani" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-6.2 7-12a7 7 0 1 0-14 0c0 5.8 7 12 7 12z"/><circle cx="12" cy="9" r="2.5"/></svg>
+        Vezi pe hartă
+      </a>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="band thin" style="max-width:520px;margin:0 auto 18px"></div>
+  <span class="muted">Vă așteptăm cu drag la o seară de neuitat!</span>
+  <span class="sig">Zephira Events</span>
+  <span class="brand">invitație de <a href="https://invitatiimagiceonline.ro/" target="_blank" rel="noopener">Invitații Magice Digitale</a></span>
+</footer>
+
+<audio id="bgm" src="muzica.mp3?v=1" loop preload="auto"></audio>
+<script>
+(function(){
+  var DEMO=/[?&]demo/.test(location.search);
+  var reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var cover=document.getElementById('cover'), seal=document.getElementById('seal'), started=false;
+  var a=document.getElementById('bgm'); if(DEMO) a.preload='none';
+
+  /* Muzica: pornește la atingerea ștergarului (telefoanele permit sunet doar după o atingere reală). */
+  function music(){ try{ a.volume=0; }catch(e){} var p=a.play(); if(p&&p.catch)p.catch(function(){});
+    var v=0,t=setInterval(function(){ v=Math.min(.8,v+.05); try{a.volume=v}catch(e){} if(v>=.8)clearInterval(t); },80); }
+  document.addEventListener('visibilitychange',function(){ if(!started||a.paused&&!a.currentTime)return; if(document.hidden)a.pause(); else a.play().catch(function(){}); });
+
+  /* Deschiderea: rozeta se învârte, ștergarul se dă în lături, cad flori cusute */
+  function open(e){
+    if(started) return; started=true;
+    if(e&&e.isTrusted&&(!DEMO||/[?&]sunet/.test(location.search))) music();
+    window.scrollTo(0,0);
+    if(reduce){ cover.hidden=true; document.body.classList.remove('locked'); show(); return; }
+    cover.classList.add('open'); shower(110);
+    setTimeout(function(){ cover.classList.add('gone'); document.body.classList.remove('locked'); show(); },900);
+    setTimeout(function(){ cover.hidden=true; },1500);
+  }
+  seal.addEventListener('click',open);
+
+  /* Apariția secțiunilor la derulare */
+  var io=null;
+  function show(){
+    var els=document.querySelectorAll('.reveal');
+    if(!('IntersectionObserver' in window)){ els.forEach(function(el){el.classList.add('in')}); document.getElementById('menu').classList.add('in'); return; }
+    io=new IntersectionObserver(function(en){ en.forEach(function(x){ if(x.isIntersecting){ x.target.classList.add('in'); io.unobserve(x.target); } }); },{threshold:.15});
+    els.forEach(function(el){ io.observe(el); });
+    var mi=new IntersectionObserver(function(en){ en.forEach(function(x){ if(x.isIntersecting){ x.target.classList.add('in'); mi.disconnect(); } }); },{threshold:.3});
+    mi.observe(document.getElementById('menu'));
+  }
+  document.querySelectorAll('.menu li').forEach(function(li,i){ li.style.transitionDelay=(i*.12)+'s'; });
+
+  /* Flori cusute (pătrățele în culorile ștergarului) care cad la deschidere */
+  var cv=document.getElementById('petals'), cx=cv.getContext('2d'), P=[], running=false;
+  function size(){ var d=window.devicePixelRatio||1; cv.width=innerWidth*d; cv.height=innerHeight*d; cx.setTransform(d,0,0,d,0,0); }
+  size(); addEventListener('resize',size);
+  var cols=['#b3192b','#b3192b','#221b18','#c9962e','#7d0f1c'];
+  function shower(n){ for(var i=0;i<n;i++) P.push({x:Math.random(),y:-.05-Math.random()*.5,vx:(Math.random()-.5)*.002,vy:.003+Math.random()*.005,s:3+Math.random()*5,rot:Math.random()*6,vr:(Math.random()-.5)*.08,c:cols[i%cols.length],ph:Math.random()*6.28}); if(!running){ running=true; requestAnimationFrame(draw); } }
+  function draw(){
+    cx.clearRect(0,0,innerWidth,innerHeight);
+    for(var i=P.length-1;i>=0;i--){ var s=P[i]; s.ph+=.05; s.x+=s.vx+Math.sin(s.ph)*.0012; s.y+=s.vy; s.rot+=s.vr;
+      if(s.y>1.05){ P.splice(i,1); continue; }
+      cx.save(); cx.translate(s.x*innerWidth,s.y*innerHeight); cx.rotate(s.rot); cx.fillStyle=s.c;
+      // cruciuliță cusută: un pătrat și patru brațe mici
+      var q=s.s/3; cx.fillRect(-q/2,-q*1.5,q,q*3); cx.fillRect(-q*1.5,-q/2,q*3,q); cx.restore(); }
+    if(P.length) requestAnimationFrame(draw); else { running=false; cx.clearRect(0,0,innerWidth,innerHeight); }
+  }
+
+  /* Numărătoare inversă până la 14 noiembrie 2026, ora 19:00 (ora României) */
+  var target=new Date('2026-11-14T19:00:00+02:00').getTime();
+  function pad(n){ return String(n).padStart(2,'0'); }
+  (function tick(){
+    var s=Math.max(0,Math.floor((target-Date.now())/1000));
+    document.getElementById('cdD').textContent=Math.floor(s/86400);
+    document.getElementById('cdH').textContent=pad(Math.floor(s%86400/3600));
+    document.getElementById('cdM').textContent=pad(Math.floor(s%3600/60));
+    document.getElementById('cdS').textContent=pad(s%60);
+    if(s>0) setTimeout(tick,1000);
+  })();
+
+  /* Data răzuibilă: o folie cusută, ca un ștergar */
+  var box=document.getElementById('scratch'), foil=document.getElementById('foil'), fx=foil.getContext('2d'), drawing=false, done=false, touched=false, checks=0;
+  var bandImg=new Image(); bandImg.src='band.svg?v=1';
+  function paint(){
+    var r=box.getBoundingClientRect(), d=window.devicePixelRatio||1; if(!r.width) return;
+    foil.width=r.width*d; foil.height=r.height*d; fx.setTransform(d,0,0,d,0,0);
+    fx.globalCompositeOperation='source-over';
+    var g=fx.createLinearGradient(0,0,0,r.height); g.addColorStop(0,'#c21d31'); g.addColorStop(1,'#8e1222');
+    fx.fillStyle=g; fx.fillRect(0,0,r.width,r.height);
+    // cusături albe, ca pe o pânză
+    fx.globalAlpha=.16; fx.fillStyle='#fff';
+    for(var y=4;y<r.height;y+=8) for(var x=(y/8%2)*4;x<r.width;x+=8){ fx.fillRect(x,y,2,2); }
+    fx.globalAlpha=1;
+    if(bandImg.complete&&bandImg.naturalWidth){ var bh=18,bw=bh*32/17; for(var x2=0;x2<r.width;x2+=bw){ fx.drawImage(bandImg,x2,6,bw,bh); fx.drawImage(bandImg,x2,r.height-6-bh,bw,bh); } }
+    fx.fillStyle='#fff'; fx.font='700 15px Nunito, sans-serif'; fx.textAlign='center'; fx.textBaseline='middle';
+    fx.fillText('✦  RĂZUIEȘTE AICI  ✦',r.width/2,r.height/2);
+  }
+  function reveal(){ if(done) return; done=true; box.classList.add('done'); document.getElementById('scratchHint').textContent='Sâmbătă, 14 noiembrie 2026, de la ora 19:00 — vă așteptăm la horă!'; document.getElementById('revealBtn').hidden=true; shower(60); }
+  function dot(x,y){ touched=true; fx.globalCompositeOperation='destination-out'; fx.beginPath(); fx.arc(x,y,22,0,6.283); fx.fill();
+    if(++checks%8===0){ var d=fx.getImageData(0,0,foil.width,foil.height).data, c=0; for(var i=3;i<d.length;i+=64) if(d[i]===0) c++; if(c/(d.length/64)>.45) reveal(); } }
+  function at(e){ var r=foil.getBoundingClientRect(); dot(e.clientX-r.left,e.clientY-r.top); }
+  foil.addEventListener('pointerdown',function(e){ drawing=true; foil.setPointerCapture(e.pointerId); at(e); });
+  foil.addEventListener('pointermove',function(e){ if(drawing) at(e); });
+  ['pointerup','pointercancel'].forEach(function(t){ foil.addEventListener(t,function(){ drawing=false; }); });
+  document.getElementById('revealBtn').addEventListener('click',reveal);
+  paint(); bandImg.onload=function(){ if(!touched&&!done) paint(); };
+  if(window.ResizeObserver) new ResizeObserver(function(){ if(!touched&&!done) paint(); }).observe(box);
+  if(document.fonts) document.fonts.ready.then(function(){ if(!touched&&!done) paint(); });
+
+  /* Rezervarea: ajunge în tabelul Google al restaurantului și pe email */
+  var RSVP_URL='https://script.google.com/macros/s/AKfycbwD6OBhFRaViC2NUoUTjq5nwmyDRIs_67FDBfkf0fszbN6wKGcsvn8O-IrfvDBlb3_K/exec';
+  var INVITATIE='zephira-lasata-secului';
+  var q=2, qv=document.getElementById('qVal');
+  document.getElementById('qMinus').addEventListener('click',function(){ q=Math.max(1,q-1); qv.textContent=q; });
+  document.getElementById('qPlus').addEventListener('click',function(){ q=Math.min(40,q+1); qv.textContent=q; });
+  var form=document.getElementById('form'), err=document.getElementById('fErr'), send=document.getElementById('fSend');
+  form.addEventListener('submit',function(e){
+    e.preventDefault(); err.hidden=true;
+    var name=document.getElementById('fName').value.trim(), tel=document.getElementById('fTel').value.trim(), msg=document.getElementById('fMsg').value.trim();
+    if(name.length<3){ err.textContent='Vă rugăm să scrieți numele și prenumele.'; err.hidden=false; document.getElementById('fName').focus(); return; }
+    if(tel.replace(/\D/g,'').length<9){ err.textContent='Vă rugăm să scrieți un număr de telefon valid, ca să vă putem suna.'; err.hidden=false; document.getElementById('fTel').focus(); return; }
+    send.disabled=true; send.textContent='Se trimite…';
+    function done_(){ form.hidden=true; document.getElementById('okText').textContent='Rezervarea pentru '+q+(q===1?' persoană':' persoane')+' a fost trimisă. Vă sunăm în curând la '+tel+' pentru confirmare.'; document.getElementById('okMsg').hidden=false; shower(70); }
+    if(DEMO){ setTimeout(done_,500); return; } // modul demonstrativ nu trimite nimic
+    var data=new URLSearchParams({ invitatie:INVITATIE, tip:'rezervare', nume:name, telefon:tel, participa:'Da', persoane:String(q), mesaj:msg,
+      website:(form.querySelector('[name=website]')||{}).value||'' });
+    fetch(RSVP_URL,{method:'POST',mode:'no-cors',body:data}).then(done_).catch(function(){
+      send.disabled=false; send.textContent='Trimite rezervarea';
+      err.textContent='Nu am putut trimite rezervarea. Verificați internetul și încercați din nou sau sunați la 0769 990 800.'; err.hidden=false; });
+  });
+
+  /* Mod demonstrativ (pentru prezentări): se deschide singură */
+  if(DEMO) setTimeout(function(){ open({isTrusted:false}); },1500);
+})();
+</script>
+<!-- Cloudflare Web Analytics -->
+<script>if(!/[?&]demo/.test(location.search)){var cfa=document.createElement('script');cfa.defer=true;cfa.src='https://static.cloudflareinsights.com/beacon.min.js';cfa.setAttribute('data-cf-beacon','{"token": "b99a52f0fa2c4f0eb02ea0298dbb910c"}');document.body.appendChild(cfa);}</script>
+</body>
+</html>
