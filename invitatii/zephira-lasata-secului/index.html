@@ -220,7 +220,7 @@ footer .brand a{color:var(--mist)}
       <div class="drinks"><span>Vin</span><span>Apă minerală</span><span>Apă plată</span><span>Coca-Cola</span><span>Fanta</span><span>Cafea</span><span class="star">Tort de shot-uri</span></div>
       <div class="divider"></div>
       <h3>Desert</h3>
-      <p class="gift">Tort (prăjitură)<small>din partea locației</small></p>
+      <p class="gift">Tort<small>din partea locației</small></p>
     </div>
   </section>
 
@@ -287,23 +287,15 @@ footer .brand a{color:var(--mist)}
   <span class="brand">invitație de <a href="https://invitatiimagiceonline.ro/" target="_blank" rel="noopener">Invitații Magice Digitale</a></span>
 </footer>
 
-<audio id="bgm" src="muzica.mp3?v=2" loop preload="auto"></audio>
 <script>
 (function(){
   var DEMO=/[?&]demo/.test(location.search);
   var reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var cover=document.getElementById('cover'), seal=document.getElementById('seal'), started=false;
-  var a=document.getElementById('bgm'); if(DEMO) a.preload='none';
-
-  /* Muzica: pornește la atingerea ștergarului (telefoanele permit sunet doar după o atingere reală). */
-  function music(){ try{ a.volume=0; }catch(e){} var p=a.play(); if(p&&p.catch)p.catch(function(){});
-    var v=0,t=setInterval(function(){ v=Math.min(.8,v+.05); try{a.volume=v}catch(e){} if(v>=.8)clearInterval(t); },80); }
-  document.addEventListener('visibilitychange',function(){ if(!started||a.paused&&!a.currentTime)return; if(document.hidden)a.pause(); else a.play().catch(function(){}); });
 
   /* Deschiderea: rozeta se învârte, ștergarul se dă în lături, cad flori cusute */
   function open(e){
     if(started) return; started=true;
-    if(e&&e.isTrusted&&(!DEMO||/[?&]sunet/.test(location.search))) music();
     window.scrollTo(0,0);
     if(reduce){ cover.hidden=true; document.body.classList.remove('locked'); show(); return; }
     cover.classList.add('open'); shower(110);
