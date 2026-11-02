@@ -355,7 +355,7 @@ function famRow(g,rest,done){
   var div=document.createElement('div');div.className='fam'+(done?' done':'');div.dataset.key=g.key;
   var qv=clampN(pickQty[g.key]||rest,1,Math.max(1,rest));pickQty[g.key]=qv;
   div.innerHTML='<span class="dot" style="background:'+color(g.key)+'">'+esc(initials(g.nume))+'</span>'+
-    '<span class="nm"><b>'+esc(g.nume)+'</b><span>'+(done?'așezați toți ('+g.n+')':(rest<g.n?rest+' din '+g.n+' neașezați':g.n+(g.n===1?' persoană':' persoane')))+'</span></span>'+
+    '<span class="nm"><b>'+esc(g.nume)+'</b><span>'+(done?'așezați toți ('+g.n+')':(rest<g.n?rest+' din '+g.n+' neașezați':g.n+(g.n===1?' persoană':' persoane')))+(g.tel?' · <a href="tel:'+esc(g.tel.replace(/[^\d+]/g,''))+'" style="color:inherit">'+esc(g.tel)+'</a>':'')+'</span></span>'+
     (done?(g.manual?'<button class="del" type="button" data-del="'+esc(g.key)+'" aria-label="Șterge">×</button>':''):
       '<span class="qty"><button type="button" data-q="-1" aria-label="Mai puține">−</button><output>'+qv+'</output><button type="button" data-q="1" aria-label="Mai multe">+</button>'+(g.manual?'<button class="del" type="button" data-del="'+esc(g.key)+'" aria-label="Șterge">×</button>':'')+'</span>');
   return div;
@@ -657,7 +657,7 @@ $('roomwrap').addEventListener('wheel',function(e){if(e.ctrlKey){e.preventDefaul
 function listHTML(){
   var h='<table><tr><th>Masa</th><th>Ocupate</th><th>Invitați</th></tr>';
   plan.tables.forEach(function(t){if(t.id===draft)return;var l=plan.assign.filter(function(a){return a.t===t.id&&guestByKey(a.g)});
-    h+='<tr><td><b>'+esc(t.name)+'</b></td><td>'+usedAt(t.id)+' / '+t.seats+'</td><td>'+(l.map(function(a){return esc(guestByKey(a.g).nume)+' ('+a.n+')'}).join('<br>')||'—')+'</td></tr>'});
+    h+='<tr><td><b>'+esc(t.name)+'</b></td><td>'+usedAt(t.id)+' / '+t.seats+'</td><td>'+(l.map(function(a){var gg=guestByKey(a.g);return esc(gg.nume)+' ('+a.n+')'+(gg.tel?' <span style="color:var(--mist)">· '+esc(gg.tel)+'</span>':'')}).join('<br>')||'—')+'</td></tr>'});
   h+='</table>';var ne=allGuests().filter(function(g){return seatedOf(g.key)<g.n});
   if(ne.length)h+='<h3 style="font-family:var(--f-display);font-size:22px;margin:22px 0 4px">Neașezați</h3><p>'+ne.map(function(g){return esc(g.nume)+' ('+(g.n-seatedOf(g.key))+')'}).join(', ')+'</p>';
   return h;
@@ -700,9 +700,9 @@ $('shClose').addEventListener('click',function(){$('sheet').hidden=true});
 $('shPrint').addEventListener('click',function(){window.print()});
 
 /* ---------- pornire ---------- */
-function defaultPlan(){return {v:1,tables:[{id:uid(),name:'Masa mirilor',shape:'rect',seats:8,x:1200,y:260,rot:0},{id:uid(),name:'Masa 1',shape:'round',seats:10,x:980,y:560,rot:0},{id:uid(),name:'Masa 2',shape:'round',seats:10,x:1420,y:560,rot:0}],assign:[],manual:[]}}
+function defaultPlan(ev){return {v:1,tables:[{id:uid(),name:/nunt|miri/i.test(ev||'')?'Masa mirilor':'Masa principală',shape:'rect',seats:8,x:1200,y:260,rot:0},{id:uid(),name:'Masa 1',shape:'round',seats:10,x:980,y:560,rot:0},{id:uid(),name:'Masa 2',shape:'round',seats:10,x:1420,y:560,rot:0}],assign:[],manual:[]}}
 function start(evName,list,saved){
-  guests=list||[];plan=saved&&saved.tables?saved:defaultPlan();plan.assign=plan.assign||[];plan.manual=plan.manual||[];lastJ=JSON.stringify(plan);
+  guests=list||[];plan=saved&&saved.tables?saved:defaultPlan(evName);plan.assign=plan.assign||[];plan.manual=plan.manual||[];lastJ=JSON.stringify(plan);
   plan.manual.forEach(function(m){m.manual=true});
   $('evName').textContent=evName;document.title='Mese · '+evName;$('app').hidden=false;
   render();setZoom(1);requestAnimationFrame(fit);

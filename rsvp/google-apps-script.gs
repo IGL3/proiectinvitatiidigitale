@@ -352,9 +352,10 @@ function invitatiConfirmati_(client) {
   const sh = client.getSheets()[0];
   const n = sh.getLastRow() - 1;
   if (n < 1) return [];
-  return sh.getRange(2, 1, n, 5).getValues()
+  return sh.getRange(2, 1, n, 6).getValues()
     .filter(v => v[2] === 'Da' && v[1])
-    .map(v => ({ key: (v[0] instanceof Date ? v[0].getTime() : String(v[0])) + '|' + v[1], nume: String(v[1]), n: Number(v[3]) || 1, mesaj: String(v[4] || '') }));
+    .map(v => ({ key: (v[0] instanceof Date ? v[0].getTime() : String(v[0])) + '|' + v[1], nume: String(v[1]), n: Number(v[3]) || 1, mesaj: String(v[4] || ''),
+                 tel: String(v[5] || '').replace(/^'/, '') }));
 }
 
 function citestePlan_(client) {
