@@ -496,6 +496,9 @@ body{background:#e9e6de;color:var(--navy);font-family:Georgia,'Times New Roman',
   var hint = doc.getElementById('hint'), toast = doc.getElementById('toast');
   var online = /^https?:$/.test(location.protocol) && /^https:\/\/script\.google\.com\//.test(API);
   var editing = false, dirty = false, saving = false, version = '0', toastTimer = 0;
+  /* the stored record may also carry the drinks menu (page 3) under "extra": it is kept untouched when this page saves */
+  var keep = null, mine = '{}';
+  function ownPart(d) { var o = {}; if (d && typeof d === 'object') Object.keys(d).forEach(function (key) { if (key !== 'extra') o[key] = d[key]; }); return JSON.stringify(o); }
   var PLAIN = (function () { var d = doc.createElement('div'); try { d.contentEditable = 'plaintext-only'; } catch (e) { return false; } return d.contentEditable === 'plaintext-only'; })();
   var NEW_ITEM = "\n    <article class=\"item\">\n      <button class=\"remove\" type=\"button\" title=\"Sterge preparatul\" aria-label=\"Sterge preparatul\">\u00d7</button>\n      <div class=\"item-head\">\n        <span class=\"item-name\" contenteditable=\"true\">NUME PREPARAT</span>\n        <span class=\"weight\" contenteditable=\"true\">400 g</span>\n        <span class=\"dots\"></span>\n        <span class=\"price\" contenteditable=\"true\">00 RON</span>\n      </div>\n      <div class=\"item-body\">\n        <div class=\"item-text\">\n          <div class=\"description\" contenteditable=\"true\">Descriere ingrediente</div>\n          <div class=\"allergens\"><b>Alergeni: </b><span contenteditable=\"true\">Completeaza alergenii aici</span></div>\n        </div>\n      <div class=\"nutrition\">\n          <strong contenteditable=\"true\">Valori nutritionale (per 100 g)</strong>\n          <div class=\"nls\">\n          <div class=\"nl\"><span class=\"k\" contenteditable=\"true\">Energie</span><i class=\"lead\"></i><span class=\"v\" contenteditable=\"true\">kcal</span></div>\n          <div class=\"nl\"><span class=\"k\" contenteditable=\"true\">Proteine</span><i class=\"lead\"></i><span class=\"v\" contenteditable=\"true\">g</span></div>\n          <div class=\"nl\"><span class=\"k\" contenteditable=\"true\">Grasimi</span><i class=\"lead\"></i><span class=\"v\" contenteditable=\"true\">g</span></div>\n          <div class=\"nl\"><span class=\"k\" contenteditable=\"true\">Carbohidrati</span><i class=\"lead\"></i><span class=\"v\" contenteditable=\"true\">g</span></div>\n          <div class=\"nl\"><span class=\"k\" contenteditable=\"true\">Sare</span><i class=\"lead\"></i><span class=\"v\" contenteditable=\"true\">g</span></div>\n          </div>\n      </div>\n      </div>\n    </article>";
   var EXTRAS_DEFAULT = "\n      <div class=\"extras\">\n        <div class=\"extras-title\" contenteditable=\"false\">COMPLETEAZA BURGERUL CU:</div>\n        <div class=\"extra\"><span class=\"extra-name\" contenteditable=\"false\">EXTRA CARNE + CHEDDAR</span><span class=\"dots\"></span><span class=\"extra-price\" contenteditable=\"false\">12 RON</span><button class=\"rm-extra\" type=\"button\" title=\"Sterge extra\" aria-label=\"Sterge extra\">\u00d7</button></div>\n        <div class=\"extra\"><span class=\"extra-name\" contenteditable=\"false\">EXTRA GORGONZOLA</span><span class=\"dots\"></span><span class=\"extra-price\" contenteditable=\"false\">5 RON</span><button class=\"rm-extra\" type=\"button\" title=\"Sterge extra\" aria-label=\"Sterge extra\">\u00d7</button></div>\n        <div class=\"extra\"><span class=\"extra-name\" contenteditable=\"false\">EXTRA CEAPA CARAMELIZATA</span><span class=\"dots\"></span><span class=\"extra-price\" contenteditable=\"false\">4 RON</span><button class=\"rm-extra\" type=\"button\" title=\"Sterge extra\" aria-label=\"Sterge extra\">\u00d7</button></div>\n        <div class=\"extra\"><span class=\"extra-name\" contenteditable=\"false\">JALAPENO MURATI</span><span class=\"dots\"></span><span class=\"extra-price\" contenteditable=\"false\">3 RON</span><button class=\"rm-extra\" type=\"button\" title=\"Sterge extra\" aria-label=\"Sterge extra\">\u00d7</button></div>\n        <div class=\"extra\"><span class=\"extra-name\" contenteditable=\"false\">EXTRA PANCETTA AFUMATA</span><span class=\"dots\"></span><span class=\"extra-price\" contenteditable=\"false\">7 RON</span><button class=\"rm-extra\" type=\"button\" title=\"Sterge extra\" aria-label=\"Sterge extra\">\u00d7</button></div>\n        <button class=\"add-extra\" type=\"button\" data-add=\"extra\">+ Adauga extra</button>\n      </div>";
@@ -599,11 +602,29 @@ body{background:#e9e6de;color:var(--navy);font-family:Georgia,'Times New Roman',
     saving = true;
     body.classList.add('busy');
     flash('Se salveaza…', 30000);
-    fetch(API, { method: 'POST', body: JSON.stringify({ page: PAGE, k: k, base: version, data: { design: DESIGN, html: snapshot() } }) })
-      .then(function (r) { if (!r.ok) throw new Error('http'); return r.json(); })
+    var data = { design: DESIGN, html: snapshot() };
+    var post = function (tries) {
+      if (keep) data.extra = keep; else delete data.extra;
+      return fetch(API, { method: 'POST', body: JSON.stringify({ page: PAGE, k: k, base: version, data: data }) })
+        .then(function (r) { if (!r.ok) throw new Error('http'); return r.json(); })
+        .then(function (res) {
+          if (!res || res.err !== 'conflict' || tries >= 3) return res;
+          /* a newer save exists: if it only changed the drinks menu, keep that and save again */
+          return fetch(API + '?page=' + PAGE + '&_=' + Date.now(), { cache: 'no-store' })
+            .then(function (r) { return r.json(); })
+            .then(function (cur) {
+              if (!cur || !cur.ok || ownPart(cur.data) !== mine) return res;
+              version = String(cur.v || '0');
+              keep = (cur.data && cur.data.extra) || null;
+              return post(tries + 1);
+            });
+        });
+    };
+    post(0)
       .then(function (res) {
         if (res && res.ok) {
           version = String(res.v);
+          mine = ownPart(data);
           setDirty(false);
           flash('Salvat ✓ Modificarea apare pentru toti cei care deschid linkul.', 6000);
         } else if (res && res.err === 'auth') {
@@ -721,6 +742,8 @@ body{background:#e9e6de;color:var(--navy);font-family:Georgia,'Times New Roman',
       .then(function (res) {
         if (!res || !res.ok) return;
         version = String(res.v || '0');
+        keep = (res.data && res.data.extra) || null;
+        mine = ownPart(res.data);
         if (res.data && res.data.design === DESIGN && typeof res.data.html === 'string' && !editing) applyHTML(res.data.html);
       })
       .catch(function () { /* service unreachable: the built-in menu stays */ })

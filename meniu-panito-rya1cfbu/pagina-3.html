@@ -223,6 +223,29 @@ body{background:#e9e6de;color:var(--navy);font-family:'Noto Serif',Georgia,'Time
   var editing = false, dirty = false, saving = false, version = '0', toastTimer = 0;
   var PLAIN = (function () { var d = doc.createElement('div'); try { d.contentEditable = 'plaintext-only'; } catch (e) { return false; } return d.contentEditable === 'plaintext-only'; })();
   var TPL = {"row": "<div class=\"item\"><button class=\"remove\" type=\"button\" title=\"Sterge produsul\" aria-label=\"Sterge produsul\">\u00d7</button><div class=\"line\"><span class=\"nm\" contenteditable=\"false\">Produs nou 330ml</span><span class=\"dots\"></span><span class=\"pr\"><span class=\"n\" contenteditable=\"false\">0</span><span class=\"cur\" contenteditable=\"false\">RON</span></span></div></div>", "cocktail": "<div class=\"item drink\"><button class=\"remove\" type=\"button\" title=\"Sterge produsul\" aria-label=\"Sterge produsul\">\u00d7</button><div class=\"line\"><span class=\"nm\" contenteditable=\"false\">Cocktail nou</span><span class=\"vol\" contenteditable=\"false\">350 ml</span><span class=\"dots\"></span><span class=\"pr\"><span class=\"n\" contenteditable=\"false\">0</span><span class=\"cur\" contenteditable=\"false\">RON</span></span></div><div class=\"desc\" contenteditable=\"false\">ingrediente</div></div>"};
+  /* Where this page is stored. If the online service has a record for page 3, it is used ('own').
+     Otherwise the drinks menu rides inside page 1's record, under extra['3'] ('host'); page 1 keeps that part untouched. */
+  var mode = 'own', HOST = '1', SLOT = '3', slotBase = 'null';
+  function getPage(p) { return fetch(API + '?page=' + p + '&_=' + Date.now(), { cache: 'no-store' }).then(function (r) { return r.json(); }); }
+  function slotOf(d) { return (d && d.extra && typeof d.extra === 'object' && d.extra[SLOT]) || null; }
+  function postTo(p, k, base, data) {
+    return fetch(API, { method: 'POST', body: JSON.stringify({ page: p, k: k, base: base, data: data }) })
+      .then(function (r) { if (!r.ok) throw new Error('http'); return r.json(); });
+  }
+  function saveHost(k, mine, tries) {
+    return getPage(HOST).then(function (h) {
+      if (!h || !h.ok) return { ok: false, err: 'host' };
+      if (JSON.stringify(slotOf(h.data)) !== slotBase) return { ok: false, err: 'conflict' };   /* saved meanwhile from another tab */
+      var rec = h.data && typeof h.data === 'object' && !Array.isArray(h.data) ? JSON.parse(JSON.stringify(h.data)) : {};
+      var extra = rec.extra && typeof rec.extra === 'object' ? rec.extra : {};
+      extra[SLOT] = mine;
+      rec.extra = extra;
+      return postTo(HOST, k, String(h.v || '0'), rec).then(function (res) {
+        if (res && res.err === 'conflict' && tries < 3) return saveHost(k, mine, tries + 1);   /* page 1 saved meanwhile: merge again */
+        return res;
+      });
+    });
+  }
 
   function store(k, v) { try { if (v === null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch (e) { /* storage off */ } }
   function load(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
@@ -333,11 +356,16 @@ body{background:#e9e6de;color:var(--navy);font-family:'Noto Serif',Georgia,'Time
     saving = true;
     body.classList.add('busy');
     flash('Se salveaza…', 30000);
-    fetch(API, { method: 'POST', body: JSON.stringify({ page: PAGE, k: k, base: version, data: { design: DESIGN, html: snapshot() } }) })
-      .then(function (r) { if (!r.ok) throw new Error('http'); return r.json(); })
+    var mine = { design: DESIGN, html: snapshot() };
+    (mode === 'host' ? saveHost(k, mine, 0) : postTo(PAGE, k, version, mine))
+      .then(function (res) {
+        if (res && res.err === 'page' && mode === 'own') { mode = 'host'; return saveHost(k, mine, 0); }
+        return res;
+      })
       .then(function (res) {
         if (res && res.ok) {
-          version = String(res.v);
+          if (mode === 'own') version = String(res.v);
+          slotBase = JSON.stringify(mine);
           setDirty(false);
           flash('Salvat ✓ Modificarea apare pentru toti cei care deschid linkul.', 6000);
         } else if (res && res.err === 'auth') {
@@ -457,13 +485,26 @@ body{background:#e9e6de;color:var(--navy);font-family:'Noto Serif',Georgia,'Time
   if (online) {
     var reveal = function () { doc.documentElement.classList.remove('loading'); };
     var guard = setTimeout(reveal, 4000);
-    fetch(API + '?page=' + PAGE + '&_=' + Date.now(), { cache: 'no-store' })
-      .then(function (r) { return r.json(); })
+    getPage(PAGE)
       .then(function (res) {
-        if (!res || !res.ok) return;
-        version = String(res.v || '0');
-        if (res.data && res.data.design === DESIGN && typeof res.data.html === 'string' && !editing) applyHTML(res.data.html);
+        if (res && res.ok) {
+          mode = 'own';
+          version = String(res.v || '0');
+          if (res.data && res.data.design === DESIGN) return res.data;
+          return getPage(HOST).then(function (h) { return h && h.ok ? slotOf(h.data) : null; });   /* saved earlier inside page 1 */
+        }
+        if (res && res.err === 'page') {
+          mode = 'host';
+          return getPage(HOST).then(function (h) {
+            if (!h || !h.ok) return null;
+            var s = slotOf(h.data);
+            slotBase = JSON.stringify(s);
+            return s;
+          });
+        }
+        return null;
       })
+      .then(function (d) { if (d && d.design === DESIGN && typeof d.html === 'string' && !editing) applyHTML(d.html); })
       .catch(function () { /* service unreachable: the built-in menu stays */ })
       .then(function () { clearTimeout(guard); reveal(); });
   }
